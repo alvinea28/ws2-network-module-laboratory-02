@@ -57,6 +57,9 @@ Windows is the primary route below. On macOS, use **Cmd+Shift+P** instead of **C
 
 ## Create your own private copy
 
+> [!IMPORTANT]
+> **Already in your own private copy or its Exercise issue?** This part is complete. Do not create another copy. Continue with [Wait for AgentAlvine](#wait-for-agentalvine) if needed, then [clone your existing copy](#clone-your-copy-into-desktop-vs-code).
+
 1. Open the selected numbered public template from the [workshop catalogue](https://github.com/alvinea28/ws2-workshop-catalogue).
 2. Confirm that its topic and final two-digit number match the lab you intend to take.
 3. Select **COPY EXERCISE** on the template's landing page.
