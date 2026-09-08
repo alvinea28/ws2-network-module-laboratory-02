@@ -8,30 +8,34 @@ const invoke = (command, args, cwd) => {
   return { status: result.status, stdout: result.stdout || "" };
 };
 
-export async function inspectSetup({ cwd = process.cwd(), command = invoke, nodeVersion = process.versions.node } = {}) {
+export async function inspectSetup({ cwd = process.cwd(), command = invoke, nodeVersion = process.versions.node, platform = process.platform } = {}) {
   const results = [];
   const record = (name, ok, detail) => results.push({ name, ok: Boolean(ok), detail });
   let course;
   try { course = JSON.parse(await readFile(resolve(cwd, ".github/agentalvine/course.json"), "utf8")); }
   catch { record("Repository folder", false, "Use File > Open Folder to open the cloned laboratory itself, not its parent folder or a ZIP/virtual workspace."); return { results, course: null }; }
-  record("Laboratory identity", Number.isInteger(course.number), `Laboratory ${String(course.number).padStart(2, "0")}: ${course.title}`);
+  record("Laboratory identity", Number.isInteger(course.number), course.title);
   record("Node.js", nodeVersion === "24.16.0", "Required: Node.js 24.16.0. See docs/toolchain.md; restart VS Code after installation/PATH changes.");
   const git = command("git", ["--version"], cwd);
   record("Git executable", git.status === 0 && /git version 2\./.test(git.stdout), "Git 2.x must be available in the VS Code terminal.");
   if (git.status === 0) {
     const top = command("git", ["rev-parse", "--show-toplevel"], cwd);
-    record("Clone root", top.status === 0 && resolve(top.stdout.trim()).toLowerCase() === resolve(cwd).toLowerCase(), "The terminal must be at this laboratory's Git root. Do not initialize a second Git repository.");
+    const normalizePath = (path) => platform === "win32" ? resolve(path).toLowerCase() : resolve(path);
+    record("Clone root", top.status === 0 && normalizePath(top.stdout.trim()) === normalizePath(cwd), "The terminal must be at this laboratory's Git root. Do not initialize a second Git repository.");
     const origin = command("git", ["remote", "get-url", "origin"], cwd);
     const value = origin.stdout.trim();
     const match = value.match(/^(?:https:\/\/github\.com\/|git@github\.com:)([\w.-]+\/[\w.-]+?)(?:\.git)?$/);
     record("Credential-free GitHub remote", origin.status === 0 && Boolean(match), "Use the HTTPS/SSH URL of your own copy. Never embed tokens/passwords in a URL; unsafe URLs are not printed.");
     if (match) {
-      record("Participant copy", match[1] !== course.sourceRepository, "origin must be your participant copy, not the public source template. Public read access does not prove push access.");
+      record("Participant copy", typeof course.sourceRepository === "string" && match[1].toLowerCase() !== course.sourceRepository.toLowerCase(), "origin must be your participant copy, not the public source template, regardless of GitHub owner/name case. Public read access does not prove push access.");
       record("Laboratory number in repository name", match[1].endsWith(`-laboratory-${String(course.number).padStart(2, "0")}`), "Keep -laboratory-NN at the end of your copy name so its exercise number remains visible. See docs/start-here.md.");
     }
     for (const key of ["user.name", "user.email"]) {
       const configured = command("git", ["config", "--get", key], cwd);
-      record(`Git ${key}`, configured.status === 0 && configured.stdout.trim().length > 0, "Configure local commit authorship as explained in docs/start-here.md. It is not GitHub sign-in; values are not printed.");
+      const value = configured.stdout.trim();
+      const placeholder = /^(?:TODO\b|YOUR[-_]|REPLACE[_ -]?ME\b|<[^>]+>$)/i.test(value);
+      const validShape = key === "user.email" ? /^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(value) : value.length > 0;
+      record(`Git ${key}`, configured.status === 0 && !placeholder && validShape, "Configure actual local authorship and replace every placeholder; use your verified/noreply email as explained in docs/start-here.md. This checks syntax, not GitHub sign-in or email verification; values are not printed.");
     }
     const branch = command("git", ["branch", "--show-current"], cwd);
     record("Named local branch", branch.status === 0 && branch.stdout.trim().length > 0, "Start from the copied default branch, then create the lab/ branch requested by the Exercise issue. Detached HEAD is not ready for participant work.");

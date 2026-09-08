@@ -18,7 +18,7 @@ assert.ok(!readme.includes("@agentalvine check"), "No manual evidence-check prot
 if (config.beginnerSetup) {
   assert.match(config.sourceRepository, new RegExp(`^alvinea28/ws2-[a-z0-9-]+-laboratory-${String(config.number).padStart(2, "0")}$`));
   assert.equal(config.sourceBranch, "dev");
-  for (const phrase of ["Git: Clone", "VS Code", "Copilot", "docs/start-here.md", "Private", "independent"]) assert.ok(readme.includes(phrase), `Beginner landing page must explain ${phrase}`);
+  for (const phrase of ["Git: Clone", "VS Code", "Copilot", "docs/start-here.md", "Private", "independent", "Public source template", "not the clone URL"]) assert.ok(readme.includes(phrase), `Beginner landing page must explain ${phrase}`);
   for (const doc of ["start-here.md", "git-workflow.md", "copilot-guide.md", "toolchain.md", "troubleshooting.md", "glossary.md", "images/NOTICE.md", "images/manifest.json"]) await access(join(root, "docs", doc));
   await access(join(root, "scripts/doctor.mjs"));
   const setup = await read("docs/start-here.md");
@@ -63,4 +63,4 @@ for (const name of await readdir(join(root, ".github/workflows"))) {
   for (const match of workflow.matchAll(/^\s*(?:-\s*)?uses:\s*(\S+)/gm)) if (!match[1].startsWith("./")) assert.match(match[1], /^[\w./-]+@[a-f0-9]{40}$/, `Pin ${name} actions`);
   if (["quality.yml", "lab-checks.yml", "validate.yml"].includes(name)) assert.ok(!/id-token:|secrets\.|ws2-trusted|contents: write|pull_request_target:/.test(workflow), "Learner CI is credential-free");
 }
-console.log(`Lab ${config.number}: short landing page, ${config.steps.length} automatic steps, valid links and safe workflows.`);
+console.log(`Lab ${config.number}: illustrated beginner entry, ${config.steps.length} automatic steps, valid links and safe workflows.`);

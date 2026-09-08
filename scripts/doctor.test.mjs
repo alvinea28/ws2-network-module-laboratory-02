@@ -37,3 +37,40 @@ test("Lab 01 setup does not require Terraform or another laboratory", async () =
 test("doctor gives an actionable folder error when no cloned lab is open", async () => {
   const cwd = await mkdtemp(join(tmpdir(), "ws2-wrong-folder-")); try { const report = await inspectSetup({ cwd, command: () => { throw new Error("Should not execute in the wrong folder"); } }); assert.equal(report.results[0].ok, false); assert.match(report.results[0].detail, /Open Folder/); } finally { await rm(cwd, { recursive: true, force: true }); }
 });
+
+test("doctor rejects the same public template regardless of GitHub owner/name case", async () => {
+  const f = await fixture();
+  try {
+    f.values["remote get-url origin"] = "https://github.com/ALVINEA28/ws2-test-laboratory-04.git";
+    const report = await inspectSetup({ ...f, nodeVersion: "24.16.0" });
+    assert.equal(report.results.find((item) => item.name === "Participant copy").ok, false);
+  } finally { await f.clean(); }
+});
+
+test("doctor rejects unreplaced authorship placeholders and malformed emails without printing them", async () => {
+  const f = await fixture();
+  try {
+    f.values["config --get user.name"] = "YOUR-DISPLAY-NAME";
+    f.values["config --get user.email"] = "YOUR-VERIFIED-OR-NOREPLY-EMAIL";
+    let report = await inspectSetup({ ...f, nodeVersion: "24.16.0" });
+    assert.equal(report.results.find((item) => item.name === "Git user.name").ok, false);
+    assert.equal(report.results.find((item) => item.name === "Git user.email").ok, false);
+    assert.ok(!JSON.stringify(report).includes("YOUR-VERIFIED-OR-NOREPLY-EMAIL"));
+    f.values["config --get user.name"] = "Participant";
+    f.values["config --get user.email"] = "malformed-example";
+    report = await inspectSetup({ ...f, nodeVersion: "24.16.0" });
+    assert.equal(report.results.find((item) => item.name === "Git user.email").ok, false);
+    assert.ok(!JSON.stringify(report).includes("malformed-example"));
+  } finally { await f.clean(); }
+});
+
+test("doctor preserves case-sensitive roots on Linux while tolerating Windows path case", async () => {
+  const f = await fixture();
+  try {
+    f.values["rev-parse --show-toplevel"] = f.cwd.toUpperCase();
+    const linux = await inspectSetup({ ...f, nodeVersion: "24.16.0", platform: "linux" });
+    const windows = await inspectSetup({ ...f, nodeVersion: "24.16.0", platform: "win32" });
+    assert.equal(linux.results.find((item) => item.name === "Clone root").ok, false);
+    assert.equal(windows.results.find((item) => item.name === "Clone root").ok, true);
+  } finally { await f.clean(); }
+});

@@ -1,6 +1,6 @@
 # Laboratory 02 · Reusable network module
 
-**Repository:** [alvinea28/ws2-network-module-laboratory-02](https://github.com/alvinea28/ws2-network-module-laboratory-02) · **Recommended order:** 02 of 08 · **Time:** 60–90 minutes
+**Public source template (not the clone URL after copying):** [alvinea28/ws2-network-module-laboratory-02](https://github.com/alvinea28/ws2-network-module-laboratory-02) · **Recommended order:** 02 of 08 · **Time:** 60–90 minutes
 
 > [!NOTE]
 > **This laboratory is independent.** No earlier repository required. This copy includes the typed inputs, provider lock, mocks and a network-only starter.
