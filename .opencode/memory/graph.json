@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-08T00:00:00Z",
+  "root": ".",
+  "nodes": [
+    {
+      "id": "README.md",
+      "kind": "guide",
+      "summary": "Numbered laboratory content and guarded automatic validation."
+    },
+    {
+      "id": ".github/agentalvine/course.json",
+      "kind": "manifest",
+      "summary": "Numbered laboratory content and guarded automatic validation."
+    },
+    {
+      "id": ".github/agentalvine/auto-guide.cjs",
+      "kind": "module",
+      "summary": "Numbered laboratory content and guarded automatic validation."
+    },
+    {
+      "id": ".github/agentalvine/auto-guide.test.cjs",
+      "kind": "module",
+      "summary": "Numbered laboratory content and guarded automatic validation."
+    },
+    {
+      "id": ".github/workflows/agentalvine.yml",
+      "kind": "module",
+      "summary": "Numbered laboratory content and guarded automatic validation."
+    },
+    {
+      "id": "scripts/check-learner.mjs",
+      "kind": "module",
+      "summary": "Numbered laboratory content and guarded automatic validation."
+    },
+    {
+      "id": "scripts/doctor.mjs",
+      "kind": "module",
+      "summary": "Numbered laboratory content and guarded automatic validation."
+    },
+    {
+      "id": "scripts/doctor.test.mjs",
+      "kind": "module",
+      "summary": "Numbered laboratory content and guarded automatic validation."
+    },
+    {
+      "id": "scripts/auto-kit.mjs",
+      "kind": "module",
+      "summary": "Numbered laboratory content and guarded automatic validation."
+    },
+    {
+      "id": "docs/start-here.md",
+      "kind": "guide",
+      "summary": "Standalone illustrated first-time-user guidance or image provenance."
+    },
+    {
+      "id": "docs/git-workflow.md",
+      "kind": "guide",
+      "summary": "Standalone illustrated first-time-user guidance or image provenance."
+    },
+    {
+      "id": "docs/copilot-guide.md",
+      "kind": "guide",
+      "summary": "Standalone illustrated first-time-user guidance or image provenance."
+    },
+    {
+      "id": "docs/toolchain.md",
+      "kind": "guide",
+      "summary": "Standalone illustrated first-time-user guidance or image provenance."
+    },
+    {
+      "id": "docs/troubleshooting.md",
+      "kind": "guide",
+      "summary": "Standalone illustrated first-time-user guidance or image provenance."
+    },
+    {
+      "id": "docs/images/manifest.json",
+      "kind": "manifest",
+      "summary": "Standalone illustrated first-time-user guidance or image provenance."
+    }
+  ],
+  "edges": [
+    {
+      "from": ".github/agentalvine/auto-guide.test.cjs",
+      "to": ".github/agentalvine/auto-guide.cjs",
+      "rel": "tests"
+    },
+    {
+      "from": "scripts/doctor.test.mjs",
+      "to": "scripts/doctor.mjs",
+      "rel": "tests"
+    },
+    {
+      "from": "README.md",
+      "to": "docs/start-here.md",
+      "rel": "starts"
+    },
+    {
+      "from": ".github/workflows/agentalvine.yml",
+      "to": ".github/agentalvine/auto-guide.cjs",
+      "rel": "invokes-trusted"
+    }
+  ],
+  "hotspots": [
+    "docs/start-here.md",
+    ".github/agentalvine/auto-guide.cjs"
+  ]
+}

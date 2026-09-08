@@ -1,0 +1,14 @@
+{
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "editor.wordWrap": "on",
+  "[terraform]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2
+  },
+  "[hcl]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2
+  }
+}

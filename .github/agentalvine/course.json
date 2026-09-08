@@ -1,0 +1,115 @@
+{
+  "id": "02-network-module",
+  "title": "Laboratory 02 · Reusable network module",
+  "number": 2,
+  "topics": [
+    "D1.2",
+    "D1.3"
+  ],
+  "duration": "60–90 minutes",
+  "description": "No earlier repository required. This copy includes the typed inputs, provider lock, mocks and a network-only starter.",
+  "nextRepository": "alvinea28/ws2-subnet-security-laboratory-03",
+  "completion": "The learner network root passes its schema and mocked contract checks. This lab returns vnet_id and subnet_ids only; the reusable security boundary is the next lab. No Azure resources were deployed by these checks. Every laboratory is independent; the catalogue order is a learning recommendation, not a requirement to create or finish another repository.",
+  "steps": [
+    {
+      "id": "1",
+      "title": "Choose the reusable boundary",
+      "lesson": ".github/steps/01.md",
+      "requiresCommit": true,
+      "checks": [
+        {
+          "kind": "file",
+          "path": "exercise/design.md",
+          "contains": [
+            "Reuse decision",
+            "network baseline",
+            "subnet-security"
+          ],
+          "notContains": [
+            "TODO"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "Create the VNet and named subnets",
+      "lesson": ".github/steps/02.md",
+      "requiresCommit": true,
+      "checks": [
+        {
+          "kind": "file",
+          "path": "main.tf",
+          "contains": [
+            "resource \"azurerm_virtual_network\" \"this\"",
+            "resource \"azurerm_subnet\" \"this\"",
+            "var.resource_group_name",
+            "var.address_space",
+            "var.tags",
+            "each.key",
+            "each.value.address_prefixes",
+            "azurerm_virtual_network.this.name"
+          ],
+          "pattern": "for_each\\s*=\\s*var\\.subnets\\b",
+          "notContains": [
+            "TODO",
+            "module \"security\"",
+            "resource \"azurerm_resource_group\"",
+            "provider \"azurerm\""
+          ]
+        },
+        {
+          "kind": "file",
+          "path": "main.tf",
+          "pattern": "default_outbound_access_enabled\\s*=\\s*false"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "title": "Return resource-backed outputs",
+      "lesson": ".github/steps/03.md",
+      "requiresCommit": true,
+      "checks": [
+        {
+          "kind": "file",
+          "path": "outputs.tf",
+          "contains": [
+            "output \"vnet_id\"",
+            "azurerm_virtual_network.this.id",
+            "output \"subnet_ids\"",
+            "azurerm_subnet.this",
+            "subnet.id"
+          ],
+          "notContains": [
+            "TODO",
+            "output \"nsg_id\"",
+            "output \"association_ids\"",
+            "module.security"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "title": "Prove the learner root without Azure",
+      "lesson": ".github/steps/04.md",
+      "requiresCommit": false,
+      "checks": [
+        {
+          "kind": "workflow",
+          "file": "lab-checks.yml",
+          "jobs": [
+            "Test learner module"
+          ],
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "beginnerSetup": true,
+  "sourceRepository": "alvinea28/ws2-network-module-laboratory-02",
+  "sourceBranch": "dev",
+  "independent": true,
+  "prerequisiteLabs": []
+}

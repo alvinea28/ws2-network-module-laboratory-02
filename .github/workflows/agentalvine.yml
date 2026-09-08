@@ -1,0 +1,49 @@
+name: AgentAlvine
+on:
+  push:
+    branches: ['**']
+  issues:
+    types: [opened, edited]
+  pull_request_target:
+    types: [opened, synchronize, reopened, closed, ready_for_review]
+  pull_request_review:
+    types: [submitted]
+  release:
+    types: [published]
+  workflow_run:
+    workflows: [Workshop quality, Lab checks, Trusted dev delivery (instructor enablement required)]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Normally automatic; use this only if startup or a setting change needs checking
+        type: choice
+        options: [Check progress, Preview]
+        default: Check progress
+permissions: {}
+concurrency:
+  # Serialize writers. GitHub may replace pending events, so the guide
+  # reconciles current immutable evidence rather than counting event deliveries.
+  group: agentalvine-exercise
+  cancel-in-progress: false
+jobs:
+  guide:
+    if: github.event_name == 'workflow_run' || github.event.sender.type != 'Bot'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write # Only updates README markers; never writes learner solutions.
+      issues: write
+      pull-requests: read
+      actions: read
+    steps:
+      # This is a privileged metadata reporter, NOT PR validation. Always load
+      # the trusted default branch; never checkout/execute a PR ref or artifacts.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            await require('./.github/agentalvine/auto-guide.cjs')({github, context, core});

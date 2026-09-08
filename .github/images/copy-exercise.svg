@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="286" height="50" viewBox="0 0 286 50" role="img" aria-label="Copy exercise">
+  <title>Copy exercise</title>
+  <path fill="#197935" d="M0 0h232v50H0z"/>
+  <path fill="#1f883d" d="M232 0h54v50h-54z"/>
+  <g fill="none" stroke="#fff" stroke-width="2"><rect x="16" y="14" width="15" height="19" rx="2"/><path d="M21 10h14v19M21 20h5M21 25h5"/></g>
+  <text x="49" y="31" fill="#fff" font-family="Arial,sans-serif" font-size="16" letter-spacing="1.6">COPY EXERCISE</text>
+  <path stroke="#fff" stroke-width="2" fill="none" d="M249 25h18m-5-5 5 5-5 5"/>
+</svg>

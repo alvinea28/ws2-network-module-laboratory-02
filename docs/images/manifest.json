@@ -1,0 +1,215 @@
+{
+  "retrievedAt": "2026-09-08T09:10:25.875Z",
+  "purpose": "Unmodified official documentation reference screenshots, not participant execution evidence",
+  "images": [
+    {
+      "file": "vscode-clone.png",
+      "url": "https://code.visualstudio.com/assets/docs/sourcecontrol/quickstart/clone-repository-url.png",
+      "publisher": "Microsoft",
+      "page": "https://code.visualstudio.com/docs/sourcecontrol/quickstart",
+      "description": "Clone Repository command and URL input",
+      "license": "CC-BY-3.0-US",
+      "modified": false,
+      "bytes": 68741,
+      "sha256": "f0267cbdccd81e7f2caceed9c64535956575573c1a0859ff8178f6d6bfe50e84"
+    },
+    {
+      "file": "vscode-github-signin.png",
+      "url": "https://code.visualstudio.com/assets/docs/sourcecontrol/github/auth-prompt.png",
+      "publisher": "Microsoft",
+      "page": "https://code.visualstudio.com/docs/sourcecontrol/github",
+      "description": "GitHub authentication prompt in VS Code",
+      "license": "CC-BY-3.0-US",
+      "modified": false,
+      "bytes": 85607,
+      "sha256": "1385481f017e48eb9ecb8d18a2307849500f0912ebca29b3bafd19e00dc440ef"
+    },
+    {
+      "file": "vscode-accounts.png",
+      "url": "https://code.visualstudio.com/assets/docs/setup/copilot/vscode-accounts-menu.png",
+      "publisher": "Microsoft",
+      "page": "https://code.visualstudio.com/docs/setup/copilot",
+      "description": "Accounts menu and Copilot sign-in",
+      "license": "CC-BY-3.0-US",
+      "modified": false,
+      "bytes": 45460,
+      "sha256": "aa0d2e20584ccc3ac8d919d24ede321867fe5324b3d3ac98865255863bc8fd64"
+    },
+    {
+      "file": "vscode-copilot-signin.png",
+      "url": "https://code.visualstudio.com/assets/docs/setup/copilot/copilot-signedout-sign-in.png",
+      "publisher": "Microsoft",
+      "page": "https://code.visualstudio.com/docs/setup/copilot",
+      "description": "Copilot status menu sign-in",
+      "license": "CC-BY-3.0-US",
+      "modified": false,
+      "bytes": 32568,
+      "sha256": "f426e3242dde405ecbb67ddf61fb925013db89055e3798be0ca1ee2a25b61fe3"
+    },
+    {
+      "file": "vscode-settings-user.png",
+      "url": "https://code.visualstudio.com/assets/docs/configure/settings/settings-editor-user-tab.png",
+      "publisher": "Microsoft",
+      "page": "https://code.visualstudio.com/docs/configure/settings",
+      "description": "Settings editor User tab",
+      "license": "CC-BY-3.0-US",
+      "modified": false,
+      "bytes": 53618,
+      "sha256": "d5c5f90dc5531061e4a8f7316798e4c099f95fa05e4c66e2cfd1a6ab438008e0"
+    },
+    {
+      "file": "vscode-settings-workspace.png",
+      "url": "https://code.visualstudio.com/assets/docs/configure/settings/settings-editor-workspace-tab.png",
+      "publisher": "Microsoft",
+      "page": "https://code.visualstudio.com/docs/configure/settings",
+      "description": "Settings editor Workspace tab",
+      "license": "CC-BY-3.0-US",
+      "modified": false,
+      "bytes": 53833,
+      "sha256": "5d3b665dbbbfbaceefb3d5011bc0942b89b933c84e162e630b1b6fe40d659d06"
+    },
+    {
+      "file": "vscode-branch.png",
+      "url": "https://code.visualstudio.com/assets/docs/sourcecontrol/github/branch-indicator-status-bar.png",
+      "publisher": "Microsoft",
+      "page": "https://code.visualstudio.com/docs/sourcecontrol/github",
+      "description": "Branch indicator in the status bar",
+      "license": "CC-BY-3.0-US",
+      "modified": false,
+      "bytes": 4368,
+      "sha256": "aedb817aae06d679a8b607996596a3123e0818ed242dec8ac82ef9469586c4b2"
+    },
+    {
+      "file": "vscode-stage.png",
+      "url": "https://code.visualstudio.com/assets/docs/sourcecontrol/quickstart/stage-changes-button.png",
+      "publisher": "Microsoft",
+      "page": "https://code.visualstudio.com/docs/sourcecontrol/quickstart",
+      "description": "Stage Changes plus button",
+      "license": "CC-BY-3.0-US",
+      "modified": false,
+      "bytes": 53373,
+      "sha256": "4a3ace2049f0776bff691dadf84b825feee448888589cf487c9a2181722f9db8"
+    },
+    {
+      "file": "vscode-commit.png",
+      "url": "https://code.visualstudio.com/assets/docs/sourcecontrol/quickstart/commit-button.png",
+      "publisher": "Microsoft",
+      "page": "https://code.visualstudio.com/docs/sourcecontrol/quickstart",
+      "description": "Commit message and Commit button",
+      "license": "CC-BY-3.0-US",
+      "modified": false,
+      "bytes": 49121,
+      "sha256": "92316006a8917f174804051cf5e7ab019a453b51723e809c8682e2411a5b576d"
+    },
+    {
+      "file": "vscode-push.png",
+      "url": "https://code.visualstudio.com/assets/docs/sourcecontrol/quickstart/pull-push-commands.png",
+      "publisher": "Microsoft",
+      "page": "https://code.visualstudio.com/docs/sourcecontrol/quickstart",
+      "description": "Source Control menu Pull and Push commands",
+      "license": "CC-BY-3.0-US",
+      "modified": false,
+      "bytes": 80215,
+      "sha256": "37a0b3a7d0eb7ce63053a5044c05375766bfa53170d910d09b81ef8de13a4560"
+    },
+    {
+      "file": "github-template.webp",
+      "url": "https://docs.github.com/assets/cb-76823/mw-1440/images/help/repository/use-this-template-button.webp",
+      "publisher": "GitHub",
+      "page": "https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template",
+      "description": "Use this template menu",
+      "license": "CC-BY-4.0",
+      "modified": false,
+      "bytes": 11732,
+      "sha256": "a18a93e12194227267bf8aedd96ec5b5e2a9144377f7c36eb5cec19a3a1d836d"
+    },
+    {
+      "file": "github-owner.webp",
+      "url": "https://docs.github.com/assets/cb-80933/mw-1440/images/help/repository/create-repository-owner.webp",
+      "publisher": "GitHub",
+      "page": "https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template",
+      "description": "Choose the owner of the new copy",
+      "license": "CC-BY-4.0",
+      "modified": false,
+      "bytes": 13960,
+      "sha256": "62e2bd4edfd8973151785ed46a1e5c848d5cbef47ea168d9ccc6c23856cdcbe4"
+    },
+    {
+      "file": "github-repository-name.webp",
+      "url": "https://docs.github.com/assets/cb-89988/mw-1440/images/help/repository/create-repository-name.webp",
+      "publisher": "GitHub",
+      "page": "https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template",
+      "description": "Repository name field",
+      "license": "CC-BY-4.0",
+      "modified": false,
+      "bytes": 15048,
+      "sha256": "0d7c36bb97f63433bffefc7f27e8ecbd2f21450ab53f0b31a8cbadce22737f36"
+    },
+    {
+      "file": "github-settings.webp",
+      "url": "https://docs.github.com/assets/cb-28260/mw-1440/images/help/repository/repo-actions-settings.webp",
+      "publisher": "GitHub",
+      "page": "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository",
+      "description": "Repository Settings tab",
+      "license": "CC-BY-4.0",
+      "modified": false,
+      "bytes": 12894,
+      "sha256": "c396d0aa706f2e1fa1dce78c15748eeb1952c95e8d96371c099c933311874fdd"
+    },
+    {
+      "file": "github-actions.webp",
+      "url": "https://docs.github.com/assets/cb-12958/mw-1440/images/help/repository/actions-tab-global-nav-update.webp",
+      "publisher": "GitHub",
+      "page": "https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs",
+      "description": "Repository Actions tab",
+      "license": "CC-BY-4.0",
+      "modified": false,
+      "bytes": 8826,
+      "sha256": "13d5012200e59616d7c2418c52507f86f9e6d490c520aac6ab6b7d4dd62eec9a"
+    },
+    {
+      "file": "github-workflow-sidebar.webp",
+      "url": "https://docs.github.com/assets/cb-40551/mw-1440/images/help/actions/superlinter-workflow-sidebar.webp",
+      "publisher": "GitHub",
+      "page": "https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs",
+      "description": "Choose a workflow in the Actions sidebar",
+      "license": "CC-BY-4.0",
+      "modified": false,
+      "bytes": 21540,
+      "sha256": "c36e7089da790b1e5023675b1a5ef3b2ea60bdefd4b135c4b4f06574338ae811"
+    },
+    {
+      "file": "github-pull-request.webp",
+      "url": "https://docs.github.com/assets/cb-34097/mw-1440/images/help/pull_requests/pull-request-compare-pull-request.webp",
+      "publisher": "GitHub",
+      "page": "https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request",
+      "description": "Compare and pull request banner",
+      "license": "CC-BY-4.0",
+      "modified": false,
+      "bytes": 7456,
+      "sha256": "bb8226e6b8b6172d0d31ac592be4a0e7607194336a9fa43e620ea3c900a46938"
+    },
+    {
+      "file": "github-pr-files.webp",
+      "url": "https://docs.github.com/assets/cb-23571/mw-1440/images/help/pull_requests/pull-request-tabs-changed-files.webp",
+      "publisher": "GitHub",
+      "page": "https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request",
+      "description": "Pull request Files changed tab",
+      "license": "CC-BY-4.0",
+      "modified": false,
+      "bytes": 6568,
+      "sha256": "ea6a6afb7eba6865db9cd63d9053e949b90b85f3e66744fef25ce40fc599d742"
+    },
+    {
+      "file": "vscode-clone-github.png",
+      "url": "https://code.visualstudio.com/assets/docs/sourcecontrol/github/github-repo-dropdown.png",
+      "publisher": "Microsoft",
+      "page": "https://code.visualstudio.com/docs/sourcecontrol/github",
+      "description": "GitHub-specific repository picker for cloning in VS Code",
+      "license": "CC-BY-3.0-US",
+      "modified": false,
+      "bytes": 104383,
+      "sha256": "e00dda7db5dbc2fafbf0045bd4bbc615752cc7682278c11d44ab221ab7428c11"
+    }
+  ]
+}
