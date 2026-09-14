@@ -30,6 +30,10 @@
 Select the intended Owner, keep **Private**, leave **Include all branches** off, and create the copy. Its own AgentAlvine issue will appear automatically.
 <!-- AGENTALVINE:END -->
 
+## Full workshop content and instructor preview
+
+Read the [full setup, all four activities, and recorded simulation outcomes](full-ws-content/README.md). The [public source Exercise #1](https://github.com/alvinea28/ws2-network-module-laboratory-02/issues/1) is a **read-only instructor Preview with zero participant progress**, not your learner issue. After copying, follow **your private copy's own README Exercise link**; AgentAlvine updates that same issue body from real work.
+
 ## What is included and what remains external
 
 - This copy has its own instructions, exercises, reference code and tests. The catalogue sequence builds concepts; there is no required earlier repository.

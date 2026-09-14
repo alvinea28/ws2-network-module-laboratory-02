@@ -1,0 +1,22 @@
+{
+  "capturedOn": "2026-09-14",
+  "exercisePreview": {
+    "kind": "Actual anonymous GitHub Exercise Preview viewport; zero participant progress",
+    "private": false,
+    "url": "https://github.com/alvinea28/ws2-network-module-laboratory-02/issues/1",
+    "previewRun": "https://github.com/alvinea28/ws2-network-module-laboratory-02/actions/runs/34879093175",
+    "capturedAt": "2026-09-14T19:07:15.853Z",
+    "sha256": "43041b0ecf6fcfda49f8fa4f4e5eac455170a6c88b427e86b9acd7778d5bb513"
+  },
+  "localValidation": {
+    "kind": "New local output-viewer capture of actual fresh commands; not terminal UI or a participant cycle",
+    "private": false,
+    "codeBaseRevision": "4f89d425b1a58a3a6d839affe38b58334e55374a",
+    "controlledFilesSha256": "882a0efa4eb54473aff41b9d75e18716fdc4d6492e352d348786998bfa2a7e52",
+    "nodePasses": 35,
+    "solvedLabPassed": true,
+    "capturedAt": "2026-09-14T19:07:16.211Z",
+    "sha256": "4cf5e4487d32e9a60aba0bc8962159d6f6e0833748a9a6cc03043b36beccb2d4"
+  },
+  "historicalSimulation": "Original private A/B records remain in the private evidence repository; no original-day per-step screenshots exist."
+}

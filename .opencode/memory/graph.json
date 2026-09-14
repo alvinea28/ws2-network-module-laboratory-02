@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-08T00:00:00Z",
+  "generatedAt": "2026-09-14T00:00:00Z",
   "root": ".",
   "nodes": [
     {
@@ -82,6 +82,47 @@
       "id": "docs/daily work report/2026-09-08.md",
       "kind": "report",
       "summary": "Separate daily source/simulation verification, document URLs and genuine remaining prerequisites."
+    },
+    {
+      "id": "full-ws-content/README.md",
+      "kind": "guide",
+      "summary": "Full workshop review index distinguishes the live learner Exercise from the read-only source Preview."
+    },
+    {
+      "id": "full-ws-content/00-start-here.md",
+      "kind": "guide",
+      "summary": "Complete first-time setup review preserves the original commands and rebases documentation links."
+    },
+    {
+      "id": "full-ws-content/activity-01.md",
+      "kind": "guide",
+      "summary": "Complete reusable-boundary lesson with recorded Cycle A/B design-gate outcomes."
+    },
+    {
+      "id": "full-ws-content/activity-02.md",
+      "kind": "guide",
+      "summary": "Complete VNet and named-subnet implementation lesson with recorded Cycle A/B outcomes."
+    },
+    {
+      "id": "full-ws-content/activity-03.md",
+      "kind": "guide",
+      "summary": "Complete resource-backed network-output lesson with recorded Cycle A/B outcomes."
+    },
+    {
+      "id": "full-ws-content/activity-04.md",
+      "kind": "guide",
+      "summary": "Complete learner-root validation lesson with recorded Cycle A/B offline completion and rejection coverage."
+    },
+    {
+      "id": "full-ws-content/simulation.md",
+      "kind": "report",
+      "summary": "Original September 8 simulation counts and private proof are separate from September 14 verification."
+    },
+    {
+      "id": "docs/daily work report/2026-09-14.md",
+      "kind": "report",
+      "date": "2026-09-14",
+      "summary": "Daily full-content review, verified local checks and preserved A/B outcomes with dev publication and remote readback pending."
     }
   ],
   "edges": [
@@ -109,6 +150,47 @@
       "from": "README.md",
       "to": "docs/daily work report/2026-09-08.md",
       "rel": "maintenance-report"
+    },
+    {
+      "from": "README.md",
+      "to": "full-ws-content/README.md",
+      "rel": "review-index"
+    },
+    {
+      "from": "full-ws-content/README.md",
+      "to": "full-ws-content/00-start-here.md",
+      "rel": "setup"
+    },
+    {
+      "from": "full-ws-content/README.md",
+      "to": "full-ws-content/activity-01.md",
+      "rel": "activity"
+    },
+    {
+      "from": "full-ws-content/README.md",
+      "to": "full-ws-content/activity-02.md",
+      "rel": "activity"
+    },
+    {
+      "from": "full-ws-content/README.md",
+      "to": "full-ws-content/activity-03.md",
+      "rel": "activity"
+    },
+    {
+      "from": "full-ws-content/README.md",
+      "to": "full-ws-content/activity-04.md",
+      "rel": "activity"
+    },
+    {
+      "from": "full-ws-content/README.md",
+      "to": "full-ws-content/simulation.md",
+      "rel": "evidence-summary"
+    },
+    {
+      "from": "README.md",
+      "to": "docs/daily work report/2026-09-14.md",
+      "rel": "maintenance-report",
+      "date": "2026-09-14"
     }
   ],
   "hotspots": [
