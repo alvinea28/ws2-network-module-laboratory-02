@@ -1,6 +1,6 @@
 # Toolchain: install deliberately, verify the exact versions
 
-This page describes participant setup; it does not require an Azure account or another lab repository. Use official downloads and your organization's approved installation process. If a managed computer requires administrator approval, ask IT or the instructor rather than bypassing that restriction. GitHub CLI, Azure CLI, Azure PowerShell, containers, and a global package installation are not prerequisites here. See [copilot-guide.md](copilot-guide.md) for Copilot account setup; use instructor-approved editor extensions, not unverified alternatives.
+This page describes participant tool setup; no earlier lab repository is required. Azure CLI and your own instructor-approved Azure account are required for the separate [Azure values, sign-in and existing resource-group setup](azure-setup.md), not for the local doctor or provider-mocked checks. Use official downloads and your organization's approved installation process. If a managed computer requires administrator approval, ask IT or the instructor rather than bypassing that restriction. GitHub CLI, Azure PowerShell, containers, and a global package installation are not prerequisites here. See [copilot-guide.md](copilot-guide.md) for Copilot account setup; use instructor-approved editor extensions, not unverified alternatives.
 
 ## Quick navigation
 
@@ -16,9 +16,10 @@ This page describes participant setup; it does not require an Azure account or a
 | Terraform CLI | **1.16.1** | Terraform validation and provider-mocked tests; Lab 1's collaboration task does not execute Terraform |
 | AzureRM provider | **5.4.0** | Loaded by Terraform from the supplied provider lock, not installed as a separate CLI |
 | terraform-docs | **0.24.0 — Lab 4 only** | Generates the canonical module API documentation |
+| Azure CLI | Current organization/instructor-approved release; no workshop patch pin | Required for [Azure input, login and existing-RG reads](azure-setup.md) and separately approved live activities; use [official installation guidance](https://learn.microsoft.com/cli/azure/install-azure-cli) |
 
 > [!WARNING]
-> Do not sign in to Azure, initialize a real remote backend, run a real plan/apply/destroy operation, or read state to test an installation. Do not paste credentials into a terminal or chat. Never replace your whole PATH, change system-wide execution policies, disable certificate checks, or reset global settings to make a tool appear to work.
+> For attendee Azure sign-in and existing-RG reads, follow [Azure setup](azure-setup.md); these checks are not deployment authorization. Do not initialize a real remote backend, run a real plan/apply/destroy operation, or read state to test an installation. PR validation must not receive Azure credentials, OIDC, tokens, or a copied CLI cache. Do not paste credentials into a terminal or chat. Never replace your whole PATH, change system-wide execution policies, disable certificate checks, or reset global settings to make a tool appear to work.
 
 ## Choose the correct operating system and architecture
 

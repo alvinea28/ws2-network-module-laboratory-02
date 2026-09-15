@@ -5,7 +5,7 @@ This guide takes you from a GitHub account to the **current task in your own pri
 Choose a laboratory in the [workshop catalogue](https://github.com/alvinea28/ws2-workshop-catalogue). Its number suggests a learning order, not a dependency. Keep this guide open in one browser tab and your own repository in another.
 
 > [!WARNING]
-> Setup is not permission to use Azure. Do not sign in to Azure, initialize a real remote backend, run a real infrastructure plan or apply, or access state. Never paste passwords, tokens, private keys, recovery codes, or Terraform state into chat, a terminal, an issue, or logs. Complete credential and device-code flows only through trusted browser and VS Code sign-in UI that you initiated.
+> For attendee account/RG setup follow [Azure setup](azure-setup.md). Sign-in and read checks are not deployment authorization; do not initialize a real backend, access state, or run a real plan/apply from setup or a PR. Never paste passwords, tokens, private keys, recovery codes, or Terraform state into chat, a terminal, an issue, or logs. Complete credential and device-code flows only through trusted browser and VS Code sign-in UI that you initiated.
 
 ## Quick navigation
 
@@ -19,6 +19,7 @@ Choose a laboratory in the [workshop catalogue](https://github.com/alvinea28/ws2
 - [Set authorship only for this repository](#set-authorship-only-for-this-repository)
 - [Connect the correct Copilot account](#connect-the-correct-copilot-account)
 - [Check installed tools](#check-installed-tools)
+- [Enter your Azure values and sign in](#enter-your-azure-values-and-sign-in)
 - [Run the read-only doctor](#run-the-read-only-doctor)
 - [Open the current Exercise](#open-the-current-exercise)
 
@@ -30,6 +31,7 @@ Choose a laboratory in the [workshop catalogue](https://github.com/alvinea28/ws2
 | Git credentials, usually managed by Git Credential Manager | Authentication for HTTPS clone, pull, and push | Which account Copilot uses |
 | VS Code **Accounts** | Accounts available to editor extensions | That every extension selected the same account |
 | Copilot seat or entitlement | Permission for your personal account to use Copilot | Write access to a repository or permission to deploy |
+| Azure account, tenant, subscription and existing resource group | Your assigned Azure directory, subscription and RG-scoped access, separate from GitHub/Copilot | GitHub or Copilot sign-in, permission to provision, or approval for a deployment |
 | Git `user.name` and `user.email` | Authorship recorded in new commits | Sign-in, a Copilot seat, or repository permissions |
 | Repository **Owner** | The personal account or organization containing the copy | The identity of the person currently signed in |
 
@@ -213,7 +215,34 @@ See [copilot-guide.md](copilot-guide.md#sign-in-and-select-the-copilot-account) 
 
 Follow [toolchain.md](toolchain.md) for official downloads, architecture choices, safe PATH setup, and individual version checks. Every lab uses **Git, desktop VS Code and Node.js 24.16.0**. **Lab 01 does not need Terraform.** Labs **02–08** use **Terraform 1.16.1** and the supplied **AzureRM 5.4.0** provider lock. **terraform-docs 0.24.0 is needed only for Lab 04**.
 
-After a tool or PATH change, save your work and fully close and reopen VS Code before creating a new terminal. Merely opening another terminal in an old VS Code process may retain the old PATH. Do not change system-wide environment settings, reset all editor settings, or install an Azure login tool to satisfy these offline prerequisites.
+After a tool or PATH change, save your work and fully close and reopen VS Code before creating a new terminal. Merely opening another terminal in an old VS Code process may retain the old PATH. Do not change system-wide environment settings or reset all editor settings to satisfy these prerequisites. Azure CLI is required only for the [attendee account/RG setup](azure-setup.md) and separately approved live activities; the local doctor still does not check Azure.
+
+## Enter your Azure values and sign in
+
+Use **your own instructor-approved Azure tenant, subscription and existing resource group**. Never copy the author's real Azure values or another attendee's values. Follow the complete [Azure setup guide](azure-setup.md) for all PowerShell blocks, installation, sign-in recovery, privacy and cleanup boundaries.
+
+| Terminal environment variable | Enter your own value |
+| --- | --- |
+| `$env:AZURE_TENANT_ID` | Tenant ID of your assigned Azure directory, not an email or display name |
+| `$env:AZURE_SUBSCRIPTION_ID` | Subscription ID of your assigned enabled subscription, not its name |
+| `$env:WORKLOAD_RG` | Name of your assigned existing resource group in that subscription, not its full resource ID |
+
+For this setup, keep these values only in your current terminal session; do not commit them or place them in chat or an Exercise issue. Local values do not configure GitHub Actions, and your CLI login/cache must never become PR credentials.
+
+1. In the [Azure portal](https://portal.azure.com/), open **Microsoft Entra ID → Overview** for your assigned directory and copy **Tenant ID**.
+2. Open **Subscriptions → your assigned subscription → Overview** and copy **Subscription ID**. If it is missing, check **Directories + subscriptions** and ask the instructor rather than guessing.
+3. Open **Resource groups**, filter to that subscription, then open the instructor-assigned **existing** group and copy its name. Confirm it belongs to that subscription; do not create a replacement group.
+4. In this clone's PowerShell terminal, follow sections 2–3 of the full guide to check/install Azure CLI through the approved process and enter the three values at the prompts. Do not screenshot those prompts.
+5. Run section 4's complete account block: reuse a matching cached login or complete the trusted browser sign-in only when required. Then run section 5's live resource-group read in the **same terminal**; a cached account check alone does not prove live access.
+6. Check the safe expected flags below. If a check fails, stop and use the guide's recovery instructions. After setup and the local doctor below, return to **your private copy's existing Exercise issue** and follow its current task.
+
+| Safe expected flag | Expected value |
+| --- | --- |
+| `TenantAndSubscriptionMatched` | `True` |
+| `ExistingResourceGroupReadable` | `True` |
+| `ProvisioningPerformed` | `False` |
+
+These are expected results, not evidence already collected. Passing them proves current read access only; setup neither provisions resources nor authorizes deployment, backend/state access, or a real plan/apply. PR validation stays credential-free.
 
 ## Run the read-only doctor
 

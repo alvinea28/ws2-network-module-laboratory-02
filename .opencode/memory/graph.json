@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-14T00:00:00Z",
+  "generatedAt": "2026-09-15T00:00:00Z",
   "root": ".",
   "nodes": [
     {
@@ -122,7 +122,25 @@
       "id": "docs/daily work report/2026-09-14.md",
       "kind": "report",
       "date": "2026-09-14",
-      "summary": "Daily full-content review, verified local checks and preserved A/B outcomes with dev publication and remote readback pending."
+      "summary": "Daily full-content review, verified local checks and preserved A/B outcomes with dev publication and remote readback verified."
+    },
+    {
+      "id": "docs/azure-setup.md",
+      "kind": "guide",
+      "date": "2026-09-15",
+      "summary": "Complete attendee-owned Azure inputs, conditional sign-in and existing-resource-group reads preserve deployment, state and PR-credential boundaries."
+    },
+    {
+      "id": "full-ws-content/azure-setup.md",
+      "kind": "guide",
+      "date": "2026-09-15",
+      "summary": "Full Azure setup review copy preserves every PowerShell block and rebases only relative Markdown links outside code fences."
+    },
+    {
+      "id": "docs/daily work report/2026-09-15.md",
+      "kind": "report",
+      "date": "2026-09-15",
+      "summary": "Attendee-owned Azure setup, the warning-only lesson clarification and recorded checks preserve network-module code and distinguish read access from deployment."
     }
   ],
   "edges": [
@@ -191,6 +209,48 @@
       "to": "docs/daily work report/2026-09-14.md",
       "rel": "maintenance-report",
       "date": "2026-09-14"
+    },
+    {
+      "from": "README.md",
+      "to": "docs/azure-setup.md",
+      "rel": "setup",
+      "date": "2026-09-15"
+    },
+    {
+      "from": "docs/start-here.md",
+      "to": "docs/azure-setup.md",
+      "rel": "setup",
+      "date": "2026-09-15"
+    },
+    {
+      "from": "docs/toolchain.md",
+      "to": "docs/azure-setup.md",
+      "rel": "setup",
+      "date": "2026-09-15"
+    },
+    {
+      "from": "full-ws-content/README.md",
+      "to": "full-ws-content/azure-setup.md",
+      "rel": "setup",
+      "date": "2026-09-15"
+    },
+    {
+      "from": "full-ws-content/00-start-here.md",
+      "to": "docs/azure-setup.md",
+      "rel": "setup",
+      "date": "2026-09-15"
+    },
+    {
+      "from": "full-ws-content/azure-setup.md",
+      "to": "docs/azure-setup.md",
+      "rel": "mirrors",
+      "date": "2026-09-15"
+    },
+    {
+      "from": "README.md",
+      "to": "docs/daily work report/2026-09-15.md",
+      "rel": "maintenance-report",
+      "date": "2026-09-15"
     }
   ],
   "hotspots": [

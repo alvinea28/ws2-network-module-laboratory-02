@@ -95,7 +95,7 @@ terraform fmt -check main.tf
 
 > [!WARNING]
 > Keep all typed inputs, validations, provider requirements, and locks unchanged. Do not silence a test by removing its assertions.
-> No Azure login, backend/state access, or real plan/apply is allowed. Provider mocks are for contract checks, not deployment.
+> Attendee Azure login and existing resource-group reads are described in [Azure setup](../docs/azure-setup.md). This file-edit step itself does not provision anything. Do not initialize a real backend, access state, or run an unreviewed real plan/apply here. Input setup is not proof of deployment. Provider mocks are for contract checks, not deployment.
 
 ### 5. Review, stage, commit, and push the implementation
 

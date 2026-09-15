@@ -2,7 +2,7 @@
 
 > Review copy; follow your private copy’s live Exercise issue to do the lab.
 
-[Full first-time setup](00-start-here.md) · [Original simulation summary and verification limits](simulation.md) · [Repository landing page](../README.md)
+[Full first-time setup](00-start-here.md) · [Enter your Azure values and sign in](azure-setup.md) · [Original simulation summary and verification limits](simulation.md) · [Repository landing page](../README.md)
 
 This review contains all four complete lessons from [.github/agentalvine/course.json](../.github/agentalvine/course.json), including setup, commands, expected results, recovery, and attributed reference images. Only relative Markdown links outside code fences are rebased in the copied lessons. The recorded statuses belong to the **2026-09-08 private participant simulations**, not to a reader or the public template.
 

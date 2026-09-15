@@ -10,6 +10,8 @@
 
 **Before cloning:** if Git or desktop VS Code is not installed, complete [the official installation steps](docs/toolchain.md), restart VS Code, then continue below. If you have no GitHub account yet, choose **Sign up** on GitHub and verify your email as shown in [Start here](docs/start-here.md).
 
+**Azure account/RG setup:** [Enter your Azure values and sign in](docs/azure-setup.md) using your own assigned tenant, subscription and existing resource group. This separate read-only setup does not authorize deployment or change the lab's credential-free checks.
+
 1. **Browser:** sign in to your intended personal GitHub account. If the instructor assigned an organization, accept its invitation using that personal account.
 2. **GitHub:** create your own **Private** copy below, retaining **-laboratory-02** at the end of its name. If you already made a copy, do not copy again.
 3. **Desktop VS Code:** press **Ctrl+Shift+P** (macOS **Cmd+Shift+P**) → **Git: Clone** → paste **your own copy's HTTPS URL**, not this public source URL. Complete the trusted browser sign-in with the correct account.
@@ -43,7 +45,7 @@ Read the [full setup, all four activities, and recorded simulation outcomes](ful
 
 ## Help without guessing
 
-[First-time setup](docs/start-here.md) · [Git actions](docs/git-workflow.md) · [Copilot accounts/context](docs/copilot-guide.md) · [Toolchain](docs/toolchain.md) · [Settings/Actions troubleshooting](docs/troubleshooting.md) · [Glossary](docs/glossary.md)
+[First-time setup](docs/start-here.md) · [Azure values and sign-in](docs/azure-setup.md) · [Git actions](docs/git-workflow.md) · [Copilot accounts/context](docs/copilot-guide.md) · [Toolchain](docs/toolchain.md) · [Settings/Actions troubleshooting](docs/troubleshooting.md) · [Glossary](docs/glossary.md)
 
 Do not edit progress checkboxes or send manual evidence commands. AgentAlvine updates the same issue from real activity; a green checklist is not Azure authorization.
 
