@@ -1,50 +1,46 @@
 # Azure setup: enter your own tenant, subscription and resource group
 
-Use **your own instructor-approved Azure account, subscription and existing
-resource group**. No author's account, tenant, subscription, email or resource
-group is an example value to copy. This page is included in every laboratory.
+**Goal:** verify read access using **your own assigned Azure account, tenant,
+subscription and existing resource group**. Never copy an author's or attendee's values.
 
 > [!IMPORTANT]
-> Filling values and signing in are setup, not evidence of provisioning or
-> permission to bypass an approval. This guide performs account and resource-group
-> **reads only**. Do not put Azure credentials in PR jobs. Real deployment and
-> full cleanup must follow the current lab's separately approved live procedure.
+> Setup performs **reads only**, not deployment or approval. Stop on errors;
+> never add Azure credentials, OIDC or state access to PR checks. Live work and
+> full cleanup require the separate protected procedure.
 
 ## 1. Find the three values before opening the terminal
 
-Sign in to the [Azure portal](https://portal.azure.com/) using your own work or
-school account. Complete MFA only in Microsoft's trusted sign-in window.
+Sign in to the [Azure portal](https://portal.azure.com/) with your assigned work/school
+account; complete MFA only in Microsoft's trusted sign-in window. All three values are required.
 
-| Value to enter | Where you find it | How it is used |
+| Value | Portal location | Meaning |
 | --- | --- | --- |
-| **Tenant ID** | Portal search → **Microsoft Entra ID** → **Overview** → **Tenant ID** | Chooses the directory for Azure CLI sign-in; it is not an email or directory display name |
-| **Subscription ID** | Portal search → **Subscriptions** → your assigned subscription → **Overview** → **Subscription ID** | Explicit subscription selection for every command; it is not the subscription name |
-| **Resource group name** | Portal search → **Resource groups** → select the assigned subscription → open the assigned group → copy its **name** | Existing group for this lab; enter its name, not its full `/subscriptions/.../resourceGroups/...` ID |
+| **Tenant ID** | **Microsoft Entra ID → Overview** | Directory GUID, not email/name |
+| **Subscription ID** | **Subscriptions → assigned subscription → Overview** | Subscription GUID, not name |
+| **Resource group name** | **Resource groups → assigned subscription → existing group** | Group name, not full resource ID |
 
-Check **Directories + subscriptions** if the assigned subscription is missing.
-Tenant and subscription IDs are different GUIDs. Confirm that the resource group
-belongs to the selected subscription. Ask the instructor if the subscription or
-group is absent, disabled, inaccessible or unassigned; this setup does **not**
-create a group, change roles, register providers or request broader access.
-
-The group metadata location is not necessarily the approved region for resources.
-If a later task asks for a region, use the instructor-approved region for that task.
+Confirm the group belongs to that subscription; tenant and subscription IDs are
+different GUIDs. If missing, check **Directories + subscriptions**, then ask the
+instructor. Do not create groups, change roles/register providers or request broader access.
 
 ## 2. Install Azure CLI only if it is missing
 
-Open **Terminal → New Terminal** in this lab's desktop VS Code window. The examples
-below use **PowerShell 5.1 on Windows** or **PowerShell 7**. Do not paste PowerShell
-syntax into Command Prompt, Bash or an HCL file. On macOS/Linux, select an installed
-PowerShell 7 terminal or follow your instructor's equivalent shell procedure.
+Open **Terminal → New Terminal** in this lab's desktop VS Code: Windows PowerShell
+5.1 or PowerShell 7, not Bash, Command Prompt or HCL. macOS/Linux needs PowerShell 7
+or an instructor-provided equivalent.
+
+**What it does:** prints Azure CLI's installed version; expect an `azure-cli` version,
+not sign-in or provisioning. Use the current approved release; no forced upgrade gate.
 
 ```powershell
 az version
 ```
 
-If `az` is not recognized, use your organization's approved installation method:
+If missing, install through the approved process:
 
 - Windows: [official Azure CLI installation](https://learn.microsoft.com/cli/azure/install-azure-cli-windows).
-  If WinGet is approved, the complete installation command is:
+    **What it does:** if WinGet is approved, installs Azure CLI; `--id` names the package
+    and `--exact` prevents a fuzzy match. Expect installation success; stop on failure.
 
   ```powershell
   winget install --exact --id Microsoft.AzureCLI
@@ -54,15 +50,16 @@ If `az` is not recognized, use your organization's approved installation method:
 - Linux: [official Azure CLI installation](https://learn.microsoft.com/cli/azure/install-azure-cli-linux).
 - PowerShell 7, if needed: [official installation guidance](https://learn.microsoft.com/powershell/scripting/install/installing-powershell).
 
-Restart **all VS Code windows**, open this clone again, create a new terminal and
-repeat `az version`. Do not replace the whole PATH or disable security settings.
-Azure CLI is separate from the GitHub/Copilot accounts in [Start here](../docs/start-here.md).
+Restart **all VS Code windows**, reopen this clone and repeat the version check in
+a new terminal. Do not replace PATH or disable security. [GitHub/Copilot sign-in](../docs/start-here.md)
+is separate.
 
 ## 3. Enter your values in this terminal session
 
-Copy the block into **PowerShell**, then answer each prompt with the values you
-found in section 1. These values are kept only in this terminal's environment;
-they are not written to a repository file. Do not screenshot the input prompts.
+**What it does:** `Read-Host` prompts for your section 1 values; `.Trim()` removes
+edge spaces and `$env:` stores them in this terminal's environment, not a file.
+GUID `TryParse` validates/normalizes IDs; the group check rejects blank names/full IDs.
+Expect “input formats accepted,” not verified access; stop on rejection and never screenshot prompts.
 
 ```powershell
 $env:AZURE_TENANT_ID = (Read-Host 'Enter YOUR Azure Tenant ID').Trim()
@@ -85,16 +82,20 @@ if ([string]::IsNullOrWhiteSpace($env:WORKLOAD_RG) -or
 Write-Output 'Azure input formats accepted; account access is not yet verified.'
 ```
 
-If you open another terminal, close VS Code, or change computers, enter the three
-values again. Do not replace placeholders in the public workshop source, save the
-values in an Exercise issue, or commit them in example files.
+Re-enter values in a new terminal. Never commit them or put them in chat, examples or an Exercise issue.
 
 ## 4. Reuse an existing login, or sign in when required
 
-GitHub sign-in and Copilot sign-in do **not** sign you into Azure. The following
-block checks for an existing cached account for your chosen subscription and
-tenant. It opens the normal browser sign-in only if that account is missing or
-belongs to another tenant. It does not print your account JSON or email.
+**What it does:** reuses a matching cached account or opens browser sign-in when
+missing/mismatched, then checks the exact tenant, subscription and `Enabled` state.
+Expect “verify live RG access next”; cached account metadata is **not a live access check**.
+
+| Command / expression | Purpose and important flags |
+| --- | --- |
+| `az account show` | `--subscription` selects your ID; `--output json` captures metadata; `--only-show-errors` limits noise; `2>$null` suppresses raw errors |
+| `az login` | `--tenant` selects your directory; `--output none` avoids printing account details; finish trusted browser MFA |
+| `ConvertFrom-Json` / `-join` | Join output lines and parse JSON for exact identity comparisons |
+| `$LASTEXITCODE` / `throw` | Check each CLI exit status; zero means command success, failure stops with a safe message |
 
 ```powershell
 $account = $null
@@ -124,15 +125,11 @@ $accountJson = $null
 Write-Output 'Expected tenant and enabled subscription selected; verify live RG access next.'
 ```
 
-Use the account assigned to you in the browser. Follow MFA and any subscription
-selector normally. Even if that selector has a different default, the checks and
-later commands here specify **your entered subscription explicitly**. There is no
-need to change the machine's default subscription for this guide.
-
-**Browser unavailable or an expired sign-in needs refreshing?** Only for a sign-in
-failure, use the device-code alternative below, complete it yourself at the
-Microsoft URL the CLI displays, then repeat section 4. Never share the device code,
-password, MFA response, access token or recovery code with Copilot or another person.
+Use your assigned browser account; explicit subscription flags avoid changing the
+machine's default. **What it does:** for failed/unavailable browser sign-in only,
+`--use-device-code` offers device login in the chosen tenant with account output suppressed.
+Complete it yourself at the CLI-displayed Microsoft URL, then repeat the account block;
+expect successful sign-in, or stop when the exit-code check throws.
 
 ```powershell
 az login --tenant $env:AZURE_TENANT_ID --use-device-code --output none
@@ -141,13 +138,15 @@ if ($LASTEXITCODE -ne 0) {
 }
 ```
 
-Do not use device-code login to work around a policy that forbids it. A cached
-account check is not a current Azure API call; section 5 supplies the live read.
+Never share device codes, passwords, MFA responses, tokens or recovery codes, or use
+device login against policy. Do not capture sign-in screens.
 
 ## 5. Verify the actual resource group without provisioning anything
 
-Run this block in the **same terminal**. It requests only group metadata and
-prints safe flags plus the group metadata region—not raw IDs or account details.
+**What it does:** in the **same terminal**, `az group show` makes a live metadata read;
+`--name` chooses your group, `--subscription` your ID, and `--output json` captures the
+response privately (`--only-show-errors`/`2>$null` limit raw output).
+JSON parsing and exact group ID/name comparisons reject mismatches before safe flags print.
 
 ```powershell
 $groupJson = az group show --name $env:WORKLOAD_RG --subscription $env:AZURE_SUBSCRIPTION_ID --output json --only-show-errors 2>$null
@@ -170,70 +169,57 @@ $groupJson = $null
 $expectedGroupId = $null
 ```
 
-**Expected result:** both readiness flags are `True`, the metadata region is
-shown, and `ProvisioningPerformed` is `False`. A successful read proves current
-read access only—not Contributor rights, OIDC configuration, allowed resource
-types/regions, private-backend connectivity, or permission to deploy/destroy.
+**Expected:** `TenantAndSubscriptionMatched=True`, `ExistingResourceGroupReadable=True`,
+and `ProvisioningPerformed=False`, plus the metadata region. This proves read access,
+not Contributor rights, OIDC, backend connectivity or deployment permission; the group's
+metadata location is not necessarily the approved workload region.
 
 | Problem | What to do |
 | --- | --- |
-| Missing tenant/subscription in the portal | Check the portal directory and invitation with the instructor; do not guess an ID |
-| Sign-in/MFA required | Finish the trusted browser flow, then repeat the account and RG checks |
-| Account check passes but live read fails | Cached metadata is not live authorization; check token expiry, group spelling and permissions |
-| `ResourceGroupNotFound` | Verify the assigned existing group and selected subscription; do not create a similarly named replacement |
-| Access denied | Ask the instructor for the intended RG-scoped access; do not grant yourself subscription Owner/Contributor |
-| Session was closed | Re-enter section 3 values in the new terminal; never reuse another attendee's values |
+| Missing assignment / access denied | Ask the instructor; do not guess IDs or grant yourself broader roles |
+| Cached check passes, live read fails | Check expiry, spelling and assigned access; repeat trusted sign-in if needed |
+| `ResourceGroupNotFound` | Confirm existing group/subscription; never create a replacement |
+| New terminal | Re-enter your three values, then repeat both checks |
 
 ## 6. Use the values in the correct place
 
 | Context | Correct mapping |
 | --- | --- |
-| This local setup session | `$env:AZURE_TENANT_ID`, `$env:AZURE_SUBSCRIPTION_ID`, `$env:WORKLOAD_RG` |
-| A lab input asking for `resource_group_name` | Your assigned `WORKLOAD_RG` value, supplied through that lab's approved private input method; never an author's group |
-| Instructor-approved Lab 07 Actions copy | **Settings → Secrets and variables → Actions → Variables**: `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `WORKLOAD_RG`; instructor verifies the separate plan/apply IDs, backend tuple and approved `WORKLOAD_INPUTS_JSON.resource_group_name` |
-| PR / ordinary validation jobs | No Azure login, OIDC, user token, remote state or copied CLI cache |
+| Local terminal | `$env:AZURE_TENANT_ID`, `$env:AZURE_SUBSCRIPTION_ID`, `$env:WORKLOAD_RG` |
+| Private lab `resource_group_name` input | Your assigned `WORKLOAD_RG`, through the approved input method |
+| Instructor-approved Lab 07 Actions | **Settings → Secrets and variables → Actions → Variables**: `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `WORKLOAD_RG`; instructor verifies separate plan/apply IDs, backend tuple and `WORKLOAD_INPUTS_JSON.resource_group_name` |
+| PR checks | No login, OIDC, user tokens, remote state or CLI cache |
 
-Local environment variables do **not** configure GitHub Actions. A local user
-login is **not** the workload identity used by a delivery runner. An administrator
-must configure the approved private delivery copy and retain its review gates;
-never copy your CLI token/cache into GitHub secrets or print a token as evidence.
-See [the Lab 07 delivery configuration](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/docs/delivery-configuration.md).
+Local variables/login do **not** configure Actions or its OIDC workload identity.
+Never copy CLI tokens/caches to GitHub. **Lab 07 live is not solo:** retain the
+[protected delivery configuration and independent approvals](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/docs/delivery-configuration.md).
 
 ## 7. Cleanup, privacy and returning to the Exercise
 
-If an approved activity actually provisions resources, **full cleanup is part of
-its completion**. Use the same approved lab root/state and fresh reviewed destroy
-procedure before moving to another exercise. Do not use `-target`, delete a state
-file to hide resources, or delete an existing/shared resource group, backend,
-identity or runner. If cleanup fails or remaining resources are uncertain, leave
-the activity open and escalate; a green setup check is not proof of cleanup.
+1. **Live workload cleanup is mandatory:** use the **same approved root/state** and
+    [fresh, independently reviewed saved destroy plan](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/.github/steps/05.md)
+    before moving on. The workflow's `plan -destroy` proposes full destruction; it
+    applies that exact reviewed plan. No ungated local `terraform destroy`, `-target`
+    (partial selection), state deletion, or deletion of existing/shared RGs, backends,
+    identities or runners. Failed/uncertain cleanup keeps the activity open: escalate.
+2. **Redaction is mandatory before sharing captures:** hide tenant/subscription/client/object
+    IDs, emails, account/profile/avatar details, resource IDs and personal paths; prefer
+    opaque masks. Keep only reviewed redacted images, never raw captures, plans/state or
+    sign-in/device/MFA screens. Redaction does not prove success.
+3. After setup-only work, or verified cleanup for live work, remove local inputs below.
 
-The existing Lab 07 path performs full workload destruction by generating a
-fresh Terraform **`plan -destroy`** and applying that exact independently reviewed
-saved plan. The complete workflow invocation is documented in
-[Lab 07 cleanup](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/.github/steps/05.md).
-Do not run an ungated local `terraform destroy` instead of those safeguards.
-
-Before saving any screenshot, mask or blur tenant/subscription/client/object IDs,
-emails, account names, avatar/profile details, resource IDs and personal paths.
-Prefer opaque redaction when blur could leave text readable. Keep only the
-reviewed redacted image; never commit an unredacted capture, plan or state. Do
-not screenshot sign-in prompts or device/MFA codes. Redaction does not change
-whether the underlying provisioning, verification or cleanup actually succeeded.
-
-After the approved work and verified cleanup, remove the local input values:
+**What it does:** `Remove-Item Env:` removes only these terminal variables;
+`-ErrorAction SilentlyContinue` tolerates already-absent values. Expect no output;
+this neither destroys resources nor signs you out.
 
 ```powershell
 Remove-Item Env:AZURE_TENANT_ID, Env:AZURE_SUBSCRIPTION_ID, Env:WORKLOAD_RG -ErrorAction SilentlyContinue
 ```
 
-Removing variables does **not** delete Azure resources or sign you out. On a
-shared computer, or when your instructor requests it after the session, run
-`az logout` separately. Do not sign out in the middle of an active operation.
-
-Return to **your private copy's existing Exercise issue** and follow its current
-task. Entering these values does not automatically mark a task complete, create
-infrastructure, or turn an existing local test into a live Azure result.
+**What it does:** `az logout` separately ends the CLI login (normally no output);
+use after the session on shared computers or when instructed, never mid-operation.
+Stop if logout fails. Return to **your private copy's existing Exercise issue**;
+setup does not award progress or prove a live deployment.
 
 ## Official references
 

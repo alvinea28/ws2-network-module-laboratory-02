@@ -128,7 +128,7 @@ async function evaluate(check, api) {
       }
       return null;
     }
-    return check.state === "merged" ? "Have a peer review the final revision, then merge your lab PR." : "Open the lab pull request from your exercise branch.";
+    return check.state === "merged" ? (check.reviewed ? "Have a peer review the final revision, then merge your lab PR." : "Inspect your current diff and checks, then merge your lab PR where repository rules permit. GitHub does not support self-approval.") : "Open the lab pull request from your exercise branch.";
   }
   if (["workflow", "trusted-run"].includes(check.kind)) {
     ensure(/^[\w-]+\.yml$/.test(check.file), "Unsupported workflow file");

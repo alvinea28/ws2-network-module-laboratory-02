@@ -10,6 +10,7 @@
     "kit:check": "node scripts/auto-kit.mjs",
     "graph:check": "node scripts/graph-check.mjs",
     "lab:check": "node scripts/check-learner.mjs",
+    "companion:check": "node scripts/check-companion.mjs",
     "doctor": "node scripts/doctor.mjs"
   }
 }

@@ -6,7 +6,7 @@
     {
       "id": "README.md",
       "kind": "guide",
-      "summary": "Numbered laboratory content and guarded automatic validation."
+      "summary": "Concise standalone network laboratory entry distinguishes original learner activities from the isolated Terraform AVM companion."
     },
     {
       "id": ".github/agentalvine/course.json",
@@ -16,7 +16,7 @@
     {
       "id": ".github/agentalvine/auto-guide.cjs",
       "kind": "module",
-      "summary": "Numbered laboratory content and guarded automatic validation."
+      "summary": "Trusted AgentAlvine runtime changes only PR feedback to match reviewed mode while retaining existing gate evaluation and live boundaries."
     },
     {
       "id": ".github/agentalvine/auto-guide.test.cjs",
@@ -51,12 +51,12 @@
     {
       "id": "docs/start-here.md",
       "kind": "guide",
-      "summary": "Standalone illustrated first-time-user guidance or image provenance."
+      "summary": "Concise independent install/account/copy/clone/open guidance retains explained commands, references, expected results and recovery."
     },
     {
       "id": "docs/git-workflow.md",
       "kind": "guide",
-      "summary": "Standalone illustrated first-time-user guidance or image provenance."
+      "summary": "Concise branch and PR guidance distinguishes policy-permitted educational self-merge in 01/05 from protected live independent approval."
     },
     {
       "id": "docs/copilot-guide.md",
@@ -86,7 +86,7 @@
     {
       "id": "full-ws-content/README.md",
       "kind": "guide",
-      "summary": "Full workshop review index distinguishes the live learner Exercise from the read-only source Preview."
+      "summary": "Concise review index preserves original A/B outcomes and separates the AVM authoring companion from graded activities and live delivery."
     },
     {
       "id": "full-ws-content/00-start-here.md",
@@ -140,7 +140,103 @@
       "id": "docs/daily work report/2026-09-15.md",
       "kind": "report",
       "date": "2026-09-15",
-      "summary": "Attendee-owned Azure setup, the warning-only lesson clarification and recorded checks preserve network-module code and distinguish read access from deployment."
+      "summary": "Same-day setup history plus concise AVM follow-up records 35 Node passes and three contracts with fixed pre-report metrics; commit-bound publication tracked separately without new execution."
+    },
+    {
+      "id": "docs/glossary.md",
+      "kind": "guide",
+      "date": "2026-09-15",
+      "summary": "Concise workshop terminology separates module contracts, resource ownership and Azure authorization."
+    },
+    {
+      "id": ".github/steps/01.md",
+      "kind": "guide",
+      "date": "2026-09-15",
+      "summary": "Concise lesson defines the reusable network boundary independently of any earlier laboratory."
+    },
+    {
+      "id": ".github/steps/02.md",
+      "kind": "guide",
+      "date": "2026-09-15",
+      "summary": "Concise VNet and named-subnet implementation lesson distinguishes file changes and mocked contracts from deployment."
+    },
+    {
+      "id": ".github/steps/03.md",
+      "kind": "guide",
+      "date": "2026-09-15",
+      "summary": "Concise lesson exposes caller-facing resource-backed network outputs."
+    },
+    {
+      "id": ".github/steps/04.md",
+      "kind": "guide",
+      "date": "2026-09-15",
+      "summary": "Concise original learner-root validation lesson retains offline completion and rejection checks."
+    },
+    {
+      "id": "avm/README.md",
+      "kind": "guide",
+      "date": "2026-09-15",
+      "summary": "Pinned VNet/NSG AVM profile explains three offline contracts, isolated ownership/state and separately gated complete destroy-plan/apply/state commands; authoring tests are not live proof."
+    },
+    {
+      "id": "avm/terraform.tf",
+      "kind": "config",
+      "date": "2026-09-15",
+      "summary": "Exact Terraform 1.16.1 and AVM-compatible provider requirements remain isolated from the unchanged AzureRM 5.4.0 learner baseline."
+    },
+    {
+      "id": "avm/providers.tf",
+      "kind": "config",
+      "date": "2026-09-15",
+      "summary": "AVM provider configuration binds attendee-supplied scope and disables automatic provider registration."
+    },
+    {
+      "id": "avm/variables.tf",
+      "kind": "config",
+      "date": "2026-09-15",
+      "summary": "Typed attendee scope, disposable network name, address space and named-subnet inputs enforce profile boundaries."
+    },
+    {
+      "id": "avm/main.tf",
+      "kind": "code",
+      "date": "2026-09-15",
+      "summary": "VNet AVM 0.22.2 consumes NSG AVM 0.5.1 with stable subnet keys, disabled telemetry and separate existing-RG workload ownership."
+    },
+    {
+      "id": "avm/outputs.tf",
+      "kind": "code",
+      "date": "2026-09-15",
+      "summary": "Caller-facing outputs expose the actual AVM network, subnet and NSG resource identities without hardcoded author values."
+    },
+    {
+      "id": "avm/tests/contract.tftest.hcl",
+      "kind": "test",
+      "date": "2026-09-15",
+      "summary": "Three provider-mocked plan contracts check stable named subnets and reject invalid CIDR and shared-network naming."
+    },
+    {
+      "id": "avm/.terraform.lock.hcl",
+      "kind": "config",
+      "date": "2026-09-15",
+      "summary": "Profile-specific provider selections and Windows/Linux hashes support readonly initialization without downgrading the learner lock."
+    },
+    {
+      "id": "scripts/check-companion.mjs",
+      "kind": "code",
+      "date": "2026-09-15",
+      "summary": "Credential-stripped AVM checker requires formatting, backend-disabled readonly init, schema validation and exactly three passed mocked cases with no errors or skips."
+    },
+    {
+      "id": ".github/workflows/companion-checks.yml",
+      "kind": "config",
+      "date": "2026-09-15",
+      "summary": "Separate unprivileged Node/Terraform companion CI uses read-only repository permissions and no Azure/OIDC/state access."
+    },
+    {
+      "id": "package.json",
+      "kind": "config",
+      "date": "2026-09-15",
+      "summary": "Package companion:check entry invokes the isolated AVM authoring checker separately from original learner checks."
     }
   ],
   "edges": [
@@ -251,6 +347,126 @@
       "to": "docs/daily work report/2026-09-15.md",
       "rel": "maintenance-report",
       "date": "2026-09-15"
+    },
+    {
+      "from": "docs/start-here.md",
+      "to": "docs/glossary.md",
+      "rel": "terminology"
+    },
+    {
+      "from": ".github/agentalvine/course.json",
+      "to": ".github/steps/01.md",
+      "rel": "lesson"
+    },
+    {
+      "from": ".github/agentalvine/course.json",
+      "to": ".github/steps/02.md",
+      "rel": "lesson"
+    },
+    {
+      "from": ".github/agentalvine/course.json",
+      "to": ".github/steps/03.md",
+      "rel": "lesson"
+    },
+    {
+      "from": ".github/agentalvine/course.json",
+      "to": ".github/steps/04.md",
+      "rel": "lesson"
+    },
+    {
+      "from": "full-ws-content/activity-01.md",
+      "to": ".github/steps/01.md",
+      "rel": "mirrors"
+    },
+    {
+      "from": "full-ws-content/activity-02.md",
+      "to": ".github/steps/02.md",
+      "rel": "mirrors"
+    },
+    {
+      "from": "full-ws-content/activity-03.md",
+      "to": ".github/steps/03.md",
+      "rel": "mirrors"
+    },
+    {
+      "from": "full-ws-content/activity-04.md",
+      "to": ".github/steps/04.md",
+      "rel": "mirrors"
+    },
+    {
+      "from": "README.md",
+      "to": "avm/README.md",
+      "rel": "companion-guide"
+    },
+    {
+      "from": "full-ws-content/README.md",
+      "to": "avm/README.md",
+      "rel": "companion-guide"
+    },
+    {
+      "from": "avm/README.md",
+      "to": "avm/terraform.tf",
+      "rel": "explains"
+    },
+    {
+      "from": "avm/README.md",
+      "to": "avm/providers.tf",
+      "rel": "explains"
+    },
+    {
+      "from": "avm/README.md",
+      "to": "avm/variables.tf",
+      "rel": "explains"
+    },
+    {
+      "from": "avm/README.md",
+      "to": "avm/main.tf",
+      "rel": "explains"
+    },
+    {
+      "from": "avm/README.md",
+      "to": "avm/outputs.tf",
+      "rel": "explains"
+    },
+    {
+      "from": "avm/terraform.tf",
+      "to": "avm/.terraform.lock.hcl",
+      "rel": "locked-by"
+    },
+    {
+      "from": "avm/tests/contract.tftest.hcl",
+      "to": "avm/main.tf",
+      "rel": "tests"
+    },
+    {
+      "from": "avm/tests/contract.tftest.hcl",
+      "to": "avm/variables.tf",
+      "rel": "tests"
+    },
+    {
+      "from": "avm/tests/contract.tftest.hcl",
+      "to": "avm/outputs.tf",
+      "rel": "tests"
+    },
+    {
+      "from": "scripts/check-companion.mjs",
+      "to": "avm/tests/contract.tftest.hcl",
+      "rel": "validates-contracts"
+    },
+    {
+      "from": ".github/workflows/companion-checks.yml",
+      "to": "scripts/check-companion.mjs",
+      "rel": "runs-unprivileged"
+    },
+    {
+      "from": "package.json",
+      "to": "scripts/check-companion.mjs",
+      "rel": "companion-check"
+    },
+    {
+      "from": "docs/daily work report/2026-09-15.md",
+      "to": "avm/README.md",
+      "rel": "records-companion-scope"
     }
   ],
   "hotspots": [

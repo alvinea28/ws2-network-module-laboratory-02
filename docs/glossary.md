@@ -1,153 +1,144 @@
 # Glossary: the words used in this laboratory
 
-Use this page when a task introduces an unfamiliar term. The definitions apply to **this standalone lab copy** on Windows, macOS, and Linux. The [workshop catalogue](https://github.com/alvinea28/ws2-workshop-catalogue) offers other independent labs; you do not need their repositories to understand or complete this one's offline work.
+**Goal:** understand the current task without guessing which account, file or operation it means. Every lab is independent; [other numbered labs](https://github.com/alvinea28/ws2-workshop-catalogue) are not prerequisites for this copy's offline work.
 
 ## Quick navigation
 
-- [Accounts and permission](#accounts-and-permission)
-- [Repository, folder, and local work](#repository-folder-and-local-work)
-- [Moving and reviewing changes](#moving-and-reviewing-changes)
-- [GitHub automation and progress](#github-automation-and-progress)
-- [VS Code and Copilot](#vs-code-and-copilot)
-- [Terraform and the offline boundary](#terraform-and-the-offline-boundary)
-- [Choose the next action](#choose-the-next-action)
+[Accounts](#accounts-and-permission) · [Local work](#repository-folder-and-local-work) · [Git/PRs](#moving-and-reviewing-changes) · [Automation](#github-automation-and-progress) · [Copilot](#vs-code-and-copilot) · [Terraform](#terraform-and-the-offline-boundary) · [Next action](#choose-the-next-action)
 
 ## Accounts and permission
 
-| Term | Beginner meaning | Important distinction |
-| --- | --- | --- |
-| **GitHub account** | Your personal identity on GitHub | Use the same intended personal account for invitations and workshop access |
-| **Organization** | A shared container for repositories, people, and policies | It can own a copy or assign a seat; you do not sign in as the organization |
-| **Owner** | The person or organization named before a repository name | Repository ownership is not the same as the browser's signed-in user |
-| **Invitation** | A request to join an organization or gain repository access | It must be accepted with the intended account; it is not automatically a Copilot seat |
-| **Authentication / sign-in** | Proving which account is acting | Sign-in alone does not grant every permission |
-| **Authorization / permission** | The operations that account may perform | Reading a public template does not prove permission to push to it |
-| **Git Credential Manager (GCM)** | Software that helps Git authenticate HTTPS operations through supported sign-in flows | Git's saved account can differ from VS Code's account selection |
-| **VS Code Accounts** | The editor menu for connected identities and extension account preferences | An extension may select a different connected account from another extension |
-| **Copilot seat / entitlement** | Permission for a particular personal account to use Copilot | A seat does not grant repository write access or Azure access |
-| **Git author identity** | The name and email recorded in a commit | Repository-local `user.name` and `user.email` are authorship metadata, not credentials |
-| **noreply email** | A GitHub-provided commit email that can conceal your ordinary email address | Use the exact address shown in your account's email settings, not an invented example |
-| **Credential / token / private key** | Sensitive material that can authorize access | Never paste it into chat, issues, terminals, or logs; use trusted credential UI |
+| Term | Meaning and distinction |
+| --- | --- |
+| **GitHub account** | Your personal login; use the intended account for invitations and access. |
+| **Organization** | Shared repository/policy container; can assign seats, but is not a personal login. |
+| **Owner** | Account/organization before the repository name; may differ from the signed-in user. |
+| **Invitation** | Access offer; accept with the intended account. Not automatically a Copilot seat. |
+| **Authentication** | Proves which account acts; does not grant every permission. |
+| **Authorization** | Determines allowed operations; public read access does not prove push permission. |
+| **Git Credential Manager (GCM)** | Handles Git HTTPS authentication; its account can differ from VS Code's. |
+| **VS Code Accounts** | Connected identities and extension preferences; extensions can choose different accounts. |
+| **Copilot seat/entitlement** | Personal account's Copilot access, not repository write or Azure access. |
+| **Git author identity** | Commit `user.name`/`user.email` metadata; repository-local setup is not sign-in. |
+| **noreply email** | GitHub's privacy-preserving commit email; copy the exact address from account email settings. |
+| **Credentials/tokens/private keys** | Sensitive access material; use trusted sign-in UI, never paste into chat/issues/terminals/logs. |
 
-> [!NOTE]
-> Keep four checks separate: GitHub's browser session, Git's HTTPS credentials, VS Code's selected account, and Copilot's seat. The doctor can check local Git authorship, but cannot certify any human browser authorization or Copilot entitlement. See [start-here.md](start-here.md#understand-the-different-accounts-and-places).
+Browser login, Git credentials, VS Code selection and Copilot entitlement are separate. The doctor checks local authorship, not human authorization. See [account setup](start-here.md#understand-the-different-accounts-and-places).
 
 ## Repository, folder, and local work
 
-| Term | Beginner meaning | In this workshop |
-| --- | --- | --- |
-| **Git** | Software that records versions and relationships between changes | It runs locally even when no network operation is happening |
-| **GitHub** | A hosting and collaboration service for Git repositories | Its browser UI holds your copy, issues, PRs, and Actions runs |
-| **Repository / repo** | Files plus their Git history and branch references | Your participant repository is your own private template copy |
-| **Public template** | A reusable starting repository | Its public visibility lets you read it, not push participant work to it |
-| **Template copy** | A newly created repository using a template's starting files | Choose **Private** and preserve the selected lab's final two-digit number |
-| **Fork** | A repository connected to another repository through GitHub's fork relationship | It is not the requested template-copy route |
-| **Clone** | A local Git copy of a repository and its history | Clone your own private copy, not the public template |
-| **Parent folder** | A folder that contains other folders | Choose it as the clone destination, but then open the repository's child folder |
-| **Repository root** | The top-level folder of this clone | The supplied Node helper commands run from here |
-| **Working tree** | The checked-out files you can currently edit on disk | Saving changes this tree; it does not automatically create a commit |
-| **ZIP download** | A snapshot of files without a normal clone's Git setup | Do not replace cloning with ZIP extraction or initialize an unrelated new repository |
-| **Branch** | A named line of development inside a repository | The task specifies a branch, commonly with a `lab/` prefix; it is not another folder |
-| **Default branch** | The branch GitHub treats as the repository's normal starting point | Usually `dev`; inspect the actual copy instead of assuming `main` |
-| **HEAD** | Git's reference to your current checked-out position | In normal task work it follows the selected branch's latest local commit |
-| **Detached HEAD** | A checkout of a commit rather than an ordinary working branch | Stop and ask for guidance before making task commits there |
+| Term | Meaning and distinction |
+| --- | --- |
+| **Git / GitHub** | Local version-control software / hosting service for repositories, issues, PRs and runs. |
+| **Repository (repo)** | Files, Git history and branch references; use your private template copy. |
+| **Public template** | Reusable starting material; readable, not a destination for participant pushes. |
+| **Template copy** | New independent repository; choose **Private**, retaining the lab's final two-digit number. |
+| **Fork** | Repository linked through GitHub's fork relationship; not this workshop's copy route. |
+| **Clone** | Local repository with history; download your own copy, not the public source. |
+| **Parent folder / root** | Container folder / clone's top-level folder; open the root and run helpers there. |
+| **Working tree** | Checked-out files on disk; saving them does not commit them. |
+| **ZIP download** | File snapshot without normal clone setup; not a replacement for cloning. |
+| **Branch** | Named line of work, not a folder; use the task's exact `lab/` name. |
+| **Default branch** | Normal starting branch, currently `dev`; check your copy rather than assume `main`. |
+| **HEAD** | Current checkout position, normally the selected branch's latest local commit. |
+| **Detached HEAD** | A commit checkout without an ordinary working branch; stop before task commits. |
 
 ## Moving and reviewing changes
 
-| Term | Beginner meaning | What to check |
-| --- | --- | --- |
-| **Save** | Write an editor's current text to disk | The tab's unsaved-change dot disappears |
-| **Diff** | A comparison showing removed and added content | Read every intended change before staging |
-| **Stage** | Select the current version of a change for the next commit | Use the file's **+** button; later edits are not automatically added to the staged version |
-| **Commit** | A recorded local snapshot of staged changes, with a message and author | A commit is not yet a push |
-| **SHA / commit identifier** | An identifier for one exact recorded commit | A branch name can move; an exact commit identifier identifies a fixed revision |
-| **Remote** | A named repository location that local Git can exchange commits with | Its fetch and push targets must identify your intended copy |
-| **origin** | The conventional remote name established by cloning | The word does not guarantee that the configured address is correct |
-| **Fetch** | Download remote Git objects and references without integrating them into your current branch | Fetch alone does not update the files you are working on |
-| **Pull** | Fetch and integrate the tracking branch's remote changes | Use it before work on a clean, intended branch; stop on conflicts |
-| **Push** | Send local commits to a remote branch | Verify the browser branch and latest commit afterward |
-| **Publish Branch** | VS Code's first-push route for a new local branch | Publish to the existing private copy, not a second repository |
-| **Tracking branch / upstream** | The remote branch paired with a local branch | A new unpublished task branch may not have one yet |
-| **Pull request / PR** | A proposal to merge one branch's changes into another | Both sides belong to this private copy; creating a PR does not merge it |
-| **Base / compare** | The target branch / proposed source branch in GitHub's PR comparison | Base is normally the actual default; compare is your current task branch |
-| **Draft PR** | A PR explicitly marked as not ready for final review or merge | Keep it a draft when the current task requires that state |
-| **Peer review** | Another eligible person checks the submitted change | Labs 1 and 5 require genuine nonauthor approval of the last head, not self-approval or AI review |
-| **Merge** | Combine the approved source branch's changes into its target | Do it only when the task, checks, and required review permit it |
-| **Conflict** | Git cannot safely combine competing changes automatically | Preserve work and resolve deliberately; do not blindly accept one whole side |
-| **Force push / discard / stash** | Operations that can rewrite remote history, remove edits, or move edits out of view | None is a generic beginner repair; never use them blindly to get past a warning |
+| Term | Meaning and distinction |
+| --- | --- |
+| **Save** | Writes editor text to disk; the unsaved tab dot disappears. |
+| **Diff** | Added/removed content; read every intended change before staging. |
+| **Stage** | Selects current changes for a commit; later edits need fresh review/staging. |
+| **Commit** | Local snapshot with message/author; not yet uploaded. |
+| **SHA** | Exact commit identifier; unlike a branch name, identifies a fixed revision. |
+| **Remote / origin** | Exchange destination / conventional clone remote; verify both fetch and push URLs. |
+| **Fetch** | Downloads remote objects/references without integrating them into your current files. |
+| **Pull** | Fetches and integrates tracking-branch changes; use a clean branch, stop on conflicts. |
+| **Push** | Uploads commits; verify the intended GitHub branch and SHA afterward. |
+| **Publish Branch** | First push to the existing copy, not creation of another repository. |
+| **Tracking branch/upstream** | Remote branch paired with a local branch; unpublished branches may lack one. |
+| **Pull request (PR)** | Merge proposal between branches in your copy; creating it does not merge it. |
+| **Base / compare** | Target / source branch; normally default `dev` / current task branch. |
+| **Draft PR** | Not ready for merge; retain this state when the task requests it. |
+| **Self-inspection** | Read your own diff/current checks. Labs 01/05 allow educational merges where rules permit. |
+| **Peer approval** | Eligible nonauthor's review when policy requires it. GitHub cannot self-approve; AI is not human approval. |
+| **Merge** | Combines source into target; your own account may merge your PR if task/rules/checks permit. |
+| **Conflict** | Git cannot combine changes automatically; preserve work and resolve deliberately. |
+| **Force push / discard / stash** | Rewrite history / remove edits / put edits aside; never blind beginner repairs. |
 
 ## GitHub automation and progress
 
-| Term | Beginner meaning | Workshop boundary |
-| --- | --- | --- |
-| **Issue** | A GitHub discussion or task record | The active **Exercise** issue is the current guide; a separate change-request issue may be required by a task |
-| **Issue body** | The main text at the top of an issue | AgentAlvine updates this text with progress and next instructions; it is not just a stream of comments |
-| **AgentAlvine** | The workshop's automatic GitHub facilitator | It can appear technically as `github-actions[bot]`; it is not Copilot Chat |
-| **GitHub Actions** | The service that runs repository workflows | A run's repository, branch, event, and commit matter as much as its color |
-| **Workflow / job / step** | An automation definition / a unit of work / an individual action inside that job | A successful unrelated job does not prove the learner task passed |
-| **Lab checks** | The supplied learner-validation workflow | PR validation is credential-free: no Azure, OIDC, or remote-state access |
-| **Current head** | The latest commit currently submitted on a branch or PR | Old green checks or approvals do not automatically cover a later change |
-| **Protected branch** | A branch with enforced restrictions such as checks or review | Do not remove its rules to unblock yourself; Lab 7 live delivery requires protected `main` |
-| **Tag / release** | A named reference / a published release record for a chosen revision | Lab 5 releases this copy's own reviewed module; a release is not Azure approval |
-| **Artifact** | A file produced or stored by a workflow | It can contain sensitive information; do not download or share plan/state artifacts as setup evidence |
+| Term | Meaning and distinction |
+| --- | --- |
+| **Issue / issue body** | Task/discussion / main text; the existing Exercise body contains current instructions. |
+| **AgentAlvine** | Automatic facilitator updating progress; may appear as `github-actions[bot]`, not Copilot. |
+| **GitHub Actions** | Workflow service; check repository, event, branch and SHA—not just color. |
+| **Workflow / job / step** | Automation definition / work unit / individual action; unrelated success is not task evidence. |
+| **Lab checks** | Learner validation; PR jobs have no Azure credentials, OIDC or remote state. |
+| **Current head** | Latest branch/PR commit; old checks or required approvals may not cover new edits. |
+| **Protected branch** | Enforced checks/review; never remove rules or use admin bypass to progress. |
+| **Tag / release** | Named revision reference / published record; Lab 05 uses its own checked module revision. |
+| **Artifact** | Workflow output; may be sensitive. Plans/state are not setup evidence to share. |
+
+A real merge/current CI is not a fabricated approval or an Azure authorization. Lab 07's protected live `main` is a separate instructor-controlled exception; maintenance stays on `dev`.
 
 ## VS Code and Copilot
 
-| Term | Beginner meaning | Safe use |
-| --- | --- | --- |
-| **Explorer** | VS Code's tree of opened files and folders | Its root should be this clone, not a parent containing several repositories |
-| **Command Palette** | A searchable list of editor commands | Open with **Ctrl+Shift+P**, or **Cmd+Shift+P** on macOS |
-| **Integrated terminal** | A shell inside the editor | Open with **Terminal** → **New Terminal**; it still has a real working directory |
-| **Workspace Trust** | VS Code's decision about whether an opened folder may enable trusted features | Trust only the known workshop clone, not all parent folders |
-| **User / Workspace settings** | Editor-wide preferences / preferences for the opened project | Prefer a justified Workspace change; preserve supplied two-space HCL formatting |
-| **Copilot context** | Files or text supplied to help answer a question | Use the `#` context picker for the intended non-sensitive file |
-| **Ask / Plan / Agent** | Modes for questions, planning, and assisted implementation | Begin with read-only Ask; keep plans read-only and inspect Agent tool approvals |
-| **Prompt** | Your request to Copilot | State the task, attached context, constraints, and what must not be done |
-| **Tool approval** | A decision allowing a proposed assistant action | A mode label is not a safety guarantee; decline unknown commands and broad access |
+| Term | Meaning and safe use |
+| --- | --- |
+| **Explorer** | Opened file tree; root should be this clone, not a multi-repository parent. |
+| **Command Palette** | Search editor actions with **Ctrl+Shift+P** (macOS **Cmd+Shift+P**). |
+| **Integrated terminal** | Shell in the editor, opened through **Terminal → New Terminal**; has a real current folder. |
+| **Workspace Trust** | Enables trusted folder features; trust this known clone, not every parent folder. |
+| **User / Workspace settings** | Cross-project / project-specific preferences; retain supplied two-space HCL formatting. |
+| **Copilot context** | Attached files/text; use `#` for the intended non-sensitive file, not unrelated data. |
+| **Ask / Plan / Agent** | Explanation / proposal / assisted implementation; begin read-only and inspect action approvals. |
+| **Prompt** | Request stating task, context, constraints and prohibited actions. |
+| **Tool approval** | Permission for a proposed action; mode labels do not guarantee safety. |
 
 ## Terraform and the offline boundary
 
-| Term | Beginner meaning | In this workshop |
-| --- | --- | --- |
-| **Node.js** | The JavaScript runtime that executes the supplied helper scripts | Pin **24.16.0**; it is not Terraform or an Azure sign-in tool |
-| **PATH** | The list of directories a shell searches for executable commands | A narrow approved user-level entry may be needed; never replace the whole list |
-| **Architecture** | The processor family a downloaded program targets | Match Windows/macOS/Linux and x64/amd64 versus ARM64 |
-| **Terraform CLI** | The local Terraform program | Pin **1.16.1**; the CLI version and provider version are different |
-| **HCL** | The configuration language used for Terraform code | Preserve the supplied two-space indentation and typed input contracts |
-| **Provider / AzureRM** | A plugin describing Azure resource schemas and operations | Pin **AzureRM 5.4.0**; loading its schema is not proof of cloud access |
-| **Provider lockfile** | Recorded provider versions and package checksums | Supplied locks are consumed read-only, not regenerated to hide a mismatch |
-| **Module** | Reusable Terraform configuration with inputs and outputs | Each lab supplies the baseline it needs; no earlier repository is required |
-| **Module pin** | A reference to an exact module source revision | It differs from the provider lock; Lab 5 checks an exact released commit from its own copy |
-| **Schema / validation** | Allowed properties and types / checks that inputs or configuration obey rules | Review real versioned schemas and rejection cases, not just a Copilot suggestion |
-| **Mock provider** | A test substitute that avoids real provider operations | Required test runs must actually execute with the supplied mocks |
-| **Offline check** | The approved credential-free learner validation path | Provider downloads may use the internet; no Azure or remote-state operations are allowed |
-| **Backend / state** | Terraform's state-storage configuration / its record of managed resources | State can be sensitive; do not initialize or access a real backend for setup |
-| **Saved plan / encrypted-plan review** | A proposed change artifact / a protected independent review process for that exact artifact | Live Lab 7 requires instructor readiness; never paste plan material or keys into chat or logs |
-| **OIDC identity / runner** | A workflow's short-lived identity mechanism / the machine executing a job | Instructor-controlled live infrastructure, not something a learner enables to fix an offline check |
-| **terraform-docs** | A program that generates module documentation | **0.24.0**, Lab 4 only; use the supplied canonical generator |
-| **Doctor** | The read-only root, tool, and Git-identity setup check | It does not install, sign in, confirm a Copilot seat, or prove cloud readiness |
+| Term | Meaning and workshop boundary |
+| --- | --- |
+| **Node.js** | Helper-script runtime, **24.16.0**; neither Terraform nor Azure authentication. |
+| **PATH** | Directories searched for executables; add only approved user entries, never replace all. |
+| **Architecture** | CPU target; match OS and x64/amd64 versus ARM64 downloads. |
+| **Terraform CLI** | Local program, **1.16.1** for Labs 02–08; distinct from provider version. |
+| **HCL** | Terraform configuration language; preserve two spaces and typed contracts. |
+| **Provider / AzureRM** | Resource schema/operation plugin, **5.4.0**; schema access does not prove Azure access. |
+| **Provider lockfile** | Versions/checksums; consume supplied locks read-only, never regenerate to hide mismatches. |
+| **Module** | Reusable inputs/configuration/outputs; each lab includes its required baseline. |
+| **Module pin** | Exact source revision, not provider lock; Lab 05 uses its own released commit. |
+| **Schema / validation** | Allowed properties/types / rule checks; verify against real schemas and rejection cases. |
+| **Mock provider** | Substitute preventing live operations; required cases must actually execute. |
+| **Offline check** | Credential-free validation; registry downloads may use internet, never Azure/state. |
+| **Backend / state** | State storage configuration / managed-resource record; do not initialize/read a live backend for setup. |
+| **Saved plan / encrypted-plan review** | Exact proposed change artifact / protected independent review; never share raw plans or keys. |
+| **OIDC identity / runner** | Workflow authentication mechanism / job machine; live infrastructure belongs to instructor setup. |
+| **terraform-docs** | **0.24.0**, Lab 04 only; generate actual module API docs through the canonical helper. |
+| **Doctor** | Read-only root/tool/Git-authorship check; cannot install, sign in or prove Copilot/cloud readiness. |
 
-> [!WARNING]
-> Lab 7 is safe for independent offline study without another repository. Live work is a separate, instructor-controlled path requiring an approved private copy, protected `main`, identities, backend, restricted runner, and independent encrypted-plan review. Do not start or rerun live jobs from this glossary. GitHub issue progress is never deployment authorization.
+Zero/skipped tests are not passes. Lab 07 offline study needs no prior lab, but its [protected live workflow](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/docs/delivery-configuration.md) requires approved identities, backend, restricted runner and independent encrypted-plan approvals. Never start/rerun it to repair setup; issue progress grants no deployment permission.
 
 ## Choose the next action
 
-1. Find the unfamiliar term in the tables above.
-2. Identify whether your question concerns your account, local files, GitHub collaboration, or Terraform checks.
-3. Follow the matching guide rather than experimenting with unrelated commands.
+1. Find the term; decide whether the uncertainty is account, local Git, automation or Terraform.
+2. Use [start-here.md](start-here.md), [git-workflow.md](git-workflow.md), [copilot-guide.md](copilot-guide.md) or [toolchain.md](toolchain.md) rather than trying unrelated commands.
 
-| Action | Expected result | Recovery |
-| --- | --- | --- |
-| Follow [start-here.md](start-here.md) | Your own private copy and verified local setup | Stop at the first unresolved account, folder, or tool check |
-| Follow [git-workflow.md](git-workflow.md) | An intentional task commit reaches the right branch | Use [troubleshooting.md](troubleshooting.md) for conflicts, rejected pushes, or pending review |
-| Follow [copilot-guide.md](copilot-guide.md) | A scoped explanation you can verify | Reject unsafe alternatives without executing them |
-| Follow [toolchain.md](toolchain.md) | Exact versions and the approved offline check route | Preserve locks and cloud controls when a check fails |
-
-For a concrete local distinction, these read-only commands show the **branch name** and the **exact current commit** respectively. They work in PowerShell, macOS, and Linux shells; run each line separately.
+For the common **branch versus commit** distinction, run each read-only line separately in PowerShell/macOS/Linux; stop on errors or unexpected checkout state.
 
 ```powershell
 git branch --show-current
 git rev-parse HEAD
 ```
 
-Neither result proves that the commit was pushed, reviewed, or deployed. Compare the appropriate GitHub branch and current-task evidence using the workflow guide instead of treating a local command as proof of a different operation.
+| Command | What it does / flags | Expected |
+| --- | --- | --- |
+| `git branch --show-current` | `--show-current` reads the selected branch name | Your task branch; empty may mean detached HEAD |
+| `git rev-parse HEAD` | Resolves current checkout `HEAD` to its exact commit | Full SHA, not proof it was pushed/reviewed/deployed |
+
+| Problem | Recovery |
+| --- | --- |
+| Local/GitHub state differs | Compare branch and current SHA using the Git guide |
+| Term still unclear or check fails | Preserve work and use [troubleshooting.md](troubleshooting.md); keep unresolved gates pending |

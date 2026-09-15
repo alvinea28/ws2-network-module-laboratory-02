@@ -1,28 +1,21 @@
 # Laboratory 02 · Reusable network module
 
-**Public source template (not the clone URL after copying):** [alvinea28/ws2-network-module-laboratory-02](https://github.com/alvinea28/ws2-network-module-laboratory-02) · **Recommended order:** 02 of 08 · **Time:** 60–90 minutes
+**Public source template (not the clone URL after copying):** [alvinea28/ws2-network-module-laboratory-02](https://github.com/alvinea28/ws2-network-module-laboratory-02) · **Order:** 02 of 08 · **Time:** 60–90 minutes
 
 > [!NOTE]
-> **This laboratory is independent.** No earlier repository required. This copy includes the typed inputs, provider lock, mocks and a network-only starter.
-> New to the tools? The complete [illustrated first-time setup](docs/start-here.md) is included here—no other lab is required.
+> **This lab is independent:** build a VNet and stable-key subnets, expose resource-backed IDs, and inspect four mocked tests. Typed inputs, locks and starter files are supplied; no earlier lab or Azure account required.
 
 ## Start here — copy, clone, open and sign in
 
-**Before cloning:** if Git or desktop VS Code is not installed, complete [the official installation steps](docs/toolchain.md), restart VS Code, then continue below. If you have no GitHub account yet, choose **Sign up** on GitHub and verify your email as shown in [Start here](docs/start-here.md).
-
-**Azure account/RG setup:** [Enter your Azure values and sign in](docs/azure-setup.md) using your own assigned tenant, subscription and existing resource group. This separate read-only setup does not authorize deployment or change the lab's credential-free checks.
-
-1. **Browser:** sign in to your intended personal GitHub account. If the instructor assigned an organization, accept its invitation using that personal account.
-2. **GitHub:** create your own **Private** copy below, retaining **-laboratory-02** at the end of its name. If you already made a copy, do not copy again.
-3. **Desktop VS Code:** press **Ctrl+Shift+P** (macOS **Cmd+Shift+P**) → **Git: Clone** → paste **your own copy's HTTPS URL**, not this public source URL. Complete the trusted browser sign-in with the correct account.
-4. **Open the clone:** choose a local parent folder, then **Open** the newly cloned repository. Trust only the known workshop copy. Explorer must show this repository, not a parent with multiple labs or a browser-only virtual workspace.
-5. **Accounts:** verify GitHub and **GitHub Copilot** sign-in/seat. Git commit name/email is not sign-in. Use [account and context screenshots](docs/copilot-guide.md) if anything is unclear.
-6. **Terminal → New Terminal:** follow [tool installation and version checks](docs/toolchain.md), configure local Git authorship, then run **node scripts/doctor.mjs**. It checks local readiness, not browser/Copilot authorization.
-7. **Exercise:** refresh your copy after 20–60 seconds and open its Exercise issue. Follow the current detailed task and [save → stage → commit → push guide](docs/git-workflow.md).
+1. **Install/account:** follow [Toolchain](docs/toolchain.md) for Git, desktop VS Code, Node **24.16.0** and Terraform **1.16.1**. [Create/verify your personal GitHub account](docs/start-here.md), sign in and accept any organization invitation.
+2. **Copy once:** use the button below for a **Private** copy ending in **-laboratory-02**; reuse any existing copy.
+3. **Clone/open:** copy **your copy's Code → HTTPS** URL. Use **Ctrl+Shift+P → Git: Clone** (macOS **Cmd+Shift+P**), choose a parent folder, then **Open**. Complete trusted sign-in; trust/open this clone's root only, not a parent/ZIP/browser workspace.
+4. **Verify:** check VS Code GitHub/Copilot account and seat; configure [local authorship](docs/start-here.md#set-authorship-only-for-this-repository). Follow [Step 1](.github/steps/01.md) for explained readiness commands before editing.
+5. **Exercise:** open your copy's automatically created Exercise. Use its current body and the [Git guide](docs/git-workflow.md); publish real changes and return to the same issue. No manual checkboxes or evidence commands.
 
 ![Microsoft reference: cloning from GitHub in VS Code](docs/images/vscode-clone-github.png)
 
-*REFERENCE — Microsoft documentation example, not your account/repository. [Image attribution](docs/images/NOTICE.md). Detailed clone steps are in [Start here](docs/start-here.md#clone-your-copy-into-desktop-vs-code).*
+*REFERENCE — Microsoft, CC BY 3.0 US; example repositories, not yours. [Attribution](docs/images/NOTICE.md) · [Clone help](docs/start-here.md#clone-your-copy-into-desktop-vs-code).*
 
 <!-- AGENTALVINE:START -->
 ## Copy this exercise once
@@ -34,19 +27,20 @@ Select the intended Owner, keep **Private**, leave **Include all branches** off,
 
 ## Full workshop content and instructor preview
 
-Read the [full setup, all four activities, and recorded simulation outcomes](full-ws-content/README.md). The [public source Exercise #1](https://github.com/alvinea28/ws2-network-module-laboratory-02/issues/1) is a **read-only instructor Preview with zero participant progress**, not your learner issue. After copying, follow **your private copy's own README Exercise link**; AgentAlvine updates that same issue body from real work.
+Read [all four lessons, setup and historical outcomes](full-ws-content/README.md). [Source Exercise #1](https://github.com/alvinea28/ws2-network-module-laboratory-02/issues/1) is a **read-only Preview with zero participant progress**. Follow your copy's own README Exercise link; AgentAlvine updates that body from real activity.
 
 ## What is included and what remains external
 
-- This copy has its own instructions, exercises, reference code and tests. The catalogue sequence builds concepts; there is no required earlier repository.
-- Git, VS Code, Node24.16.0 and Terraform1.16.1 are required. AzureRM5.4.0 is pinned; tests use mocks, not an Azure account.
-- Tool/setup instructions and a read-only doctor are provided locally.
-- No Azure credentials, state or deployment are needed for the offline laboratory.
+- Core AzureRM **5.4.0** stays pinned. Preserve typed inputs, stable `web`/`data` keys and resource-backed outputs. The final **Test learner module** gate requires all four cases at the current revision, including rejection cases.
+- No core PR/merge, Azure credentials, backend/state access or deployment required. Mock success does not prove connectivity or policy compliance.
+- [Terraform AVM hands-on](avm/README.md) uses a **separate AzureRM 4.81.0 profile**. Core mocks and historical **4/4** results do not complete/validate it; keep its configuration/state separate.
+
+Optional [Azure values/sign-in setup](docs/azure-setup.md) uses your own assigned tenant, subscription and existing group. It does not authorize deployment or change credential-free core checks.
 
 ## Help without guessing
 
 [First-time setup](docs/start-here.md) · [Azure values and sign-in](docs/azure-setup.md) · [Git actions](docs/git-workflow.md) · [Copilot accounts/context](docs/copilot-guide.md) · [Toolchain](docs/toolchain.md) · [Settings/Actions troubleshooting](docs/troubleshooting.md) · [Glossary](docs/glossary.md)
 
-Do not edit progress checkboxes or send manual evidence commands. AgentAlvine updates the same issue from real activity; a green checklist is not Azure authorization.
+Exercise progress is educational feedback, not Azure authorization.
 
 [All eight numbered laboratories](https://github.com/alvinea28/ws2-workshop-catalogue) · [MIT code license](LICENSE) · [Screenshot licenses](docs/images/NOTICE.md)

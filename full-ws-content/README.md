@@ -4,7 +4,7 @@
 
 [Full first-time setup](00-start-here.md) · [Enter your Azure values and sign in](azure-setup.md) · [Original simulation summary and verification limits](simulation.md) · [Repository landing page](../README.md)
 
-This review contains all four complete lessons from [.github/agentalvine/course.json](../.github/agentalvine/course.json), including setup, commands, expected results, recovery, and attributed reference images. Only relative Markdown links outside code fences are rebased in the copied lessons. The recorded statuses belong to the **2026-09-08 private participant simulations**, not to a reader or the public template.
+Four complete [course lessons](../.github/agentalvine/course.json), with only relative links outside code fences rebased. The table records **2026-09-08 private simulations**, not your progress or a deployment.
 
 | Activity | Full lesson | Cycle A | Cycle B |
 | --- | --- | --- | --- |
@@ -13,32 +13,30 @@ This review contains all four complete lessons from [.github/agentalvine/course.
 | 03 | [Return resource-backed outputs](activity-03.md) | Recorded verified | Recorded verified |
 | 04 | [Prove the learner root without Azure](activity-04.md) | Recorded verified | Recorded verified |
 
-Both original cycles reached **4/4 offline completion**. Whole-lab suite counts are not per-activity tests, and completion is not a deployment or human approval.
+Both cycles reached **4/4 core offline completion**. Whole-lab counts are not per-activity tests or deployment proof. [Private original proof](https://github.com/alvine-aurelio-org/ws2-public-rebuild-20260908-evidence/blob/dev/full-ws-content/lab-02/README.md) requires organization access.
+
+**Terraform AVM hands-on:** [separate AVM profile](../avm/README.md), AzureRM **4.81.0**. The custom core stays on **5.4.0**; its mocks and historical **4/4** do **not** complete/validate AVM. Keep configuration/state separate.
 
 ## The Exercise issue is the learner guide
 
-1. **Copy once:** create your own private numbered laboratory copy using the [repository landing page](../README.md), then clone and open that copy using the [full setup](00-start-here.md).
-2. **Open one Exercise issue:** after copying, use **your copy's README Exercise link**, not the public source link below. Its current **issue body** contains the task, files, acceptance criteria, progress, and next action. It is a learner guide, not a bug ticket or evidence submission.
-3. **Do the actual task:** edit → save → review the diff → stage → commit → push when files must change. Perform a real PR/review/merge or other GitHub activity only where a lesson actually requires it; Lab 02 has no additional PR or review gate.
-4. **Let credential-free checks observe the work:** the learner-root checks validate the relevant revision with provider mocks, without Azure credentials, OIDC, or state access. Incomplete intermediate files may legitimately fail before the final gate.
-5. **Return to the SAME ISSUE BODY:** AgentAlvine updates that body automatically, then presents the next task. **AgentAlvine is implemented with GitHub Actions**; the Actions tab is for run diagnostics, not a replacement for the Exercise issue.
+1. Copy once from the [landing page](../README.md), then clone/open using [setup](00-start-here.md). Use **your copy's README Exercise link**, not the source Preview.
+2. Follow the current issue body and [Git guide](../docs/git-workflow.md). Publish the learner design/resources/outputs; incomplete intermediate CI can fail legitimately. Lab 02 requires no additional PR/review/merge.
+3. Inspect **Lab checks → current commit → Test learner module**: all four root mock cases must execute successfully, including rejections. AgentAlvine uses GitHub Actions to update the **same Exercise body** automatically.
 
-Manual checkboxes, comments claiming success, and screenshots do not award progress. GitHub issue progression never authorizes Azure. The [workshop catalogue](https://github.com/alvinea28/ws2-workshop-catalogue) is a navigation repository and has **no course Exercise issue**.
+Checks need no Azure credentials, OIDC or state. Manual boxes, success comments and screenshots award nothing; progress never authorizes Azure. The [catalogue](https://github.com/alvinea28/ws2-workshop-catalogue) is navigation only.
 
 ## Public source preview — read only, not your learner issue
 
-[Open the live source Exercise #1 instructor Preview](https://github.com/alvinea28/ws2-network-module-laboratory-02/issues/1).
-
-The **2026-09-14 read-only GitHub observation** confirmed a successful source Preview run and an explicitly **read-only instructor Preview at step 0, with 0/4 participant progress**. This is not either private Cycle A/B issue, not a completed simulation, and not your own learner issue. After copying, use the Exercise link maintained in **your copy's README**.
+[Source Exercise #1](https://github.com/alvinea28/ws2-network-module-laboratory-02/issues/1) was observed on **2026-09-14** as a successful read-only Preview at **step 0, 0/4**. It is neither an A/B learner issue nor your copy's issue.
 
 ![Actual public Exercise preview for Laboratory 02 — new 2026-09-14 capture, not a completed simulation](images/exercise-preview.png)
 
-*Captured on 2026-09-14 from the actual public GitHub Exercise #1: read-only instructor Preview, step 0 (0/4). [images/provenance.json](images/provenance.json) records the PNG SHA-256 and exact capture timestamp. This current source Preview is not a September 8 participant screenshot or either private 4/4 outcome.*
+*Actual 2026-09-14 public Preview capture, not September 8 participant proof. [Provenance](images/provenance.json) records its timestamp and PNG hash.*
 
-See the separate [fresh local verification results](simulation.md#fresh-2026-09-14-verified-results) for command-output evidence, not participant progress.
+Separate [2026-09-14 local verification](simulation.md#fresh-2026-09-14-verified-results) is command-output evidence, not participant progress.
 
 ## If your private copy's Exercise is missing
 
-First refresh your copy's README and **Issues**, then inspect **Actions → AgentAlvine** and follow [missing-Exercise recovery](../docs/troubleshooting.md#agentalvine-or-the-exercise-is-missing). A busy queue can take longer than the initial wait.
+Refresh your copy's README/Issues; inspect **Actions → AgentAlvine** and [recovery](../docs/troubleshooting.md#agentalvine-or-the-exercise-is-missing).
 
-**Recovery only:** in the actual private learner copy, choose **Actions → AgentAlvine → Run workflow → Check progress**, selecting that copy's **actual default branch** (normally `dev`). This is not the normal progression protocol. **Do not choose Preview in a learner copy.** Do not create a fake Exercise, widen workflow/token permissions, disable protections, or dispatch a delivery workflow. Ask the instructor about a blocked policy rather than bypassing it.
+**Recovery only:** choose **Actions → AgentAlvine → Run workflow → Check progress** on your copy's actual default branch, normally `dev`, to reconcile its guide. Never select Preview in a learner copy, fake an Exercise, widen permissions, bypass protection or dispatch delivery.

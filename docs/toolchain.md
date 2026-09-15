@@ -1,6 +1,6 @@
 # Toolchain: install deliberately, verify the exact versions
 
-This page describes participant tool setup; no earlier lab repository is required. Azure CLI and your own instructor-approved Azure account are required for the separate [Azure values, sign-in and existing resource-group setup](azure-setup.md), not for the local doctor or provider-mocked checks. Use official downloads and your organization's approved installation process. If a managed computer requires administrator approval, ask IT or the instructor rather than bypassing that restriction. GitHub CLI, Azure PowerShell, containers, and a global package installation are not prerequisites here. See [copilot-guide.md](copilot-guide.md) for Copilot account setup; use instructor-approved editor extensions, not unverified alternatives.
+**Goal:** install this lab's tools from official sources, then verify each version. Use your organization's approved process; ask IT if installation is restricted. No earlier lab, GitHub CLI, Azure PowerShell, containers or global package bundle is required. [Copilot access](copilot-guide.md) and [Azure account/RG setup](azure-setup.md) are separate checks.
 
 ## Quick navigation
 
@@ -10,24 +10,23 @@ This page describes participant tool setup; no earlier lab repository is require
 
 | Component | Workshop version | Purpose and scope |
 | --- | --- | --- |
-| Desktop Visual Studio Code | Instructor-supported current desktop release | Local editor, terminal, Source Control, and Copilot UI; not just `github.dev` |
-| Git | A current instructor-supported Git release | Clone, local commits, pull, and push; no exact Git patch pin is prescribed |
-| Node.js | **24.16.0** | Runs the supplied doctor and learner helper scripts |
-| Terraform CLI | **1.16.1** | Terraform validation and provider-mocked tests; Lab 1's collaboration task does not execute Terraform |
-| AzureRM provider | **5.4.0** | Loaded by Terraform from the supplied provider lock, not installed as a separate CLI |
-| terraform-docs | **0.24.0 — Lab 4 only** | Generates the canonical module API documentation |
-| Azure CLI | Current organization/instructor-approved release; no workshop patch pin | Required for [Azure input, login and existing-RG reads](azure-setup.md) and separately approved live activities; use [official installation guidance](https://learn.microsoft.com/cli/azure/install-azure-cli) |
+| Desktop VS Code | Instructor-supported current release | Editor, terminal and Copilot; not just `github.dev` |
+| Git | Instructor-supported current release | Clone, commit and push; no workshop patch pin |
+| Node.js | **24.16.0** | All labs' helper scripts |
+| Terraform CLI | **1.16.1** | Labs **02–08** validation/mocks; not Lab 01 |
+| AzureRM provider | **5.4.0** | Supplied provider lock; no separate CLI installation |
+| terraform-docs | **0.24.0 — Lab 04 only** | Generate the module's API documentation |
+| Azure CLI | Current approved release; no workshop patch pin | [Account/RG reads](azure-setup.md), not the local doctor or mocks; no forced upgrade gate |
 
 > [!WARNING]
-> For attendee Azure sign-in and existing-RG reads, follow [Azure setup](azure-setup.md); these checks are not deployment authorization. Do not initialize a real remote backend, run a real plan/apply/destroy operation, or read state to test an installation. PR validation must not receive Azure credentials, OIDC, tokens, or a copied CLI cache. Do not paste credentials into a terminal or chat. Never replace your whole PATH, change system-wide execution policies, disable certificate checks, or reset global settings to make a tool appear to work.
+> Installation is not deployment approval. Do not test tools with a real backend, state, plan/apply/destroy or Azure credentials. PR checks stay credential-free, without OIDC or CLI caches. Never replace the whole PATH, change system-wide execution policy, disable TLS checks or bypass organization restrictions.
 
 ## Choose the correct operating system and architecture
 
-1. On Windows, open **Settings** → **System** → **About**.
-2. Read **System type** to identify an x64-based or ARM-based computer.
-3. Use the corresponding Windows build in the table below.
+1. Windows: read **Settings → System → About → System type**. macOS: read **Apple menu → About This Mac** (**Chip** = Apple silicon; **Processor** = Intel).
+2. Linux: run the two read-only commands below. **Expected:** an OS and CPU matching a download row; stop if unsupported.
 
-On macOS, use **Apple menu** → **About This Mac**: **Chip** identifies Apple silicon; an Intel **Processor** identifies an Intel Mac. On Linux, run these read-only commands in a terminal:
+**What it does:** `uname -s` prints the operating-system kernel name; `uname -m` prints the machine architecture, normally `x86_64` or `aarch64` on supported Linux computers.
 
 ```bash
 uname -s
@@ -43,117 +42,87 @@ uname -m
 | Linux `x86_64` | `linux-x64` | `linux_amd64` |
 | Linux `aarch64` or `arm64` | `linux-arm64` | `linux_arm64` |
 
-`amd64` means the x86-64 architecture and also applies to compatible Intel processors. `darwin` means macOS, not Linux. If the exact release lacks your platform, or a required provider lacks that architecture, stop and ask for a supported workshop computer; do not silently substitute another version or architecture.
+`amd64` means x86-64, including compatible Intel CPUs; `darwin` means macOS. If a pinned tool/provider lacks your platform, ask for a supported computer rather than substitute versions.
 
 ## Prepare desktop VS Code and Git
 
-1. Open the [official VS Code downloads page](https://code.visualstudio.com/Download).
-2. Select the desktop package for your operating system and architecture.
-3. Complete the approved installer or application-copy process.
-4. Open **Visual Studio Code** as a desktop application.
-5. On Windows, open the [official Git for Windows download page](https://git-scm.com/downloads/win).
-6. Download the appropriate official installer.
-7. Start that installer through your organization's approved process.
-8. Select **Git from the command line and also from 3rd-party software** on the PATH-selection page.
-9. Keep the supplied Git Credential Manager option enabled where offered.
-10. Complete the remaining approved defaults without adding unrelated optional tools.
-
-Git must be discoverable by desktop VS Code, not only inside Git Bash. The supported HTTPS sign-in uses Git Credential Manager's trusted browser flow; it does not require a token pasted into a shell. Per-repository author name and email are configured separately in [start-here.md](start-here.md#set-authorship-only-for-this-repository).
-
-**macOS:** follow the [Git project's macOS download guidance](https://git-scm.com/downloads/mac) using the approved installer or developer-tools route. **Linux:** follow the [Git project's Linux guidance](https://git-scm.com/downloads/linux) for your distribution's approved package. Do not copy a Windows executable onto either system or run an arbitrary website's installation script. Restart VS Code after installation before checking Git.
+1. Install the matching [desktop VS Code package](https://code.visualstudio.com/Download); open the application to confirm installation.
+2. Install Git using the official [Windows](https://git-scm.com/downloads/win), [macOS](https://git-scm.com/downloads/mac) or [Linux](https://git-scm.com/downloads/linux) route. Windows: select **Git from the command line and also from 3rd-party software**, retaining Git Credential Manager where offered. **Why:** VS Code must find Git outside Git Bash.
+3. Use GCM's trusted browser sign-in, never a pasted shell token. Configure [repository-local authorship](start-here.md#set-authorship-only-for-this-repository) separately; no unofficial installers or unrelated optional tools.
 
 ## Install Node.js 24.16.0
 
-1. Open the [official Node.js 24.16.0 release downloads](https://nodejs.org/dist/v24.16.0/).
-2. Choose the **Windows Installer (.msi)** matching your architecture and the exact `24.16.0` release.
-3. Verify that the download is from Node.js and follows your organization's publisher-verification policy.
-4. Run the approved installer with its normal Node.js and PATH features selected.
-5. Leave the optional native-module build-tools installation unchecked; this lab does not require that additional tool bundle.
-6. Finish the installer before restarting VS Code.
-
-**macOS:** select the official macOS installer for this exact release; if using a binary archive, select `darwin-arm64` for Apple silicon or `darwin-x64` for Intel. **Linux:** select the official `linux-arm64` or `linux-x64` archive matching the architecture check above. Use the release's checksum/signature guidance and your approved extraction process. The executable directory for a Node binary archive is its `bin` directory, not the archive's parent folder.
-
-For macOS/Linux archives, use your organization's narrow **per-user PATH** procedure for the selected binary directory; ask the instructor if you have never configured your shell. Do not replace shell profiles or system PATH entries. Avoid an unversioned “latest” installer or distribution package that silently supplies a different Node version.
+1. Download **24.16.0** from [Node.js](https://nodejs.org/dist/v24.16.0/), matching the architecture above; verify the publisher/checksum/signature through the approved process.
+2. Windows: run the matching **.msi** with Node/PATH features; leave optional native build tools unchecked. macOS: use the exact release's installer or matching archive; Linux: use its matching archive.
+3. For archives, add only the extracted **bin** directory through the approved **per-user PATH** procedure. **Expected:** the pinned Node, not an unversioned “latest” package; ask before altering unfamiliar shell configuration.
 
 ## Install Terraform 1.16.1
 
-1. Open the [official HashiCorp Terraform 1.16.1 release page](https://releases.hashicorp.com/terraform/1.16.1/).
-2. Select the ZIP whose operating system and architecture match the table above.
-3. Compare the archive's SHA-256 with the matching filename in HashiCorp's published checksums, following its signature-verification guidance.
-4. On Windows, select **Extract All...** to extract the executable into a dedicated folder under your own user profile.
-5. Search Windows Start for **Edit environment variables for your account**.
-6. Select **Path** under **User variables**, not **System variables**.
-7. Select **Edit...**.
-8. Select **New**.
-9. Enter only the folder containing the extracted Terraform executable, not the ZIP path or executable filename.
-10. Select **OK** to save each open settings dialog.
+1. Download the matching ZIP from [Terraform 1.16.1](https://releases.hashicorp.com/terraform/1.16.1/). Verify its SHA-256 against the **same filename** in HashiCorp's signed checksums.
+2. Extract to a user-owned tools folder. Windows: **Edit environment variables for your account → User variables → Path → Edit → New**, add only the executable's **folder**, then save with **OK**. macOS/Linux: use the approved per-user PATH procedure; do not overwrite system installations or weaken execution permissions.
 
-To calculate the downloaded ZIP's hash on Windows, replace `REPLACE-WITH-DOWNLOADED-ZIP-PATH` with that archive's actual local path before running this read-only command. Keep the quotation marks. Compare the result with the **same archive filename**, not another architecture's checksum.
+**What it does:** after replacing the placeholder with your downloaded ZIP's actual path, this read-only command prints its hash; `-Algorithm SHA256` selects the checksum type. Keep quotes and stop if the publisher's matching checksum differs.
 
 ```powershell
 Get-FileHash "REPLACE-WITH-DOWNLOADED-ZIP-PATH" -Algorithm SHA256
 ```
 
-**macOS/Linux:** download the pinned `darwin_*` or `linux_*` ZIP matching your architecture. Extract the Terraform binary into a dedicated user-owned tools folder using the official installation guidance. Add only that folder through your approved per-user PATH procedure. Ask the instructor to help with shell configuration or execution permissions if needed; do not use a blanket permission change, disable operating-system protections, or replace a system-installed Terraform.
-
 ## Add terraform-docs only for Lab 4
 
-1. Open the [official terraform-docs v0.24.0 release](https://github.com/terraform-docs/terraform-docs/releases/tag/v0.24.0).
-2. Choose the Windows, macOS (`darwin`), or Linux archive matching your architecture; its x64 builds may be labelled `amd64`.
-3. Verify the download against the publisher's release information and checksums.
-4. Extract the executable into its own user-owned tools folder.
-5. Add only its executable folder using the same narrow per-user PATH procedure.
+1. Download the matching archive from [terraform-docs v0.24.0](https://github.com/terraform-docs/terraform-docs/releases/tag/v0.24.0) and verify the publisher's checksum.
+2. Extract into its own user-owned folder and add that executable folder to user PATH. **Expected:** the Lab 04 generator can find version 0.24.0; other labs do not need it.
 
 ## Restart and verify each tool
 
-1. Save any open work in VS Code.
-2. Close **all** VS Code windows after installation or a PATH change.
-3. Reopen desktop VS Code in this lab's cloned repository folder.
-4. Select **Terminal** → **New Terminal**.
-5. Run each applicable version command separately; the terraform-docs line is **Lab 4 only**.
+1. Save, close **all** VS Code windows, reopen this clone and select **Terminal → New Terminal**. **Why:** an old editor process can retain the old PATH.
+2. Run applicable commands **one at a time; stop on an error or wrong version**. They also work in macOS/Linux shells.
 
 ```powershell
 git --version
 node --version
+# Labs 02–08 only:
 terraform version
 # Lab 4 only:
 terraform-docs version
 ```
 
-These commands are identical in macOS and Linux shells. Expect a Git version, **v24.16.0**, **Terraform v1.16.1**, and, in Lab 4, **terraform-docs version v0.24.0**. Check the editor version through **Help** → **About** on Windows/Linux, or **Code** → **About Visual Studio Code** on macOS. A new terminal inside an old editor process may still have an old PATH.
-
-| Action | Expected result | Recovery |
+| Command | What it does / flags | Expected |
 | --- | --- | --- |
-| Run an executable's version command | The required version is printed without an installation prompt | Stop on a missing command or wrong version; do not proceed on an assumption |
-| Locate a Windows command with `Get-Command node` or `Get-Command terraform` | Its **Source** is the intended installed executable | Ask IT about a conflicting older executable; do not delete unknown installations |
-| Locate a macOS/Linux command with `command -v node` or `command -v terraform` | The intended binary directory is selected | Correct only the approved user-level entry, then restart the editor |
-| Inspect HCL indentation in the editor | The supplied two-space style is retained | Use [Workspace settings guidance](copilot-guide.md#use-workspace-settings-deliberately), not a global reset |
+| `git --version` | `--version` reads installed Git version | Supported Git release |
+| `node --version` | Reads installed Node version | `v24.16.0` |
+| `terraform version` | Reads Terraform CLI version | `Terraform v1.16.1` |
+| `terraform-docs version` | Reads documentation tool version | `v0.24.0` in Lab 04 |
+| `Get-Command node` | Windows: locates Node without running it | **Source** is intended executable |
+| `Get-Command terraform` | Windows: locates Terraform | Intended executable |
+| `command -v node` | macOS/Linux: `-v` reports command location | Intended Node binary |
+| `command -v terraform` | macOS/Linux: reports command location | Intended Terraform binary |
+
+Check VS Code through **Help → About** (macOS: **Code → About Visual Studio Code**). For conflicts, correct only the approved user PATH entry; do not delete unknown installations.
 
 ## Run only the approved offline checks
 
-Run the read-only setup doctor from the clone's root first:
+**What it does:** this read-only doctor checks the clone root, tools and local Git authorship. Expect setup results; stop on reported problems or a missing script, and report an incomplete package rather than generating a substitute.
 
 ```powershell
 node scripts/doctor.mjs
 ```
 
-It checks the root, local tools, and Git identity. It does **not** prove browser sign-in, Git write access, a Copilot seat, or Azure readiness. If it is missing, report an incomplete package rather than generating a substitute or skipping the setup check silently.
+It does not prove browser sign-in, Git write access, a Copilot seat or Azure readiness.
 
-When the current Exercise asks for learner validation, use:
+**What it does:** when the Exercise requests validation, the learner helper checks this task using supplied offline preparation/mocks. It can download dependencies and write **disposable local test directories**, unlike the doctor; expect actual executed cases and stop on failures.
 
 ```powershell
 node scripts/check-learner.mjs
 ```
 
-The learner helper is **not read-only in the same sense as the doctor**: it can download dependencies and prepare disposable local test directories. For applicable Terraform roots, its initialization disables the backend and uses `-lockfile=readonly` so the supplied **AzureRM 5.4.0** lock is not upgraded or rewritten. First use can download that provider from its configured registry; “offline” means no Azure or remote-state operations, not necessarily no internet traffic. Check initialization output for the pinned provider version; there is no separate AzureRM CLI version command.
+The helper disables backend initialization and uses `-lockfile=readonly` to prevent lock changes. Confirm **AzureRM 5.4.0** in initialization output; it has no separate CLI version command. “Offline” excludes Azure/state access, not registry downloads. Never upgrade/unlock the provider, remove assertions, add credentials or disable TLS to hide failure. **Zero or skipped tests are not a pass.**
 
-**Lab 7:** use this helper's isolated offline preparation and included verified module snapshot. Do not initialize the canonical remote-backend environment, fetch state, or modify the backend to imitate the helper. **Lab 5:** the helper rehearses consumption within this same copy. **Lab 1:** it reports that actual issue and PR events determine collaboration progress. A real test suite must report executed passing cases; zero or skipped tests are not evidence of success.
-
-Do not regenerate the lockfile, upgrade the provider, remove failing assertions, add cloud credentials, or disable TLS checks to resolve a download or validation failure. Use [troubleshooting.md](troubleshooting.md#tools-formatting-or-offline-checks-fail) and the current task's feedback instead.
+Lab **01** uses real issue/PR events, not Terraform tests. Lab **05** rehearses consumption in the same copy. Lab **07** uses an isolated root and verified snapshot: never initialize its canonical backend or modify it to imitate the helper.
 
 ## Generate the Lab 4 documentation
 
-In **Lab 4 only**, after completing the relevant task edits, run the supplied generator from this clone's root. It **writes the canonical generated documentation**, so inspect the result in Source Control. Run it again to check that the second generation introduces no further diff, then run its read-only freshness check and the learner checks:
+1. In **Lab 04 only**, finish the task edits and run the following lines from the clone root, stopping on each error.
+2. Review generated changes in **Source Control**. **Expected:** the second generation changes nothing, freshness passes, and learner cases execute.
 
 ```powershell
 node scripts/generate-docs.mjs
@@ -162,4 +131,17 @@ node scripts/generate-docs.mjs --check
 node scripts/check-learner.mjs
 ```
 
-Run one line at a time and stop on an error. Do not replace the generator with a raw terraform-docs `--output-file` invocation: wrapper comments can differ from the canonical output. Do not invent a documentation table or copy one from another repository. The generated API must describe **this lab's actual module**.
+| Command | What it does / flags | Expected |
+| --- | --- | --- |
+| `node scripts/generate-docs.mjs` (first) | Writes canonical API docs from **this module** using pinned terraform-docs | Actual generated changes |
+| `node scripts/generate-docs.mjs` (second) | Repeats generation to check stability | No additional diff |
+| `node scripts/generate-docs.mjs --check` | `--check` checks freshness without writing | Success; stale output fails |
+| `node scripts/check-learner.mjs` | Runs the task's offline validation | Executed passing/rejection cases |
+
+Never copy or invent tables. Do not substitute raw terraform-docs `--output-file`: that flag writes a destination, but its wrappers may differ from the canonical generator.
+
+| Problem | Recovery |
+| --- | --- |
+| Missing/wrong executable | Check its location above; ask IT, then restart the editor |
+| Formatting mismatch | Preserve two-space HCL and inspect [Workspace settings](copilot-guide.md#use-workspace-settings-deliberately) |
+| Lock, download or test failure | Keep pins/controls; use [troubleshooting.md](troubleshooting.md#tools-formatting-or-offline-checks-fail) |

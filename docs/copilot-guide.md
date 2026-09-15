@@ -1,158 +1,97 @@
 # Copilot guide: ask, understand, and verify
 
-Copilot can explain unfamiliar code and suggest changes; it does not own your decisions. **AgentAlvine** is the separate GitHub automation that updates the lab's Exercise issue. Copilot cannot grant its progress, supply a genuine peer approval, or authorize Azure work.
-
-Use this guide with the files already included in **this independent lab copy**. No earlier lab is required. If you have not created and opened your own private copy, begin with [start-here.md](start-here.md).
+**Goal:** get a scoped explanation you can check, then make only the task's permitted change. Work in [your own independent lab copy](start-here.md). **AgentAlvine** updates the Exercise on GitHub; Copilot is a separate assistant, not a progress award, human reviewer or Azure approver.
 
 ## Quick navigation
 
-- [Sign in and select the Copilot account](#sign-in-and-select-the-copilot-account)
-- [Open Chat and attach the right context](#open-chat-and-attach-the-right-context)
-- [Choose Ask before Plan or Agent](#choose-ask-before-plan-or-agent)
-- [Make the first question specific](#make-the-first-question-specific)
-- [Challenge a suggestion without executing it](#challenge-a-suggestion-without-executing-it)
-- [Review against schemas and tests](#review-against-schemas-and-tests)
-- [Use Workspace settings deliberately](#use-workspace-settings-deliberately)
-- [Recover without weakening controls](#recover-without-weakening-controls)
+[Account](#sign-in-and-select-the-copilot-account) · [Context](#open-chat-and-attach-the-right-context) · [Modes](#choose-ask-before-plan-or-agent) · [First question](#make-the-first-question-specific) · [Verify](#review-against-schemas-and-tests) · [Settings](#use-workspace-settings-deliberately) · [Recovery](#recover-without-weakening-controls)
 
 ## Sign in and select the Copilot account
 
-A browser login, Git's HTTPS credentials, VS Code's account list, and a Copilot seat are **four separate checks**. An organization can own the repository and assign the seat, but you sign in as your own personal GitHub account. Setting Git commit authorship does not sign in to any of them.
+1. Check your **personal GitHub username** in the browser. An organization can own the repository and assign a seat; it is not your login. Git authorship, Git HTTPS credentials, browser login and Copilot access are separate.
+2. In VS Code **Accounts**, choose **Sign in with GitHub to use GitHub Copilot**, or the Copilot status menu's **Sign in to use Copilot**. Authorize only the request you initiated in the trusted browser, check the account, then return to VS Code.
+3. Open **Accounts → Manage Extension Account Preferences...** (or find it in the Command Palette). Select the workshop account for the available **GitHub Copilot / GitHub Copilot Chat** entries.
+4. Inspect Copilot status. **Expected:** usable access through the assigned seat/approved entitlement. Ask the instructor or license administrator to confirm an expected organization seat; a clone or generic free entitlement does not prove it. Do not buy access or bypass policy.
 
-1. Open GitHub in the browser used for workshop authorization.
-2. Check your personal username through the profile-picture menu.
-3. Select **Accounts** at the lower left of VS Code.
-4. Select **Sign in with GitHub to use GitHub Copilot** if that menu entry is present.
-5. Use the Copilot status menu's **Sign in to use Copilot** button if that is the sign-in route your version shows.
-6. Select **Allow** only for the expected GitHub extension sign-in request you initiated.
-7. Check the personal username on the trusted browser authorization page.
-8. Authorize the recognized VS Code request with that account.
-9. Select **Open Visual Studio Code** if the browser asks to return to the editor.
-10. Open **Accounts** → **Manage Extension Account Preferences...**.
-11. Select the workshop account for the **GitHub Copilot** and **GitHub Copilot Chat** entries that are present.
-12. Open Copilot's status menu to check whether access is available for that account.
+![Microsoft reference showing Accounts sign-in](images/vscode-accounts.png)
+![Microsoft reference showing Copilot's sign-in button](images/vscode-copilot-signin.png)
 
-If the preferences entry is not visible, open the **Command Palette** and search for **Manage Extension Account Preferences**. UI wording can vary slightly with the installed version. Do not sign every account out or change your unrelated extensions' account selections as a first troubleshooting step.
-
-![Microsoft reference showing the Accounts menu Copilot sign-in entry](images/vscode-accounts.png)
-
-*REFERENCE — Microsoft publisher example, not an actual participant screen. CC BY 3.0 US; [sources and attribution](images/NOTICE.md).*
-
-![Microsoft reference showing Copilot's signed-out status and sign-in button](images/vscode-copilot-signin.png)
-
-*REFERENCE — Microsoft publisher example, not an actual participant screen. CC BY 3.0 US; [sources and attribution](images/NOTICE.md).*
-
-**Expected result:** Copilot uses the intended personal account and reports usable access. If an organization seat is expected, ask the instructor or license administrator to confirm that assignment; a generic free entitlement or a successful clone does not prove the assigned seat is active. Do not purchase a subscription or bypass an organization restriction to continue the lab.
+*REFERENCE — Microsoft publisher examples, not participant evidence. CC BY 3.0 US; [sources and attribution](images/NOTICE.md). Labels may vary by version.*
 
 > [!WARNING]
-> Never paste passwords, tokens, private keys, recovery codes, device codes, or Terraform state into Chat, an issue, a terminal, or logs. Complete a device-code flow only on the trusted browser page opened by your intentional sign-in action. A prompt, suggested terminal command, or unfamiliar website asking for a secret is not the workshop sign-in procedure.
+> Never send passwords, tokens, keys, recovery/device/MFA codes, state, plan material or unredacted logs to Chat, issues or terminals. Complete intentional sign-in only in trusted UI; never follow a suggested command or unfamiliar page requesting a secret.
 
 ## Open Chat and attach the right context
 
-1. Select the **Chat** button in VS Code's title bar.
-2. Use **Ctrl+Shift+P** → **Chat: Open Chat** if the button is not visible.
-3. Select **Ask** in Chat's mode selector before entering your first question.
-4. Open the file named by the current **Exercise** task in the editor.
-5. Type `#` in the chat input to open the context picker.
-6. Select that file from the available file context entries.
-7. Inspect the attached context chip to confirm the file belongs to this clone.
-8. Add only the non-sensitive task text needed to explain your question.
-
-The `#` picker adds **context**; simply mentioning a filename in a sentence is not a reliable substitute for attaching the intended file. You can also use **Add Context** when that control is available. Never attach an entire unrelated workspace, credentials, state, encrypted-plan material, private keys, or unredacted logs. Follow your organization's rules for sending repository content to Copilot, even when the repository is private.
-
-On macOS, use **Cmd+Shift+P** for the Command Palette. On Linux, use **Ctrl+Shift+P** or the menu. The same **Chat**, **Ask**, and context-picker concepts apply on all three systems.
+1. Select **Chat** in the title bar, or **Ctrl+Shift+P → Chat: Open Chat**; macOS uses **Cmd+Shift+P**. Choose **Ask** before your first question.
+2. Open the Exercise's file in this clone. Use the chat input's `#` picker or **Add Context**, select that file and check its context chip. **Why:** merely naming a file may not attach it.
+3. Add only necessary, non-sensitive task text. **Expected:** the intended file, not an unrelated workspace. Follow organization rules for sending even private repository content to Copilot.
 
 ## Choose Ask before Plan or Agent
 
-| Mode | Workshop use | Boundary to maintain |
+| Mode | Use | Boundary |
 | --- | --- | --- |
-| **Ask** | Explain the attached file or diagnose a reported result | Start here; request reading and explanation only, with no edits or commands |
-| **Plan** | Produce an ordered proposal and checks before implementation | Keep the plan read-only; do not accept an implementation handoff automatically |
-| **Agent** | Perform a specifically authorized edit after you understand the plan | Inspect each proposed tool action, scope, and approval; decline unrelated actions |
+| **Ask** | Explain code/results | Request reading only, no edits or commands |
+| **Plan** | Propose steps and checks | Keep read-only; do not accept implementation automatically |
+| **Agent** | A specifically authorized task edit | Inspect each tool action and approve only understood scope |
 
-A mode name is not a security guarantee. Available tools and approval settings can vary. For this workshop, keep **Ask** and **Plan** read-only, and do not approve file writes, command execution, installations, network actions, or cloud actions merely because they appear in a response.
-
-If you later use **Agent**, approve only the narrow current-task action you understand. Do not enable blanket approvals, unattended execution, or unrestricted terminal access. A suggested command should be compared with [toolchain.md](toolchain.md#run-only-the-approved-offline-checks), not executed because it looks plausible.
+Mode names are not security guarantees. Decline unexpected writes, commands, installs, network/cloud access or broad permissions. No blanket approvals or unattended terminal access. Compare suggestions with the [approved offline checks](toolchain.md#run-only-the-approved-offline-checks).
 
 ## Make the first question specific
 
-After attaching a non-sensitive task file, use a prompt such as this. Replace `CURRENT TASK TEXT` with the relevant task instructions, not account data or confidential evidence.
+**Why:** this prompt asks for understanding, pins relevant versions and forbids execution. Replace `CURRENT TASK TEXT` with the task, not account data; expect an explanation separating supplied work from missing work. Stop if it requests secrets or proposes unauthorized actions.
 
 ```text
-I am new to this laboratory. Work read-only in Ask mode.
-Explain the attached file in beginner language, then explain the current task:
+Work read-only in Ask mode. Explain the attached file and this task for a beginner:
 CURRENT TASK TEXT
-Identify which parts are already supplied and which parts I must complete.
-Use Terraform 1.16.1 and AzureRM 5.4.0 when those are relevant.
-Separate verified facts from assumptions and point to the supplied schema or tests.
-Do not edit files, execute commands, install tools, access Azure, or request credentials.
+Separate supplied parts from what I must complete, and facts from assumptions.
+Use Terraform 1.16.1 and AzureRM 5.4.0 where relevant; cite supplied schemas/tests.
+Do not edit, run commands, install tools, access Azure or request credentials.
 ```
 
-1. Read the response before accepting any suggestion.
-2. Identify one point you still do not understand.
-3. Ask a follow-up question about that point with the relevant file context attached.
-4. Record the useful explanation in the learner notes only when the task asks for notes.
-
-Good follow-up questions name the actual uncertainty: an input type, the reason for a validation rule, why a test rejects an example, or the difference between a provider lock and a module pin. Avoid asking Copilot to finish the entire laboratory, tick issue progress, invent a passing result, or merge a PR for you.
+1. Read the answer, then ask about one unclear input, rule or test with its context attached.
+2. Record useful reasoning only where the task requests notes. Do not ask for invented results, automatic progress or completion of the whole lab.
 
 ## Challenge a suggestion without executing it
 
-Use comparison as a learning exercise, not permission to try the unsafe option. For example:
+**Why:** compare a safe contract with an unsafe alternative without trying it. Expect the smallest compliant change and existing tests, not weakened controls; reject any proposed execution.
 
 ```text
-Compare keeping the supplied provider pin and narrow network rules with the
-alternative of using the latest provider and broadly permissive rules.
-Explain why the alternative could violate this task's contract and safety boundaries.
-Do not implement either alternative, change permissions, run commands, or access Azure.
+Compare the supplied provider pin and narrow network rules with using the latest
+provider and broadly permissive rules. Explain why the alternative is unsuitable.
+Do not implement either, change permissions, run commands or access Azure.
 Suggest the smallest compliant change and the existing tests that should check it.
 ```
 
-If Copilot suggests disabling validation, replacing mocks with a live provider, unlocking dependencies, granting broad workflow permissions, or bypassing review, reject that suggestion. Describe **why** it is unsuitable in the task's requested notes. Do not run the unsafe version to prove that you rejected it.
+Reject live-provider substitutions, unlocked dependencies, removed validation, broad workflow permissions or review bypasses. Explain the rejection in requested notes; never run the unsafe option to demonstrate it.
 
 ## Review against schemas and tests
 
-1. Compare the proposed edit with the current task's acceptance criteria.
-2. Check the real **AzureRM 5.4.0** provider schema or versioned provider reference when a resource property is involved.
-3. Read the existing validation rules and provider-mocked tests, including rejection cases.
-4. Make the smallest permitted edit only after understanding it.
-5. Save the file with **Ctrl+S**, or **Cmd+S** on macOS.
-6. Run the approved local checks from this lab's root when the task calls for them.
-7. Inspect the complete diff in **Source Control** before staging.
-8. Return to the current **Exercise** after the intended commit and push.
+1. Compare the suggestion with the Exercise contract and [AzureRM 5.4.0 reference](https://registry.terraform.io/providers/hashicorp/azurerm/5.4.0/docs), plus supplied validation and provider-mocked rejection cases. **Why:** plausible generated properties can be wrong.
+2. Make the smallest permitted edit, save (**Ctrl+S**, macOS **Cmd+S**) and run the [approved checks](toolchain.md#run-only-the-approved-offline-checks) when requested. **Expected:** actual executed tests; zero/skipped tests, citations and old green screenshots are not passes.
+3. Review the full diff before staging, then follow the [Git workflow](git-workflow.md) and current Exercise. Preserve repository instructions; do not accept automatic instruction generation or unrelated rewrites.
 
-The [versioned AzureRM reference](https://registry.terraform.io/providers/hashicorp/azurerm/5.4.0/docs) is more relevant than an unversioned example generated from memory. A citation alone is not a passing test. Provider-mocked checks must actually run and test the required cases; zero tests, skipped tests, or a screenshot of an old green run are not success.
-
-> [!NOTE]
-> Preserve the supplied repository instructions. Do not run `/init` or accept automatic instruction generation that overwrites them. If the current task explicitly requests a small instruction change, make only that change and review its diff. Copilot's confidence, an AI review, or an AgentAlvine checkbox cannot replace the genuine nonauthor review required in Labs 1 and 5.
+Labs **01/05** permit self-inspection and merging an educational PR where repository rules allow; this is **not GitHub self-approval**. Required human approvals cannot be replaced by Copilot. Lab 07's [protected live approvals](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/docs/delivery-configuration.md) remain independent and mandatory.
 
 ## Use Workspace settings deliberately
 
-1. Press **Ctrl+,** to open **Settings**, or **Cmd+,** on macOS.
-2. Select the **Workspace** tab for settings specific to this clone.
-3. Search for the exact setting needed, such as **Editor: Tab Size**.
-4. Inspect the current value and any language-specific override before changing anything.
-5. Check **Editor: Insert Spaces** if you are diagnosing HCL indentation.
-6. Preserve the supplied two-space HCL formatting and repository configuration.
-7. Review any resulting tracked configuration diff in **Source Control**.
+1. Open **Ctrl+,** (macOS **Cmd+,**) → **Workspace**. Search the exact setting, such as **Editor: Tab Size** or **Editor: Insert Spaces**, and inspect language overrides first.
+2. Preserve supplied **two-space HCL** and repository configuration. **Expected:** only the justified setting changes; review any tracked diff before committing.
 
-![Microsoft reference showing the User settings tab](images/vscode-settings-user.png)
+![Microsoft reference showing User settings](images/vscode-settings-user.png)
+![Microsoft reference showing Workspace settings](images/vscode-settings-workspace.png)
 
-*REFERENCE — Microsoft publisher example, not an actual participant screen. CC BY 3.0 US; [sources and attribution](images/NOTICE.md). The **User** scope affects other projects too.*
+*REFERENCE — Microsoft publisher examples, not participant evidence. CC BY 3.0 US; [sources and attribution](images/NOTICE.md).*
 
-![Microsoft reference showing the Workspace settings tab](images/vscode-settings-workspace.png)
-
-*REFERENCE — Microsoft publisher example, not an actual participant screen. CC BY 3.0 US; [sources and attribution](images/NOTICE.md). Choose **Workspace** for a justified lab-specific setting.*
-
-**User** settings apply across your projects; **Workspace** settings apply to the opened project and can be stored in tracked configuration. Neither scope is a reason to reset everything. If the workspace contains multiple unrelated repositories, reopen this clone alone before making a workspace change. Do not switch formatters or reformat the entire repository to conceal one HCL indentation problem.
+**User** affects other projects; **Workspace** affects the opened project and may be tracked. Open this clone alone before changing workspace settings. Do not reset everything, switch formatters or reformat the repository to hide one indentation error.
 
 ## Recover without weakening controls
 
-| Action | Expected result | Recovery |
-| --- | --- | --- |
-| Check **Accounts** and extension account preferences | Copilot selects the invited personal account | Correct only the affected extension's account selection |
-| Ask the instructor about the assigned seat | The expected entitlement is confirmed | Wait for assignment or policy resolution; do not buy or bypass access |
-| Attach one intended file with `#` | The context chip names the correct file | Remove unrelated context and reselect from this clone |
-| Compare a response with schema and tests | A small, explainable, contract-preserving change | Reject unsupported properties and request a corrected explanation |
-| Inspect an Agent action request | Only the understood current-task edit is proposed | Decline unknown commands, broad permissions, or cloud actions |
+| Symptom | Smallest recovery / expected result |
+| --- | --- |
+| Wrong account or unavailable seat | Change only Copilot's account preference; ask the instructor to confirm entitlement |
+| Missing Chat or blocked extension | Check approved desktop version/extensions and [account recovery](troubleshooting.md#sign-in-and-permissions-do-not-match); do not install unofficial substitutes |
+| Wrong context chip | Remove it and reattach the intended file from this clone |
+| Unsupported suggestion/tool request | Decline; request a schema-backed, narrow explanation with no cloud action |
 
-For a missing Chat button, blocked extension, authentication mismatch, or denied organization policy, use [troubleshooting.md](troubleshooting.md#sign-in-and-permissions-do-not-match). The doctor checks local setup only; it cannot verify that a human completed browser authorization or that a Copilot seat is usable.
+The local doctor cannot verify a human browser login or a usable Copilot seat. Keep unresolved access or review checks pending.

@@ -9,28 +9,19 @@
 
 ### Build one VNet and standalone, named subnets
 
-| Before you begin | This step |
+| Goal / workspace | This step |
 | --- | --- |
-| Goal | Wire the supplied typed inputs into two resource declarations without expanding ownership. |
-| Time | 15–20 minutes. |
-| Files | Edit only [main.tf](../main.tf); read [variables.tf](../variables.tf) when checking input names. |
-| Starting branch | `lab/network` in your own private Laboratory 02 copy. |
+| Goal | Wire the supplied inputs into two resource declarations. |
+| Branch | `lab/network` in your private copy. |
+| Files | Edit [main.tf](../main.tf) only; read [variables.tf](../variables.tf). |
 
-Beginner guides: [Start here](../docs/start-here.md) · [Git workflow](../docs/git-workflow.md) · [Copilot guide](../docs/copilot-guide.md) · [Toolchain](../docs/toolchain.md) · [Troubleshooting](../docs/troubleshooting.md).
+[Independent setup](activity-01.md) · [Git workflow](../docs/git-workflow.md) · [Toolchain](../docs/toolchain.md) · [Copilot context](../docs/copilot-guide.md).
 
-> [!NOTE]
-> Use this copy's supplied contract, not files from an earlier lab. Return to [Step 1](activity-01.md) if independent setup is incomplete.
-> Terraform **1.16.1**, AzureRM **5.4.0**, and Node **24.16.0** are fixed workshop versions, not suggestions to upgrade.
+Keep Terraform **1.16.1**, AzureRM **5.4.0**, Node **24.16.0**, typed inputs, validations and locks unchanged.
 
-### 1. Open the correct learner file
+### 1. Replace the learner scaffold
 
-1. Confirm this clone in **Explorer** and `lab/network` in the VS Code status bar.
-2. Press **Ctrl+P**, enter [main.tf](../main.tf), and press **Enter**.
-3. Read the starter comments. This file is the learner implementation at the repository root, not a reference implementation.
-4. Use **Ctrl+P** → [variables.tf](../variables.tf) to confirm `subnets` is a map of objects containing `address_prefixes`.
-5. Return to the root implementation; replace its unfinished comments with the complete two-resource example below.
-
-### 2. Enter the two resource declarations
+Confirm the clone/branch. Read the input names and `subnets` object type, then replace the root implementation's unfinished comments—not a reference solution—with:
 
 ```hcl
 resource "azurerm_virtual_network" "this" {
@@ -52,27 +43,22 @@ resource "azurerm_subnet" "this" {
 }
 ```
 
-1. Keep both resource labels exactly `this`; later outputs and tests use those addresses.
-2. Keep two-space indentation and plain quotes; do not copy Markdown fence markers into HCL.
-3. Press **Ctrl+S** and confirm the editor's unsaved dot disappears.
-4. Re-read every argument against the input file before asking Copilot to explain anything uncertain.
+**Why:** the VNet consumes caller inputs; standalone subnets retain caller names and depend on that VNet. Preserve both `this` labels, two-space indentation and plain quotes; save without Markdown fences or `TODO`.
 
-### 3. Understand the wiring before accepting it
+### 2. Check each connection
 
-| Expression | Why this contract uses it |
+| Expression | Purpose |
 | --- | --- |
-| `var.resource_group_name` | Uses the caller's existing group name; it neither creates nor discovers a resource group. |
-| `for_each = var.subnets` | Produces stable instances such as `azurerm_subnet.this["web"]`, not positional list indexes. |
-| `each.key` | Preserves the caller's subnet names as both map keys and Azure subnet names. |
-| `each.value.address_prefixes` | Uses the supplied object's CIDR list without changing its type. |
-| `azurerm_virtual_network.this.name` | Wires subnets to this VNet and gives Terraform the resource dependency. |
-| `default_outbound_access_enabled = false` | Disables default outbound access on each subnet; it is not a complete firewall or egress design. |
+| `var.resource_group_name` | Uses an existing name; no group creation or discovery. |
+| `for_each = var.subnets` | Stable instances such as `azurerm_subnet.this["web"]`. |
+| `each.key` | Caller key becomes the subnet name. |
+| `each.value.address_prefixes` | Uses the object's CIDR list unchanged. |
+| `azurerm_virtual_network.this.name` | Links each subnet to this VNet and establishes dependency. |
+| `default_outbound_access_enabled = false` | Disables default outbound access, not a complete egress/firewall design. |
 
-Tags are supported on the VNet here, not on the subnet resources. Adding an `app` key later should not renumber `web` or `data`.
-Standalone subnet resources must not be mixed with inline subnet blocks inside the VNet.
-Do not add a `count` implementation, provider block, backend, resource-group resource, data lookup, or `module "security"`.
+Tags belong on the VNet, not subnets. Adding `app` must not renumber `web`/`data`. Do not mix inline/standalone subnets or add `count`, provider/backend blocks, resource groups, data lookups or `module "security"`.
 
-An optional read-only Copilot question, with the root implementation and inputs explicitly attached using `#`, is:
+Optional: in Copilot **Ask**, attach the implementation and inputs with `#`:
 
 ```text
 Review these two resource declarations against the supplied typed inputs and
@@ -80,53 +66,32 @@ AzureRM 5.4.0. Explain each.key, each.value.address_prefixes and the VNet depend
 Do not edit files, add resources, upgrade pins, run commands, or contact Azure.
 ```
 
-### 4. Check formatting and the local boundary
+**Why:** request a read-only explanation of map wiring and dependencies. Verify its claims against the input file and table; Chat is not schema validation.
 
-1. Select **Terminal** → **New Terminal** and confirm you are in this clone's root.
-2. Run the formatting check; it does not initialize a backend or execute a plan:
+### 3. Check formatting
+
+From the clone-root terminal:
 
 ```powershell
 terraform fmt -check main.tf
 ```
 
-3. If it reports the file, return with **Ctrl+P** → [main.tf](../main.tf), correct two-space indentation/alignment, and **Ctrl+S**.
-4. You may use **Settings** → **Workspace** to inspect HCL spacing, but do not reset global settings or reformat unrelated files.
-5. Full learner validation may still fail because outputs are unfinished. Read that diagnostic accurately rather than claim the module already passes.
+**Why:** `fmt` checks Terraform formatting; `-check` reports differences without rewriting the named file. No backend or plan runs. Fix reported indentation/alignment, save, and retry; do not reformat unrelated files or reset global settings.
 
-> [!WARNING]
-> Keep all typed inputs, validations, provider requirements, and locks unchanged. Do not silence a test by removing its assertions.
-> Attendee Azure login and existing resource-group reads are described in [Azure setup](../docs/azure-setup.md). This file-edit step itself does not provision anything. Do not initialize a real backend, access state, or run an unreviewed real plan/apply here. Input setup is not proof of deployment. Provider mocks are for contract checks, not deployment.
+### 4. Publish and inspect
 
-### 5. Review, stage, commit, and push the implementation
-
-1. Press **Ctrl+Shift+G** to open **Source Control**, then select the root implementation under **Changes** to inspect its full diff.
-2. Check there are exactly the intended VNet and subnet declarations and no `TODO` left in this file.
-3. Select its **+** (**Stage Changes**), inspect **Staged Changes**, and enter `lab: build the VNet and named subnets` in **Message**.
-4. Select **Commit**, then **...** → **Push**; use **Publish Branch** only if this branch has never been published to your copy.
-5. Refresh **your own repository** on GitHub, select `lab/network` in **Code**, and inspect the newest commit and its changed file.
-6. Open **Actions** → **Lab checks** → that newest-commit run → **Test learner module** → the learner-check command log.
-7. Read the first real diagnostic, which may still concern outputs; do not substitute an older successful run or a solution test.
-8. Refresh the Exercise **body** after **AgentAlvine** finishes; the next task should be resource-backed outputs.
+Review the implementation-only diff and publish using the Git guide; message: `lab: build the VNet and named subnets`. Inspect **Actions → Lab checks → newest commit → Test learner module**, then refresh the same Exercise. Output failures can remain until Step 3; read the actual diagnostic.
 
 ![Microsoft reference showing the file-level Stage Changes control](../docs/images/vscode-stage.png)
-*REFERENCE — Microsoft publisher screenshot, CC BY 3.0 US. Example files and repository are not your learner root; [attribution](../docs/images/NOTICE.md).*
+*REFERENCE — Microsoft, CC BY 3.0 US; example files, not your root. [Attribution](../docs/images/NOTICE.md).*
 
-### Expected result and what AgentAlvine checks
+**Expected:** the pushed `azurerm_virtual_network.this` / `azurerm_subnet.this` declarations preserve caller inputs, map iteration, VNet/CIDR wiring and disabled default outbound access, without unfinished text or security composition. Structural checks precede final Terraform validation.
 
-- The pushed implementation declares `azurerm_virtual_network.this` and `azurerm_subnet.this`, uses the named caller inputs, and iterates `var.subnets`.
-- It checks the VNet-name reference, subnet CIDR expression, disabled default outbound access, and absence of unfinished text or forbidden composition.
-- These structural checks precede the final actual Terraform run; output-related failures are not a reason to broaden this task.
+**Recovery:** compare spelling, `this` labels, subnet arguments and the pushed branch. Keep tests intact; do not substitute solution runs.
 
-### Troubleshooting
+Separate [Azure account setup](../docs/azure-setup.md) does not authorize deployment. This file-edit step needs no backend, state or real plan/apply; mocks check contracts, not deployment.
 
-| Symptom | Specific recovery |
-| --- | --- |
-| Unsupported subnet argument | Compare the exact argument list above; do not add VNet-only fields such as tags to a subnet. |
-| Undeclared input or resource | Check spelling and both `this` labels; preserve the supplied input names instead of renaming them. |
-| Old content appears on GitHub | Check **Ctrl+S**, staged diff, commit, correct private-copy branch, and the completed push. |
-| Formatting still fails | Inspect the specific Workspace indentation setting and the named file, not the entire repository. |
-
-**Next action:** open [Step 3: return actual resource-backed IDs](activity-03.md) on the same branch.
+**Next:** [Step 3: return resource-backed IDs](activity-03.md).
 <!-- FULL-WS-LESSON:END -->
 
 ## Recorded simulation outcome

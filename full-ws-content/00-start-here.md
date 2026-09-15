@@ -7,161 +7,86 @@
 <!-- FULL-WS-SETUP:START -->
 # Start here: your first independent workshop lab
 
-This guide takes you from a GitHub account to the **current task in your own private laboratory copy**. You do not need to complete, clone, or keep another workshop repository. Each numbered lab contains its own starting materials and checks.
+**Goal:** reach the current Exercise in **your own private copy** with working local tools. Each numbered lab supplies its own baseline; no earlier repository is required. Choose one in the [workshop catalogue](https://github.com/alvinea28/ws2-workshop-catalogue).
 
-Choose a laboratory in the [workshop catalogue](https://github.com/alvinea28/ws2-workshop-catalogue). Its number suggests a learning order, not a dependency. Keep this guide open in one browser tab and your own repository in another.
+```mermaid
+flowchart TD
+	A["Account and tools"] --> B["One private copy"]
+	B --> C["Clone and open"]
+	C --> D["Check identity and tools"]
+	D --> E["Open your Exercise"]
+```
+
+Flow: prepare your account and tools, copy once, clone locally, check setup, then follow your Exercise.
 
 > [!WARNING]
-> For attendee account/RG setup follow [Azure setup](../docs/azure-setup.md). Sign-in and read checks are not deployment authorization; do not initialize a real backend, access state, or run a real plan/apply from setup or a PR. Never paste passwords, tokens, private keys, recovery codes, or Terraform state into chat, a terminal, an issue, or logs. Complete credential and device-code flows only through trusted browser and VS Code sign-in UI that you initiated.
+> Setup and issue progress never authorize Azure deployment. Keep PR checks free of credentials, OIDC and state. Do not initialize a real backend or run a real plan/apply during setup. Never share passwords, tokens, keys, recovery/device codes or state; use only trusted sign-in UI you initiated.
 
 ## Quick navigation
 
-- [Understand the different accounts and places](#understand-the-different-accounts-and-places)
-- [Prepare your GitHub account](#prepare-your-github-account)
-- [Create your own private copy](#create-your-own-private-copy)
-- [Wait for AgentAlvine](#wait-for-agentalvine)
-- [Clone your copy into desktop VS Code](#clone-your-copy-into-desktop-vs-code)
-- [Open and trust only this clone](#open-and-trust-only-this-clone)
-- [Check the terminal location and remote](#check-the-terminal-location-and-remote)
-- [Set authorship only for this repository](#set-authorship-only-for-this-repository)
-- [Connect the correct Copilot account](#connect-the-correct-copilot-account)
-- [Check installed tools](#check-installed-tools)
-- [Enter your Azure values and sign in](#enter-your-azure-values-and-sign-in)
-- [Run the read-only doctor](#run-the-read-only-doctor)
-- [Open the current Exercise](#open-the-current-exercise)
+[Account](#prepare-your-github-account) · [Copy](#create-your-own-private-copy) · [Clone](#clone-your-copy-into-desktop-vs-code) · [Authorship](#set-authorship-only-for-this-repository) · [Tools](#check-installed-tools) · [Azure setup](#enter-your-azure-values-and-sign-in) · [Exercise](#open-the-current-exercise)
 
 ## Understand the different accounts and places
 
-| Place or identity | What it controls | What it does not prove |
+| Check | Controls | Does not prove |
 | --- | --- | --- |
-| GitHub in your browser | Creating your copy, reading issues, reviewing PRs | Which account Git uses to push from your computer |
-| Git credentials, usually managed by Git Credential Manager | Authentication for HTTPS clone, pull, and push | Which account Copilot uses |
-| VS Code **Accounts** | Accounts available to editor extensions | That every extension selected the same account |
-| Copilot seat or entitlement | Permission for your personal account to use Copilot | Write access to a repository or permission to deploy |
-| Azure account, tenant, subscription and existing resource group | Your assigned Azure directory, subscription and RG-scoped access, separate from GitHub/Copilot | GitHub or Copilot sign-in, permission to provision, or approval for a deployment |
-| Git `user.name` and `user.email` | Authorship recorded in new commits | Sign-in, a Copilot seat, or repository permissions |
-| Repository **Owner** | The personal account or organization containing the copy | The identity of the person currently signed in |
+| GitHub browser account | Copy, issues and PR actions | Git or Copilot sign-in |
+| Git Credential Manager | Git HTTPS authentication | Copilot access |
+| VS Code **Accounts** | Extension account choices | Every extension uses the same account |
+| Copilot seat | Your personal account's Copilot access | Repository write or Azure permission |
+| Git `user.name` / `user.email` | Commit authorship | Authentication |
+| Repository **Owner** | Account/organization containing the copy | Who is signed in |
+| Azure account, tenant, subscription, RG | Separate directory and assigned scope | Deployment approval |
 
-An organization is a container for repositories, not a personal login. If the instructor assigns an organization as **Owner**, you still sign in with your own invited GitHub account. Membership, a Copilot seat, and repository write permission are separate grants.
+An organization owns repositories; you still sign in as your **personal** account. Membership, write permission and a Copilot seat are separate grants. **Copy** creates a GitHub repository; **clone** downloads its history; **commit** records locally; **push** uploads commits. More terms: [glossary.md](../docs/glossary.md).
 
-**Copy** creates a new GitHub repository from the template. **Clone** downloads that repository and its Git history into a folder on your computer. A **branch** is a line of work inside the repository, not another folder. A **commit** records work locally; a **push** sends commits to GitHub. See [glossary.md](../docs/glossary.md) for these terms in context.
-
-Windows is the primary route below. On macOS, use **Cmd+Shift+P** instead of **Ctrl+Shift+P**, **Cmd+S** instead of **Ctrl+S**, and **Cmd+,** instead of **Ctrl+,**. Linux uses the Windows shortcuts unless your desktop intercepts them; the named menu commands remain available.
+Windows/Linux use **Ctrl+Shift+P** for the Command Palette and **Ctrl+S** to save; macOS uses **Cmd** instead. Named menus remain available.
 
 ## Prepare your GitHub account
 
-1. Open [GitHub](https://github.com/) in your regular browser.
-2. Select **Sign up** if you do not yet have a personal account.
-3. Complete GitHub's email-verification process in the trusted browser.
-4. Select **Sign in** if you already have an account.
-5. Open your profile-picture menu to check the exact personal username.
-6. Accept the instructor's organization or repository invitation while using that account.
-7. Complete any organization-required single sign-on or two-factor authentication in the trusted browser.
-8. Ask the instructor to confirm that the workshop Copilot seat is assigned to this same personal account.
-
-**Expected result:** you know which personal account to use and which **Owner** the instructor permits for your private copy. Accepting an invitation alone does not prove that a Copilot seat has been assigned. Do not purchase a plan or change organization policies to get past a workshop setup problem.
-
-> [!NOTE]
-> Desktop VS Code and Git must be available before the clone step. If either is missing, follow the relevant Windows, macOS, or Linux section of [toolchain.md](../docs/toolchain.md), then return here. The full version check happens after the account and folder checks below.
+1. At [GitHub](https://github.com/), **Sign up** and verify email, or **Sign in**. Check your username in the profile menu so invitations reach the right person.
+2. Accept the instructor's invitation and complete required SSO/MFA in the trusted browser. Confirm the permitted copy **Owner** and assigned Copilot seat; do not purchase access or change policy to unblock setup.
+3. Install desktop VS Code and Git using [toolchain.md](../docs/toolchain.md) before cloning. **Expected:** the desktop editor opens and Git is available.
 
 ## Create your own private copy
 
-> [!IMPORTANT]
-> **Already in your own private copy or its Exercise issue?** This part is complete. Do not create another copy. Continue with [Wait for AgentAlvine](#wait-for-agentalvine) if needed, then [clone your existing copy](#clone-your-copy-into-desktop-vs-code).
+**Already in your own copy or its Exercise? Skip copying; keep that same repository.**
 
-1. Open the selected numbered public template from the [workshop catalogue](https://github.com/alvinea28/ws2-workshop-catalogue).
-2. Confirm that its topic and final two-digit number match the lab you intend to take.
-3. Select **COPY EXERCISE** on the template's landing page.
-4. Use **Use this template** → **Create a new repository** if the copy button is unavailable.
-5. Select your personal account, or the specifically assigned organization, in **Owner**.
-6. Enter a unique **Repository name** that preserves the original final number.
-7. Select **Private** under repository visibility.
-8. Leave **Include all branches** unchecked unless the instructor explicitly requires otherwise.
-9. Select **Create repository**.
-10. Confirm that the new page shows your chosen owner, your new name, and the **Private** badge.
+1. On the selected numbered template, choose **COPY EXERCISE**, or **Use this template → Create a new repository**. This creates an independent copy, not a fork or ZIP download.
+2. Choose your permitted **Owner**, a unique name retaining this lab's final two-digit number, and **Private**. Leave **Include all branches** unchecked unless instructed otherwise; select **Create repository**.
+3. Check your owner/name, **Private** badge and default branch, normally `dev`. **Expected:** your own files; do not create or rename `main` to match a screenshot.
 
-For example, a Lab 4 copy could be named `my-ws2-terraform-tests-docs-laboratory-04`: adding `my-` preserves the final `04`. Do not replace that ending with a date or your name. Use the ending for **your selected lab**, not `04` for every copy. This operation is a template copy, not **Fork**, **Download ZIP**, or a clone of the public source.
+![GitHub reference showing Use this template](../docs/images/github-template.webp)
+![GitHub reference showing the Owner selector](../docs/images/github-owner.webp)
 
-![GitHub reference showing the Use this template menu](../docs/images/github-template.webp)
-
-*REFERENCE — GitHub publisher example, not an actual participant screen. CC BY 4.0; [sources and attribution](../docs/images/NOTICE.md).*
-
-![GitHub reference showing the repository Owner selector](../docs/images/github-owner.webp)
-
-*REFERENCE — GitHub publisher example, not an actual participant screen. CC BY 4.0; [sources and attribution](../docs/images/NOTICE.md).*
-
-![GitHub reference showing the Repository name field](../docs/images/github-repository-name.webp)
-
-*REFERENCE — GitHub publisher example, not an actual participant screen. CC BY 4.0; [sources and attribution](../docs/images/NOTICE.md).*
-
-| Action | Expected result | Recovery |
-| --- | --- | --- |
-| Inspect your copy's header | Your chosen owner and a **Private** badge | If you are still on the public template, return to the copy procedure |
-| Open your copy's **Code** tab | Its own files and branch dropdown | A new copy can take a little time to finish appearing; refresh |
-| Check the selected branch | The actual default branch, normally `dev` | Do not create or rename `main` merely because a screenshot shows it |
+*REFERENCE — GitHub publisher examples, not participant evidence. CC BY 4.0; [sources and attribution](../docs/images/NOTICE.md).*
 
 ## Wait for AgentAlvine
 
-1. Wait **20–60 seconds** after GitHub finishes creating the copy.
-2. Refresh your copy's repository landing page.
-3. Select the **Exercise** link added to its README by **AgentAlvine**.
-4. Open **Issues** if the landing-page link has not appeared yet.
-5. Open the active exercise issue created by the workshop automation.
+1. Allow **20–60 seconds**, then refresh your copy's landing page and open **Exercise**, or find it under **Issues**. A busy Actions queue may take longer.
+2. Keep the issue open: **expected** progress, a current task and next action in its **body**. AgentAlvine may appear as `github-actions[bot]`; it is not Copilot.
 
-**Expected result:** the issue body contains progress, current instructions, and a next action for this copy. Keep that tab open while completing setup. The automation may appear as `github-actions[bot]`; **AgentAlvine** is its workshop name, not Copilot Chat.
-
-If nothing appears, follow [the missing-exercise checks](../docs/troubleshooting.md#agentalvine-or-the-exercise-is-missing). A busy Actions queue can take longer than the initial wait. Do not fabricate an exercise issue, type a manual check command, edit progress checkboxes, or run a delivery workflow to force startup.
+If missing, use [Exercise recovery](../docs/troubleshooting.md#agentalvine-or-the-exercise-is-missing). Do not invent another issue, manually tick progress, post check commands or rerun delivery jobs.
 
 ## Clone your copy into desktop VS Code
 
-1. Open your **private copy's** **Code** tab in the browser.
-2. Select the green **Code** button.
-3. Select **HTTPS** in the clone panel.
-4. Copy the repository's credential-free HTTPS URL using the copy button.
-5. Open the installed **Visual Studio Code** desktop application.
-6. Press **Ctrl+Shift+P** to open the **Command Palette**.
-7. Select **Git: Clone**.
-8. Choose **Clone from GitHub** to find your private copy, or paste the HTTPS URL copied in step 4.
-9. Check the owner and full numbered repository name before selecting the result.
+1. In **your private copy**, select **Code → HTTPS** and copy its credential-free repository URL. Check the owner/name; exclude tokens, issue paths and `/tree/` paths.
+2. In desktop VS Code, open **Ctrl+Shift+P → Git: Clone** and paste that URL, or select your copy through **Clone from GitHub**. **Why:** work locally on your copy, not the public template or catalogue.
+3. If prompted, authorize only the GitHub request you initiated, using the invited personal account in the trusted browser, then return to VS Code. Git Credential Manager may request its own browser sign-in; cancel unexpected terminal credential prompts instead of pasting a token.
 
-The URL must identify **your copy**, not the public template or the catalogue. It must not contain a username/password credential pair, token, issue path, or `/tree/` branch path. If the picker does not list the copy, check your sign-in and invitation rather than choosing a similarly named source repository.
+![Microsoft reference showing the GitHub clone picker](../docs/images/vscode-clone-github.png)
+![Microsoft reference showing GitHub sign-in permission](../docs/images/vscode-github-signin.png)
 
-![Microsoft reference showing a GitHub repository picker in VS Code](../docs/images/vscode-clone-github.png)
-
-*REFERENCE — Microsoft publisher example, not an actual participant screen. CC BY 3.0 US; [sources and attribution](../docs/images/NOTICE.md). Choose your private copy, not a Microsoft example.*
-
-If authorization appears during the picker or clone, complete this sequence before continuing:
-
-1. Select **Allow** only for the expected GitHub sign-in request you just initiated in VS Code.
-2. Check the personal username on the trusted GitHub browser authorization page.
-3. Switch to the invited workshop account in the browser if the wrong account is shown.
-4. Approve the recognized VS Code or Git Credential Manager authorization request.
-5. Select **Open Visual Studio Code** if the browser asks to return to the application.
-
-Git Credential Manager may present a separate browser sign-in for Git's HTTPS connection. That is distinct from the editor's **Accounts** menu. If a terminal unexpectedly asks you to paste a credential, cancel that prompt and consult [account recovery](../docs/troubleshooting.md#sign-in-and-permissions-do-not-match); do not create or paste a token.
-
-![Microsoft reference showing the GitHub sign-in permission dialog](../docs/images/vscode-github-signin.png)
-
-*REFERENCE — Microsoft publisher example, not an actual participant screen. CC BY 3.0 US; [sources and attribution](../docs/images/NOTICE.md).*
+*REFERENCE — Microsoft publisher examples, not participant evidence. CC BY 3.0 US; [sources and attribution](../docs/images/NOTICE.md). Select your copy and account, not the examples.*
 
 ## Open and trust only this clone
 
-1. Choose a normal local **parent folder** in the clone destination dialog, such as a dedicated workshop folder in your Documents area.
-2. Select **Select as Repository Destination** to let Git create the repository's own child folder.
-3. Select **Open** when VS Code reports that cloning has finished.
-4. Read the **Workspace Trust** prompt for the folder you just opened.
-5. Trust the folder only if it is your known workshop copy from the expected template.
-6. Inspect the top-level folder shown in **Explorer**.
-
-**Expected result:** the Explorer root is **this clone**, with this lab's files directly underneath it. It is not the parent containing several labs, an authoring multi-repository workspace, an extracted ZIP, or a `github.dev` virtual workspace. Do not choose an option that trusts the entire parent folder or every repository on the computer.
-
-If you opened the wrong location, use **File** → **Open Folder...** to select the cloned repository folder itself. On macOS, **File** → **Open...** may be the corresponding folder picker. If the current window contains unrelated work, open the clone in a separate window. A ZIP or browser-only editor does not provide this guide's local Git-and-terminal workflow.
+1. Choose a local **parent folder → Select as Repository Destination**, then **Open** the new child folder. Trust only this known workshop clone, not its whole parent.
+2. Check **Explorer**: lab files must sit directly under this clone's root. If wrong, use **File → Open Folder...** (macOS: **Open...**), preferably in a separate window. A ZIP, multi-repository parent or `github.dev` window is not this local workflow.
 
 ## Check the terminal location and remote
 
-1. Select **Terminal** → **New Terminal** in the VS Code window containing this clone.
-2. Confirm that the selected Windows terminal profile is **PowerShell**.
-3. Run each line below separately, pressing **Enter** after each command.
+Open **Terminal → New Terminal**, using PowerShell on Windows. Run each line separately and **stop on an error or mismatch**.
 
 ```powershell
 Get-Location
@@ -169,7 +94,7 @@ git rev-parse --show-toplevel
 git remote -v
 ```
 
-On macOS or Linux, use your normal shell and these equivalent read-only checks:
+On macOS/Linux, use the equivalent shell checks:
 
 ```bash
 pwd
@@ -177,107 +102,77 @@ git rev-parse --show-toplevel
 git remote -v
 ```
 
-| Action | Expected result | Recovery |
+| Command | What it does / flags | Expected |
 | --- | --- | --- |
-| Read the current location | The root folder of this lab clone | Reopen the correct folder and create a new terminal |
-| Read Git's top-level directory | The same repository root; slash style may differ | Stop if Git reports another root or **not a git repository** |
-| Inspect both `origin` entries | Fetch and push target your private copy's owner/name | Do not push if either points at the public source; use [folder and remote recovery](../docs/troubleshooting.md#the-wrong-folder-or-remote-is-open) |
+| `Get-Location` | Reads PowerShell's current folder | This clone's root |
+| `pwd` | Reads the macOS/Linux shell's current folder | This clone's root |
+| `git rev-parse --show-toplevel` | `--show-toplevel` locates Git's root | Same root as Explorer |
+| `git remote -v` | `-v` shows fetch/push URLs | Both `origin` URLs identify your private copy |
 
-A successful clone of a **public** template proves only that its public contents can be read. Even reading a private copy does not prove push permission. Only a successful authorized push of the intended task branch demonstrates that write access works. Do not publish an unrelated test commit merely to check access.
+Reading a clone does not prove push permission. Verify the first **intended task push**, not an unrelated test commit.
 
 ## Set authorship only for this repository
 
-Git needs an author name and email before it creates commits. These values are **not a GitHub sign-in**. Use a name you want attached to your work and a GitHub-verified email, or the exact privacy-preserving **noreply** address shown in your personal GitHub **Settings** → **Emails**. Do not invent a noreply address from a screenshot.
-
-1. Confirm that the terminal is still at this clone's root.
-2. Replace `YOUR-DISPLAY-NAME` below with your intended commit author name.
-3. Replace `YOUR-VERIFIED-OR-NOREPLY-EMAIL` with your chosen non-secret author email.
-4. Run the two edited commands, keeping the quotation marks.
+1. At the clone root, replace both placeholders with your intended author name and GitHub-verified email, or the **exact noreply address** from GitHub **Settings → Emails**. Keep the quotes; never use credentials or invent a noreply address.
+2. Run the setters, then read back both values. **Expected:** your chosen metadata, no placeholders; stop if either is missing.
 
 ```powershell
 git config --local user.name "YOUR-DISPLAY-NAME"
 git config --local user.email "YOUR-VERIFIED-OR-NOREPLY-EMAIL"
-```
-
-The same two commands work in macOS and Linux shells. They affect **only this repository**, not every project or account on your computer. Run these read-only checks afterward:
-
-```powershell
 git config --local --get user.name
 git config --local --get user.email
 ```
 
-**Expected result:** the chosen name and email appear, with no placeholder text. They become metadata in new commits; setting them does not change the authorship of existing commits. Never substitute an account password, access token, or private key for either value.
+| Command | What it does / flags | Expected |
+| --- | --- | --- |
+| `git config --local user.name "YOUR-DISPLAY-NAME"` | Sets author name in **this repository only** (`--local`) | Success normally prints nothing |
+| `git config --local user.email "YOUR-VERIFIED-OR-NOREPLY-EMAIL"` | Sets this repository's commit email | Success normally prints nothing |
+| `git config --local --get user.name` | `--get` reads the local author name | Your chosen name |
+| `git config --local --get user.email` | Reads the local author email | Your verified/noreply address |
+
+These commands also work on macOS/Linux. They affect **new commits**, not existing authorship, and do not sign you in.
 
 ## Connect the correct Copilot account
 
-1. Select **Accounts** in VS Code, usually at the lower left.
-2. Select **Sign in with GitHub to use GitHub Copilot** if offered.
-3. Complete the trusted browser authorization with your workshop personal account.
-4. Open **Accounts** → **Manage Extension Account Preferences...** to check the account selected for the Copilot extension entries.
-5. Check Copilot's status for access through that account's assigned seat or approved entitlement.
-
-See [copilot-guide.md](../docs/copilot-guide.md#sign-in-and-select-the-copilot-account) for screenshots, alternate sign-in labels, and the first read-only chat. If the organization owns the repository, still select your **personal** account, not the organization name. A working browser login or Git clone is not evidence that Copilot is licensed for that account.
+1. Use VS Code **Accounts → Sign in with GitHub to use GitHub Copilot**, completing the trusted browser flow as your personal workshop account.
+2. In **Accounts → Manage Extension Account Preferences...**, select that account for the available Copilot entries. **Expected:** usable access through the assigned seat/approved entitlement, not merely a successful clone. See [Copilot sign-in](../docs/copilot-guide.md#sign-in-and-select-the-copilot-account).
 
 ## Check installed tools
 
-Follow [toolchain.md](../docs/toolchain.md) for official downloads, architecture choices, safe PATH setup, and individual version checks. Every lab uses **Git, desktop VS Code and Node.js 24.16.0**. **Lab 01 does not need Terraform.** Labs **02–08** use **Terraform 1.16.1** and the supplied **AzureRM 5.4.0** provider lock. **terraform-docs 0.24.0 is needed only for Lab 04**.
+Follow [toolchain.md](../docs/toolchain.md) for official installers, architecture/PATH choices and version commands. All labs use **Git, desktop VS Code and Node.js 24.16.0**; **02–08** use **Terraform 1.16.1 / AzureRM 5.4.0**; **04 only** needs **terraform-docs 0.24.0**. Lab 01 needs no Terraform.
 
-After a tool or PATH change, save your work and fully close and reopen VS Code before creating a new terminal. Merely opening another terminal in an old VS Code process may retain the old PATH. Do not change system-wide environment settings or reset all editor settings to satisfy these prerequisites. Azure CLI is required only for the [attendee account/RG setup](../docs/azure-setup.md) and separately approved live activities; the local doctor still does not check Azure.
+After installation/PATH changes, save, close **all** VS Code windows and reopen this clone. Do not reset global settings. Azure CLI is separate from the local doctor and mocks.
 
 ## Enter your Azure values and sign in
 
-Use **your own instructor-approved Azure tenant, subscription and existing resource group**. Never copy the author's real Azure values or another attendee's values. Follow the complete [Azure setup guide](../docs/azure-setup.md) for all PowerShell blocks, installation, sign-in recovery, privacy and cleanup boundaries.
+Follow [azure-setup.md](../docs/azure-setup.md) when completing attendee Azure setup: collect **your own** assigned tenant ID, subscription ID and **existing** resource-group name from the portal, enter them in one PowerShell session, verify the account, then read the group live.
 
-| Terminal environment variable | Enter your own value |
-| --- | --- |
-| `$env:AZURE_TENANT_ID` | Tenant ID of your assigned Azure directory, not an email or display name |
-| `$env:AZURE_SUBSCRIPTION_ID` | Subscription ID of your assigned enabled subscription, not its name |
-| `$env:WORKLOAD_RG` | Name of your assigned existing resource group in that subscription, not its full resource ID |
-
-For this setup, keep these values only in your current terminal session; do not commit them or place them in chat or an Exercise issue. Local values do not configure GitHub Actions, and your CLI login/cache must never become PR credentials.
-
-1. In the [Azure portal](https://portal.azure.com/), open **Microsoft Entra ID → Overview** for your assigned directory and copy **Tenant ID**.
-2. Open **Subscriptions → your assigned subscription → Overview** and copy **Subscription ID**. If it is missing, check **Directories + subscriptions** and ask the instructor rather than guessing.
-3. Open **Resource groups**, filter to that subscription, then open the instructor-assigned **existing** group and copy its name. Confirm it belongs to that subscription; do not create a replacement group.
-4. In this clone's PowerShell terminal, follow sections 2–3 of the full guide to check/install Azure CLI through the approved process and enter the three values at the prompts. Do not screenshot those prompts.
-5. Run section 4's complete account block: reuse a matching cached login or complete the trusted browser sign-in only when required. Then run section 5's live resource-group read in the **same terminal**; a cached account check alone does not prove live access.
-6. Check the safe expected flags below. If a check fails, stop and use the guide's recovery instructions. After setup and the local doctor below, return to **your private copy's existing Exercise issue** and follow its current task.
-
-| Safe expected flag | Expected value |
-| --- | --- |
-| `TenantAndSubscriptionMatched` | `True` |
-| `ExistingResourceGroupReadable` | `True` |
-| `ProvisioningPerformed` | `False` |
-
-These are expected results, not evidence already collected. Passing them proves current read access only; setup neither provisions resources nor authorizes deployment, backend/state access, or a real plan/apply. PR validation stays credential-free.
+**Expected:** `TenantAndSubscriptionMatched=True`, `ExistingResourceGroupReadable=True`, `ProvisioningPerformed=False`. These are expected flags, not already-collected evidence or deployment permission. Local values do not configure Actions/OIDC; never commit them or copy a CLI cache into PR jobs. Missing assignment? Ask the instructor, not another attendee.
 
 ## Run the read-only doctor
 
-1. Confirm once more that **Explorer** and the terminal identify this lab's root.
-2. Run the setup doctor from that root.
+**What it does:** from this clone's root, checks the root, tools and Git authorship without installing or changing anything. Expect reported setup checks; stop on any problem or missing script and report an incomplete package rather than inventing a replacement.
 
 ```powershell
 node scripts/doctor.mjs
 ```
 
-3. Read every reported problem before proceeding to an exercise command.
-
-The doctor is a **read-only root, tools, and Git-identity check**. It does not install tools, repair configuration, authenticate to GitHub, verify a browser session, grant a Copilot seat, or authorize Azure. It is not a replacement for the human account checks above. If the script is missing, report an incomplete lab package; do not invent a successful result or generate a replacement with Copilot.
+It cannot verify browser sign-in, Git write permission, a Copilot seat or Azure readiness.
 
 ## Open the current Exercise
 
-1. Return to **your copy's** active **Exercise** issue in the browser.
-2. Refresh the page to read the current **issue body**, not just the newest comment.
-3. Read the current task's required branch, file links, acceptance criteria, and next action.
-4. Follow [git-workflow.md](../docs/git-workflow.md) for the branch → edit → save → review → commit → push cycle.
-5. Return to the same issue after each relevant push, check, PR, review, or release.
+1. Refresh **your existing Exercise issue body**. Read its branch, file links, acceptance criteria and next action; starter failures may be intentional.
+2. Follow [git-workflow.md](../docs/git-workflow.md) and the [approved learner checks](../docs/toolchain.md#run-only-the-approved-offline-checks). Return to the same issue after relevant pushes, checks, PRs or releases; do not copy every solution or submit evidence PRs/run IDs.
 
-AgentAlvine updates that issue automatically. A task may intentionally begin with incomplete files or failing learner checks. Finish the specified task rather than copying all solutions, creating evidence PRs, entering run IDs, or marking progress by hand. When the task calls for local validation, use the approved `node scripts/check-learner.mjs` command described in [toolchain.md](../docs/toolchain.md#run-only-the-approved-offline-checks).
+Labs **01/05** allow you to inspect your own diff/checks and merge your educational PR **where repository rules permit**, without an external course review requirement. GitHub does **not** allow self-approval; never bypass policy. **Lab 07 live delivery is not solo:** retain its [protected workflow and independent approvals](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/docs/delivery-configuration.md); otherwise stay offline.
 
-> [!WARNING]
-> Labs **1 and 5 require real peer review**; neither Copilot nor a self-approval can replace it. Lab **7 remains offline** unless an instructor has prepared an approved private copy with protected `main`, identities, backend, restricted runner, and independent encrypted-plan review. No live-job reruns are a setup shortcut. A green exercise checkbox is never Azure deployment authorization.
+| Problem | Smallest recovery |
+| --- | --- |
+| Wrong folder/remote | Reopen the own-copy clone; do not push |
+| Account or seat mismatch | Correct only the affected account; ask the instructor about access |
+| Missing tool/doctor/Exercise | Stop at that step; use [troubleshooting.md](../docs/troubleshooting.md) |
 
-**Ready means:** your own private copy, the correct local clone, verified local authorship, the intended Copilot account, matching tools, a reviewed doctor result, and the actual current Exercise. If any one is uncertain, use [troubleshooting.md](../docs/troubleshooting.md) before changing code.
+**Ready:** one private copy, correct clone, local authorship, intended Copilot account, matching tools, reviewed doctor output and the current Exercise.
 <!-- FULL-WS-SETUP:END -->
 
 [Continue to Activity 01](activity-01.md) · [Return to the review index](README.md)
