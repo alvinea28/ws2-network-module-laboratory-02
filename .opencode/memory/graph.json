@@ -1,8 +1,13 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-15T00:00:00Z",
+  "generatedAt": "2026-09-18T00:00:00Z",
   "root": ".",
   "nodes": [
+    {
+      "id": "docs/daily work report/2026-09-18.md",
+      "kind": "report",
+      "summary": "Records the pre-clone Windows installer links in landing/setup/toolchain/full review, 35 local Node passes and unchanged network/AVM/provider boundaries."
+    },
     {
       "id": "README.md",
       "kind": "guide",
@@ -240,6 +245,10 @@
     }
   ],
   "edges": [
+    { "from": "README.md", "to": "docs/daily work report/2026-09-18.md", "rel": "maintenance-report" },
+    { "from": "docs/daily work report/2026-09-18.md", "to": "docs/start-here.md", "rel": "records-pre-clone-entry" },
+    { "from": "docs/daily work report/2026-09-18.md", "to": "docs/toolchain.md", "rel": "records-bundle-option" },
+    { "from": "docs/daily work report/2026-09-18.md", "to": "full-ws-content/00-start-here.md", "rel": "records-synchronized-setup" },
     {
       "from": ".github/agentalvine/auto-guide.test.cjs",
       "to": ".github/agentalvine/auto-guide.cjs",

@@ -9,6 +9,11 @@
 
 **Goal:** reach the current Exercise in **your own private copy** with working local tools. Each numbered lab supplies its own baseline; no earlier repository is required. Choose one in the [workshop catalogue](https://github.com/alvinea28/ws2-workshop-catalogue).
 
+**Before cloning on Windows x64:** [prepare all eight labs with one command](https://github.com/alvinea28/ws2-workshop-catalogue/blob/dev/docs/windows-setup.md#2-paste-this-one-command).
+It installs the tools and VS Code extensions once. After **READY**, reopen VS Code
+and continue below; skip repeated manual installations. Personal sign-in, Copilot
+entitlement and repository-local Git authorship remain separate steps.
+
 ```mermaid
 flowchart TD
 	A["Account and tools"] --> B["One private copy"]

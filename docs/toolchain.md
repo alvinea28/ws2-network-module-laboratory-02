@@ -2,6 +2,12 @@
 
 **Goal:** install this lab's tools from official sources, then verify each version. Use your organization's approved process; ask IT if installation is restricted. No earlier lab, GitHub CLI, Azure PowerShell, containers or global package bundle is required. [Copilot access](copilot-guide.md) and [Azure account/RG setup](azure-setup.md) are separate checks.
 
+**Windows x64, preparing for the whole workshop?** Use the [one-command setup](https://github.com/alvinea28/ws2-workshop-catalogue/blob/dev/docs/windows-setup.md#2-paste-this-one-command)
+before cloning. It installs all pinned local tools, Azure/GitHub CLIs and six
+VS Code extensions once. After **READY** and reopening VS Code, skip the manual
+installation sections below and verify your tools. Other platforms retain this
+manual route; account/seat checks and locked per-repository downloads still apply.
+
 ## Quick navigation
 
 [Required tools](#know-which-tools-are-needed) · [OS and architecture](#choose-the-correct-operating-system-and-architecture) · [VS Code and Git](#prepare-desktop-vs-code-and-git) · [Node.js](#install-nodejs-24160) · [Terraform](#install-terraform-1161) · [terraform-docs](#add-terraform-docs-only-for-lab-4) · [Verify versions](#restart-and-verify-each-tool) · [Offline checks](#run-only-the-approved-offline-checks) · [Lab 4 generation](#generate-the-lab-4-documentation)

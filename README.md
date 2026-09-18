@@ -7,6 +7,9 @@
 
 ## Start here — copy, clone, open and sign in
 
+**Windows x64:** [prepare all tools and VS Code extensions in one go](https://github.com/alvinea28/ws2-workshop-catalogue/blob/dev/docs/windows-setup.md#2-paste-this-one-command)
+before cloning. Run once for all eight labs; after READY/restart, skip manual installs below.
+
 1. **Install/account:** follow [Toolchain](docs/toolchain.md) for Git, desktop VS Code, Node **24.16.0** and Terraform **1.16.1**. [Create/verify your personal GitHub account](docs/start-here.md), sign in and accept any organization invitation.
 2. **Copy once:** use the button below for a **Private** copy ending in **-laboratory-02**; reuse any existing copy.
 3. **Clone/open:** copy **your copy's Code → HTTPS** URL. Use **Ctrl+Shift+P → Git: Clone** (macOS **Cmd+Shift+P**), choose a parent folder, then **Open**. Complete trusted sign-in; trust/open this clone's root only, not a parent/ZIP/browser workspace.
