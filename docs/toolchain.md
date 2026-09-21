@@ -20,9 +20,14 @@ manual route; account/seat checks and locked per-repository downloads still appl
 | Git | Instructor-supported current release | Clone, commit and push; no workshop patch pin |
 | Node.js | **24.16.0** | All labs' helper scripts |
 | Terraform CLI | **1.16.1** | Labs **02–08** validation/mocks; not Lab 01 |
-| AzureRM provider | **5.4.0** | Supplied provider lock; no separate CLI installation |
+| AzureRM provider | **5.4.0** original learner root; **4.81.0** separate AVM root | Separate supplied provider locks; never mix roots/state or downgrade the original exercise |
 | terraform-docs | **0.24.0 — Lab 04 only** | Generate the module's API documentation |
 | Azure CLI | Current approved release; no workshop patch pin | [Account/RG reads](azure-setup.md), not the local doctor or mocks; no forced upgrade gate |
+
+The [AVM continuation](workflow-authoring.md) additionally pins AzAPI **2.12.0**,
+ModTM **0.3.5** and Random **3.9.1** in its own lock. Its approved cloud writer uses
+OIDC and separate state; the same Terraform CLI still performs backend-disabled
+mock validation locally. A provider lock is not a registry-module source lock.
 
 > [!WARNING]
 > Installation is not deployment approval. Do not test tools with a real backend, state, plan/apply/destroy or Azure credentials. PR checks stay credential-free, without OIDC or CLI caches. Never replace the whole PATH, change system-wide execution policy, disable TLS checks or bypass organization restrictions.

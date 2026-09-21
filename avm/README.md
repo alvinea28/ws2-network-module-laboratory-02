@@ -1,100 +1,118 @@
-# Terraform AVM network example
+# Terraform AVM network — required live continuation
 
 **Goal:** understand a real, pinned Terraform AVM composition. It creates a VNet,
 two or more named subnets and an NSG in an **existing attendee-owned RG**. It does
 not create identities, roles or the group. Telemetry is disabled for this example.
 
-**Version boundary:** Terraform **1.16.1**; VNet AVM **0.22.2**, NSG AVM **0.5.1**;
-AzureRM **4.81.0**, AzAPI **2.12.0**, Random **3.9.1**. The NSG AVM requires
-AzureRM 4.x, so this directory has its **own provider lock and state**. Do not
-downgrade the supplied learner root's AzureRM 5.4.0 or let both roots own a VNet.
+For instructor-approved live cohorts, this is the **required continuation after
+the four offline steps**, not a fifth AgentAlvine gate. **4/4** remains core
+learner-root completion only; it proves no AVM deployment, live approval or cleanup.
+Until the real prerequisite is ready, report **live continuation pending**.
+
+**Version boundary:** Terraform **1.16.1**; VNet AVM **0.22.2**, NSG AVM **0.5.1**,
+interfaces **0.6.0**; AzureRM **4.81.0**, AzAPI **2.12.0**, locked ModTM **0.3.5**,
+Random **3.9.1**. The NSG AVM requires AzureRM 4.x, so this directory has its
+**own provider lock and state**. Do not downgrade the supplied learner root's
+AzureRM **5.4.0** or let both roots own a VNet. Lab 07 also retains separate
+resources/state; no import, adoption or shared writer is permitted.
 
 ## Read before running
 
 | File | What to understand |
 | --- | --- |
 | [terraform.tf](terraform.tf) | Exact module-compatible provider and Terraform requirements |
-| [variables.tf](variables.tf) | Your assigned IDs/RG/region and unique disposable name; no author's values |
+| [variables.tf](variables.tf) | Assigned RG/region and unique disposable name; the driver supplies tenant/subscription from approved variables, not public example values |
 | [providers.tf](providers.tf) | Explicit subscription/tenant; no automatic provider registration |
 | [main.tf](main.tf) | NSG AVM first; VNet AVM consumes its ID, maps stable subnet names and disables default outbound access |
 | [outputs.tf](outputs.tf) | Exposes real AVM resource IDs for the caller; do not publish personal resource IDs |
+| [backend.tf](backend.tf) | OIDC and Microsoft Entra backend authentication only; never initialize the live backend locally |
+| [module-lock.json](module-lock.json) | Fingerprints the runtime module source; preserve it and the pinned sources |
+| [.terraform.lock.hcl](.terraform.lock.hcl) | Provider selections/checksums, **not** a module lock or deployment authorization |
+
+Use the [workflow-authoring lesson](../docs/workflow-authoring.md) and
+[instructor delivery prerequisite](../docs/delivery-configuration.md) for this
+root. The five fields of `WORKLOAD_INPUTS_JSON` are exactly `name`, `location`,
+`resource_group_name`, `address_space` and `subnets`. Keep identity/backend inputs
+out of that JSON; the driver injects approved tenant/subscription separately.
 
 ## Authoring validation — no Azure resources
 
-```powershell
-# From the repository root: credential-free fmt -check, backend-disabled read-only init, schema validate and exactly 3 mocked contract cases (zero failures/errors/skips); not live delivery, original Exercise completion proof or AgentAlvine progress.
-node scripts/check-companion.mjs
-```
-
-From this repository root, run these commands one at a time. Stop on any failure.
+From the repository root, use the approved companion helper; stop on failure.
 
 ```powershell
-terraform -chdir=avm init -backend=false -lockfile=readonly -input=false
-terraform -chdir=avm validate
-terraform -chdir=avm test
+npm run companion:check
 ```
 
-| Command | Meaning / expected result |
+| Helper operation | Meaning / expected result |
 | --- | --- |
-| `init` | `-chdir=avm` isolates this root; `-backend=false` avoids remote state; `-lockfile=readonly` preserves the supplied Windows/Linux provider selections while downloading public modules/providers |
-| `validate` | Checks the actual downloaded module/provider interfaces; success is not Azure authorization |
-| `test` | Runs the explicitly mocked contract and rejection cases in [tests](tests/contract.tftest.hcl); these are **not live participant completion** |
+| Formatting check | Checks this isolated root without rewriting source |
+| Backend-disabled initialization | Uses `-backend=false`, `-lockfile=readonly` and `-input=false`; may download pinned public providers/modules but does not access live state |
+| Schema validation | Checks the actual downloaded module/provider interfaces; success is not Azure authorization |
+| Mocked tests | Executes exactly **three** plan-only [contract cases](tests/contract.tftest.hcl), with zero failures/errors/skips; **AzureRM, AzAPI, ModTM and Random are all mocked** |
 
-The supplied lockfile has verified Windows/Linux hashes. Never change downloaded
-module constraints to make incompatible pins work.
+The supplied provider lock retains Windows/Linux hashes. Never change downloaded
+module constraints to make incompatible pins work. These are expected checks,
+not a claim that they ran just because this page exists. The original
+[learner helper](../scripts/check-learner.mjs) still checks the **original root's
+four cases**; do not redirect it here or equate the two totals.
 
-## Live exercise and cleanup boundary
+Also complete the [workflow and repository checks](../docs/workflow-authoring.md#7-replace-one-complete-file-while-disabled-validate-offline)
+while delivery is disabled. No local Azure login, identity/subscription operation,
+live backend initialization, state access or real plan/apply/destroy belongs in
+authoring or PR CI.
 
-Use [your own Azure setup](../docs/azure-setup.md) and the instructor-approved live
-procedure only. The current shipped Lab 07 exact-plan workflow targets its own
-baseline root; it does **not** automatically deploy this new AVM directory.
-Wiring this root into live delivery requires a separate reviewed configuration.
-No live execution is claimed by its schema or mock tests.
+## Author one workflow; enable only after real preflight
 
-When that route is approved, use a unique `ws2-avm-` workload and the **same root
-and state** for a full reviewed destroy plan, followed by the managed-resource and
-Azure inventory check. Do not use partial targets, share ownership with the
-baseline, delete the existing RG, or leave the workload behind after the exercise.
+Construct the complete workflow in an **untitled buffer** from the explained
+sections of the [non-runnable reference](../solutions/avm-delivery.yml), then
+replace the single [canonical workflow](../.github/workflows/avm-delivery.yml)
+as one complete edit **while disabled**. Do not install partial sections or a
+second writer. The live root is always this AVM directory, never a dispatch input.
 
-### Full cleanup commands — approved writer only
+The instructor must first configure an approved private non-template copy,
+protected current `main`, eligible Enterprise hosting, main-only **avm-plan** /
+**avm-apply** environments with genuine independent human reviewers, no self-review
+and no admin bypass. Separate OIDC identities, a private Entra-only backend and
+an exact-workflow-restricted ephemeral Linux x64 **ws2-trusted** runner are required.
+These are administrator prerequisites, not something a clone, mock or local login
+has already done. Public `dev` stays inert and `WORKSHOP_AZURE_ENABLED=false`
+throughout authoring.
 
-These are **future live commands**, not authoring checks or a substitute for the
-missing reviewed AVM delivery configuration. Run from the clone root, only in the
-designated writer with its original initialized backend, workspace and private
-inputs. Keep the writer's plan/apply identities, concurrency and independent
-approval controls. Never run these from PR CI or a normal authoring terminal.
+## Required live lifecycle and cleanup — Actions is the only writer
 
-1. In the protected **plan stage**, save the complete destruction proposal:
+After actual instructor preflight, follow the [live walkthrough](../docs/workflow-authoring.md#8-complete-the-required-live-lifecycle--only-after-instructor-preflight):
 
-	```powershell
-	terraform -chdir=avm plan -destroy -input=false '-out=cleanup.tfplan'
-	if ($LASTEXITCODE -ne 0) { throw 'Destroy plan failed; stop.' }
-	```
+1. Reviewed **main push** starts **preflight → validation → plan → apply** with real
+   independent environment approval. No additional manual deploy dispatch.
+2. Verify the real Azure VNet, at least two named subnets, NSG associations,
+   approved CIDRs and `default_outbound_access_enabled=false` through the live
+   driver's ARM configuration/inventory checks, not mocked IDs.
+3. Make a benign instructor-approved change to the `tags` map in the `locals`
+   block of [main.tf](main.tf). Preserve required workshop/environment tags,
+   resource names/CIDRs/subnet keys, module pins and control/provenance files.
+   Another reviewed main push performs the gated update; verify **the same IDs**.
+4. Manually select **followup** on `main`; require a **fresh live plan with exit 0**.
+   Changes (exit 2) or errors do not complete convergence; this operation never applies.
+5. Manually select **destroy** on `main` for the exclusive full-cleanup operation.
+   Review a fresh saved destroy plan independently; apply those exact bytes and
+   verify no managed workload state plus actual Azure **404s** for the intended
+   resources. Keep the assigned RG, backend, identities and runner infrastructure.
 
-	**Meaning:** `-chdir` selects this root, `-destroy` includes all its managed
-	resources, `-input=false` rejects missing-input prompts, and `-out` saves the
-	exact plan inside this root. Expect removal of only its VNet/subnets/NSG.
-2. **Stop for independent review.** The existing approved procedure must encrypt,
-	bind and review that saved plan. Do not commit/share it or rerun planning after
-	approval. Only the protected apply stage may decrypt the approved bytes here:
+Saved plans are bound to the exact run/root/state/inputs/source/module fingerprints
+and provider lock, expire after **two hours**, and are uploaded only as ciphertext
+with **one-day retention**. Repository concurrency and state leases enforce one
+writer. No live re-run attempts, replacement plans after approval, simulated
+reviewers, partial targets, state deletion or local destroy shortcuts.
 
-	```powershell
-	terraform -chdir=avm apply -input=false cleanup.tfplan
-	if ($LASTEXITCODE -ne 0) { throw 'Cleanup incomplete; keep the exercise open.' }
-	```
+Scheduled drift is **report-only**, not auto-repair or cleanup proof. Failed or
+uncertain destruction remains pending with the cleanup owner. Optional runtime
+API extensions stay blocked until real preflight; storage, runners and approved
+extensions can incur costs, so do not assume zero cost.
 
-	**Meaning:** apply consumes the exact saved plan; it does **not** request a
-	second approval prompt. External protected approval is therefore mandatory.
-3. In the authorized verification stage, inspect remaining state addresses:
-
-	```powershell
-	terraform -chdir=avm state list
-	if ($LASTEXITCODE -ne 0) { throw 'State verification failed; stop.' }
-	```
-
-	**Expected:** no managed workload entries, plus independently verified absence
-	of its VNet, subnets and NSG in Azure. Retain the existing RG/backend. An empty
-	list alone is not Azure-inventory proof; uncertainty keeps cleanup open.
+[Azure sign-in setup](../docs/azure-setup.md) is account/read-access guidance only;
+its Lab 07 references do not select a writer for this AVM root. The Lab 02 guides
+above replace this page's earlier future/manual cleanup instructions. No live
+execution or human approval is claimed by the documentation or authoring checks.
 
 Sources: [VNet AVM](https://registry.terraform.io/modules/Azure/avm-res-network-virtualnetwork/azurerm/0.22.2),
 [NSG AVM](https://registry.terraform.io/modules/Azure/avm-res-network-networksecuritygroup/azurerm/0.5.1).

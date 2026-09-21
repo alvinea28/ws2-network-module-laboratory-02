@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
+import { sourceBinding, verifyInstalledModules, verifyRootContract } from "./avm-dependencies.mjs";
+import { validatePlan } from "./avm-policy.mjs";
 
 const course = JSON.parse(await readFile(".github/agentalvine/course.json", "utf8"));
 const profiles = { 2: ["avm", 3], 3: ["governance", 2], 5: ["stack", 2], 8: ["monitoring", 2] };
@@ -25,10 +27,22 @@ for (const file of tests) {
 }
 run(["fmt", "-check", "-recursive"]);
 run(["init", "-backend=false", "-input=false", "-lockfile=readonly", "-no-color"]);
+await sourceBinding(root);
+const reviewedSource = await verifyRootContract(root);
+await verifyInstalledModules(root);
 run(["validate", "-no-color"]);
-const events = run(["test", "-json", "-no-color"]).split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
+const version = JSON.parse(run(["version", "-json"]));
+assert.equal(version.terraform_version, "1.16.1");
+const events = run(["test", "-json", "-verbose", "-no-color"]).split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
 const summary = events.findLast((item) => item.type === "test_summary")?.test_summary;
 assert.ok(summary && summary.status === "pass", "Require an actual completed test summary");
 assert.equal(summary.passed, expected);
 for (const key of ["failed", "errored", "skipped"]) assert.equal(summary[key], 0);
-console.log(`${root}: schema valid; ${summary.passed} mocked authoring contracts passed, 0 failed/skipped. Not live Azure acceptance.`);
+// The verbose test envelope is produced by Terraform with ALL providers mocked.
+// Adapt its documented plan-format field, never represent this as a real plan.
+const mocked = events.find((item) => item.type === "test_plan")?.test_plan;
+assert.ok(mocked?.resource_changes, "A real provider-mocked plan must exercise admission");
+const inputs = { tenant_id: "00000000-0000-0000-0000-000000000000", subscription_id: "00000000-0000-0000-0000-000000000000", resource_group_name: "rg-contract-only", location: "eastus", name: "ws2-avm-contract", address_space: ["10.42.0.0/16"], subnets: { web: { address_prefixes: ["10.42.1.0/24"] }, data: { address_prefixes: ["10.42.2.0/24"] } } };
+const admitted = validatePlan({ format_version: mocked.plan_format_version, terraform_version: version.terraform_version, resource_changes: mocked.resource_changes }, inputs, "deploy", reviewedSource);
+assert.equal(admitted.create, 4, "The native mocked plan must contain the exact network topology");
+console.log(`${root}: schema valid; ${summary.passed} mocked authoring contracts passed, 0 failed/skipped; native mocked plan admission verified. Not live Azure acceptance.`);

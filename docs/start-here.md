@@ -2,6 +2,8 @@
 
 **Goal:** reach the current Exercise in **your own private copy** with working local tools. Each numbered lab supplies its own baseline; no earlier repository is required. Choose one in the [workshop catalogue](https://github.com/alvinea28/ws2-workshop-catalogue).
 
+**Lab 02 boundary:** the four core steps remain credential-free and independent. Instructor-approved live cohorts must then complete the [AVM workflow-authoring continuation](workflow-authoring.md), after the [real instructor configuration prerequisite](delivery-configuration.md). Offline **4/4** is not Azure deployment or approval proof.
+
 **Before cloning on Windows x64:** [prepare all eight labs with one command](https://github.com/alvinea28/ws2-workshop-catalogue/blob/dev/docs/windows-setup.md#2-paste-this-one-command).
 It installs the tools and VS Code extensions once. After **READY**, reopen VS Code
 and continue below; skip repeated manual installations. Personal sign-in, Copilot
@@ -22,7 +24,7 @@ Flow: prepare your account and tools, copy once, clone locally, check setup, the
 
 ## Quick navigation
 
-[Account](#prepare-your-github-account) · [Copy](#create-your-own-private-copy) · [Clone](#clone-your-copy-into-desktop-vs-code) · [Authorship](#set-authorship-only-for-this-repository) · [Tools](#check-installed-tools) · [Azure setup](#enter-your-azure-values-and-sign-in) · [Exercise](#open-the-current-exercise)
+[Account](#prepare-your-github-account) · [Copy](#create-your-own-private-copy) · [Clone](#clone-your-copy-into-desktop-vs-code) · [Authorship](#set-authorship-only-for-this-repository) · [Tools](#check-installed-tools) · [Azure setup](#enter-your-azure-values-and-sign-in) · [Exercise](#open-the-current-exercise) · [Required live continuation](#required-live-continuation-for-approved-lab-02-cohorts)
 
 ## Understand the different accounts and places
 
@@ -139,6 +141,8 @@ These commands also work on macOS/Linux. They affect **new commits**, not existi
 
 Follow [toolchain.md](toolchain.md) for official installers, architecture/PATH choices and version commands. All labs use **Git, desktop VS Code and Node.js 24.16.0**; **02–08** use **Terraform 1.16.1 / AzureRM 5.4.0**; **04 only** needs **terraform-docs 0.24.0**. Lab 01 needs no Terraform.
 
+That AzureRM **5.4.0** selection belongs to the original core. Lab 02's [isolated AVM profile](../avm/README.md) keeps Terraform **1.16.1** but uses AzureRM **4.81.0**, AzAPI **2.12.0**, ModTM **0.3.5** and Random **3.9.1**, with separate locks/state. Do not downgrade the learner root or substitute providers to make the profiles match.
+
 After installation/PATH changes, save, close **all** VS Code windows and reopen this clone. Do not reset global settings. Azure CLI is separate from the local doctor and mocks.
 
 ## Enter your Azure values and sign in
@@ -146,6 +150,8 @@ After installation/PATH changes, save, close **all** VS Code windows and reopen 
 Follow [azure-setup.md](azure-setup.md) when completing attendee Azure setup: collect **your own** assigned tenant ID, subscription ID and **existing** resource-group name from the portal, enter them in one PowerShell session, verify the account, then read the group live.
 
 **Expected:** `TenantAndSubscriptionMatched=True`, `ExistingResourceGroupReadable=True`, `ProvisioningPerformed=False`. These are expected flags, not already-collected evidence or deployment permission. Local values do not configure Actions/OIDC; never commit them or copy a CLI cache into PR jobs. Missing assignment? Ask the instructor, not another attendee.
+
+This account setup is optional for Lab 02's offline core. Arrange any real account/RG reads with the instructor outside authoring; no Azure/identity/subscription/state operations are performed while writing the workflow. For Lab 02 Actions variables, OIDC and cleanup, use [Lab 02 delivery configuration](delivery-configuration.md), not the shared account guide's Lab 07 writer. Local sign-in neither configures nor replaces the two live identities.
 
 ## Run the read-only doctor
 
@@ -162,7 +168,7 @@ It cannot verify browser sign-in, Git write permission, a Copilot seat or Azure 
 1. Refresh **your existing Exercise issue body**. Read its branch, file links, acceptance criteria and next action; starter failures may be intentional.
 2. Follow [git-workflow.md](git-workflow.md) and the [approved learner checks](toolchain.md#run-only-the-approved-offline-checks). Return to the same issue after relevant pushes, checks, PRs or releases; do not copy every solution or submit evidence PRs/run IDs.
 
-Labs **01/05** allow you to inspect your own diff/checks and merge your educational PR **where repository rules permit**, without an external course review requirement. GitHub does **not** allow self-approval; never bypass policy. **Lab 07 live delivery is not solo:** retain its [protected workflow and independent approvals](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/docs/delivery-configuration.md); otherwise stay offline.
+Labs **01/05** allow you to inspect your own diff/checks and merge your educational PR **where repository rules permit**, without an external course review requirement. GitHub does **not** allow self-approval; never bypass policy. **Labs 02/07 live delivery are not solo:** retain [Lab 02's protected workflow and independent approvals](delivery-configuration.md) and [Lab 07's separate controls](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/docs/delivery-configuration.md); otherwise stay offline. The two labs never share state/resources or adopt each other's network.
 
 | Problem | Smallest recovery |
 | --- | --- |
@@ -171,3 +177,13 @@ Labs **01/05** allow you to inspect your own diff/checks and merge your educatio
 | Missing tool/doctor/Exercise | Stop at that step; use [troubleshooting.md](troubleshooting.md) |
 
 **Ready:** one private copy, correct clone, local authorship, intended Copilot account, matching tools, reviewed doctor output and the current Exercise.
+
+## Required live continuation for approved Lab 02 cohorts
+
+Finish the same **four** core steps first; their learner-root checks and automatic Exercise progression are unchanged. Then [author the AVM delivery workflow](workflow-authoring.md) in an **untitled buffer**, copying and explaining the complete non-runnable reference section by section. Replace only the one canonical workflow as a whole file **while disabled**; do not install partial drafts or duplicate writers.
+
+The instructor must separately establish an approved **private, non-template** copy, protected current **main**, eligible Enterprise hosting, real independent reviewers in **avm-plan** / **avm-apply**, no self-review/admin bypass, distinct OIDC identities, private backend connectivity and an exact-workflow-restricted ephemeral **Linux x64 ws2-trusted** runner. These are [admin prerequisites](delivery-configuration.md), not actions silently performed by copying or running mocks. Keep `WORKSHOP_AZURE_ENABLED=false` during authoring; public `dev` stays inert. Never initialize the live backend locally.
+
+After actual enablement, a reviewed **main push** starts the gated deployment in the same run; there is no second deploy button. Complete **create → actual Azure configuration verification → benign HCL tag change/main-push update with the same IDs → fresh followup with exit 0 → explicitly reviewed full destroy and verified absence**. Only **followup** and **destroy** are manual operations; scheduled drift is report-only. The workflow always targets the AVM root, never the original root or Lab 07.
+
+Missing prerequisites mean **core complete; live continuation pending**, not permission to simulate a reviewer or claim deployment from **4/4**. Optional runtime API extensions remain blocked until separate real preflight; costs are not assumed zero. No live execution is claimed by these instructions.

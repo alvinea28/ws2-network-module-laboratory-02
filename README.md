@@ -1,9 +1,9 @@
 # Laboratory 02 · Reusable network module
 
-**Public source template (not the clone URL after copying):** [alvinea28/ws2-network-module-laboratory-02](https://github.com/alvinea28/ws2-network-module-laboratory-02) · **Order:** 02 of 08 · **Time:** 60–90 minutes
+**Public source template (not the clone URL after copying):** [alvinea28/ws2-network-module-laboratory-02](https://github.com/alvinea28/ws2-network-module-laboratory-02) · **Order:** 02 of 08 · **Time:** 60–90 minutes for the offline core; approved live continuation scheduled separately
 
 > [!NOTE]
-> **This lab is independent:** build a VNet and stable-key subnets, expose resource-backed IDs, and inspect four mocked tests. Typed inputs, locks and starter files are supplied; no earlier lab or Azure account required.
+> **This lab is independent:** build a VNet and stable-key subnets, expose resource-backed IDs, and inspect four mocked tests. Typed inputs, locks and starter files are supplied; no earlier lab or Azure account is required for the four-step core. Instructor-approved live cohorts must then complete the separate AVM delivery continuation below.
 
 ## Start here — copy, clone, open and sign in
 
@@ -36,13 +36,21 @@ Read [all four lessons, setup and historical outcomes](full-ws-content/README.md
 
 - Core AzureRM **5.4.0** stays pinned. Preserve typed inputs, stable `web`/`data` keys and resource-backed outputs. The final **Test learner module** gate requires all four cases at the current revision, including rejection cases.
 - No core PR/merge, Azure credentials, backend/state access or deployment required. Mock success does not prove connectivity or policy compliance.
-- [Terraform AVM hands-on](avm/README.md) uses a **separate AzureRM 4.81.0 profile**. Core mocks and historical **4/4** results do not complete/validate it; keep its configuration/state separate.
+- [Terraform AVM hands-on](avm/README.md) uses a **separate AzureRM 4.81.0 profile** and fixed AVM root. Core mocks and historical **4/4** results do not complete/validate it; keep its configuration/state separate from the original root and Lab 07.
 
-Optional [Azure values/sign-in setup](docs/azure-setup.md) uses your own assigned tenant, subscription and existing group. It does not authorize deployment or change credential-free core checks.
+## Required live continuation — instructor-approved cohorts
+
+After the four offline steps, [author the single AVM delivery workflow](docs/workflow-authoring.md): copy explained sections from the non-runnable reference into an **untitled buffer**, then replace the one canonical workflow as a complete file **while disabled**. No partially installed draft or duplicate writer. The [instructor configuration prerequisite](docs/delivery-configuration.md) covers the real admin setup; copying this repository does not configure it.
+
+In the approved **private, non-template** copy only, a reviewed push to protected **main** runs **preflight → validation → plan → independent approval → apply**. Deploy is push-driven, not a second manual button. Manual operations are only **followup** and **destroy**; scheduled drift is report-only. Real human environment reviewers, an eligible Enterprise host, separate OIDC identities, private backend connectivity and the exact-workflow trusted runner are prerequisites, not simulated checks.
+
+Required live outcomes: **create → verify actual Azure configuration → benign HCL tag update through another main push with the same resource IDs → fresh no-change follow-up → explicitly reviewed full destroy and verified absence**. Keep `WORKSHOP_AZURE_ENABLED=false` during authoring; public `dev` stays inert. Until real preflight is available, report **core complete; live continuation pending**. No live execution is claimed here, and **offline 4/4 is not deployment proof**.
+
+[Azure values/sign-in setup](docs/azure-setup.md) remains optional for the offline core and uses your own assigned tenant, subscription and existing group. Local sign-in is not Actions/OIDC setup or authorization. For Lab 02 live configuration and cleanup, use the two Lab 02 guides above, not the shared setup page's Lab 07 writer. No local live backend initialization, state access or cloud operations during authoring.
 
 ## Help without guessing
 
-[First-time setup](docs/start-here.md) · [Azure values and sign-in](docs/azure-setup.md) · [Git actions](docs/git-workflow.md) · [Copilot accounts/context](docs/copilot-guide.md) · [Toolchain](docs/toolchain.md) · [Settings/Actions troubleshooting](docs/troubleshooting.md) · [Glossary](docs/glossary.md)
+[First-time setup](docs/start-here.md) · [Workflow authoring](docs/workflow-authoring.md) · [Delivery prerequisites](docs/delivery-configuration.md) · [Azure values and sign-in](docs/azure-setup.md) · [Git actions](docs/git-workflow.md) · [Copilot accounts/context](docs/copilot-guide.md) · [Toolchain](docs/toolchain.md) · [Settings/Actions troubleshooting](docs/troubleshooting.md) · [Glossary](docs/glossary.md)
 
 Exercise progress is educational feedback, not Azure authorization.
 

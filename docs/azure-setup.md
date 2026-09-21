@@ -187,17 +187,18 @@ metadata location is not necessarily the approved workload region.
 | --- | --- |
 | Local terminal | `$env:AZURE_TENANT_ID`, `$env:AZURE_SUBSCRIPTION_ID`, `$env:WORKLOAD_RG` |
 | Private lab `resource_group_name` input | Your assigned `WORKLOAD_RG`, through the approved input method |
-| Instructor-approved Lab 07 Actions | **Settings → Secrets and variables → Actions → Variables**: `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `WORKLOAD_RG`; instructor verifies separate plan/apply IDs, backend tuple and `WORKLOAD_INPUTS_JSON.resource_group_name` |
+| Instructor-approved Lab 02 AVM Actions | **Settings → Secrets and variables → Actions → Variables**: `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `WORKLOAD_RG`; instructor verifies separate plan/apply IDs, the AVM backend tuple and `WORKLOAD_INPUTS_JSON.resource_group_name` |
 | PR checks | No login, OIDC, user tokens, remote state or CLI cache |
 
 Local variables/login do **not** configure Actions or its OIDC workload identity.
-Never copy CLI tokens/caches to GitHub. **Lab 07 live is not solo:** retain the
-[protected delivery configuration and independent approvals](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/docs/delivery-configuration.md).
+Never copy CLI tokens/caches to GitHub. **Lab 02 live is not solo:** retain this copy's
+[protected AVM configuration and independent approvals](delivery-configuration.md).
+Lab 07 is a different writer/root/state and cannot deploy or clean up this network.
 
 ## 7. Cleanup, privacy and returning to the Exercise
 
 1. **Live workload cleanup is mandatory:** use the **same approved root/state** and
-    [fresh, independently reviewed saved destroy plan](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/.github/steps/05.md)
+    [fresh, independently reviewed AVM destroy plan](workflow-authoring.md#8-complete-the-required-live-lifecycle--only-after-instructor-preflight)
     before moving on. The workflow's `plan -destroy` proposes full destruction; it
     applies that exact reviewed plan. No ungated local `terraform destroy`, `-target`
     (partial selection), state deletion, or deletion of existing/shared RGs, backends,

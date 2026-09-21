@@ -17,13 +17,23 @@ Both cycles reached **4/4 core offline completion**. Whole-lab counts are not pe
 
 **Terraform AVM hands-on:** [separate AVM profile](../avm/README.md), AzureRM **4.81.0**. The custom core stays on **5.4.0**; its mocks and historical **4/4** do **not** complete/validate AVM. Keep configuration/state separate.
 
+## Required live continuation — approved cohorts, not historical proof
+
+After the same four offline lessons, instructor-approved cohorts must [author the single AVM delivery workflow](../docs/workflow-authoring.md) and complete its live lifecycle. The [instructor configuration prerequisite](../docs/delivery-configuration.md) is separate admin work, not something the copy/Exercise or a mock run has already done. These guides add **no fifth core step** and do not change the recorded September 8 outcomes above.
+
+Build the workflow section by section in an **untitled buffer** from its complete **non-runnable reference**; replace the one canonical workflow as a whole file **while disabled**. Do not install partial drafts or a second writer. Approved live delivery requires a private non-template copy, protected current `main`, eligible Enterprise hosting, real independent human environment reviewers with no self-review/admin bypass, distinct OIDC identities, private backend connectivity and the exact-workflow-restricted ephemeral trusted runner. Public `dev` stays inert; no Azure/identity/subscription/state operations during authoring.
+
+The required real sequence is **main-push create → actual Azure configuration verification → benign HCL tag change/main-push update with the same IDs → fresh followup with exit 0 → explicitly reviewed full destroy and verified absence**. Main push starts **preflight → validation → plan → apply** with actual environment approvals in that run; no second deploy dispatch. Manual operations are only **followup** and **destroy**, and scheduled drift is report-only. The workflow's AVM root/state/resources stay separate from both the original root and Lab 07; no import/adoption.
+
+Until real preflight is ready, report **core complete; live continuation pending**. No simulated approval, local live backend initialization or offline **4/4** can replace that prerequisite. Optional runtime API extensions remain blocked until their own real preflight, and costs are not assumed zero. No live execution is claimed by this review pack.
+
 ## The Exercise issue is the learner guide
 
 1. Copy once from the [landing page](../README.md), then clone/open using [setup](00-start-here.md). Use **your copy's README Exercise link**, not the source Preview.
-2. Follow the current issue body and [Git guide](../docs/git-workflow.md). Publish the learner design/resources/outputs; incomplete intermediate CI can fail legitimately. Lab 02 requires no additional PR/review/merge.
+2. Follow the current issue body and [Git guide](../docs/git-workflow.md). Publish the learner design/resources/outputs; incomplete intermediate CI can fail legitimately. Lab 02's **four-step offline core** requires no additional PR/review/merge; its approved live continuation has the protected-main and independent human gates described above.
 3. Inspect **Lab checks → current commit → Test learner module**: all four root mock cases must execute successfully, including rejections. AgentAlvine uses GitHub Actions to update the **same Exercise body** automatically.
 
-Checks need no Azure credentials, OIDC or state. Manual boxes, success comments and screenshots award nothing; progress never authorizes Azure. The [catalogue](https://github.com/alvinea28/ws2-workshop-catalogue) is navigation only.
+Core/PR checks need no Azure credentials, OIDC or state. Manual boxes, success comments and screenshots award nothing; progress never authorizes Azure. The [catalogue](https://github.com/alvinea28/ws2-workshop-catalogue) is navigation only.
 
 ## Public source preview — read only, not your learner issue
 
@@ -39,4 +49,4 @@ Separate [2026-09-14 local verification](simulation.md#fresh-2026-09-14-verified
 
 Refresh your copy's README/Issues; inspect **Actions → AgentAlvine** and [recovery](../docs/troubleshooting.md#agentalvine-or-the-exercise-is-missing).
 
-**Recovery only:** choose **Actions → AgentAlvine → Run workflow → Check progress** on your copy's actual default branch, normally `dev`, to reconcile its guide. Never select Preview in a learner copy, fake an Exercise, widen permissions, bypass protection or dispatch delivery.
+**Recovery only:** choose **Actions → AgentAlvine → Run workflow → Check progress** on your copy's actual default branch, normally `dev`, to reconcile its guide. Never select Preview in a learner copy, fake an Exercise, widen permissions, bypass protection or dispatch delivery to repair guide progress. The separate live continuation is not an Exercise-recovery action.

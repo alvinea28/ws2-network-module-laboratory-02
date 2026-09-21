@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "description": "Normalized UTF-8 LF fingerprints of all loaded module-root Terraform/JSON files, including each installed local submodule. Not a provider lock, publisher signature or live deployment claim.",
+  "terraform": "1.16.1",
+  "modules": [
+    { "key": "network", "source": "registry.terraform.io/Azure/avm-res-network-virtualnetwork/azurerm", "version": "0.22.2", "fileCount": 9, "sha256": "f08c417c0ff8526cf7b00b9d3a693eb09f8a88b7b768aace2b848088c9b429a5" },
+    { "key": "network.interfaces", "source": "registry.terraform.io/Azure/avm-utl-interfaces/azure", "version": "0.6.0", "fileCount": 27, "sha256": "13fa673156ebd0961971376567c28531e271815284c694111e306b44ffcd598e" },
+    { "key": "network.peering", "source": "./modules/peering", "version": null, "fileCount": 5, "sha256": "74a31525d2969f8244264f7b1cb3a32c424f400dd7072b3e96e0d93ddcb04f76" },
+    { "key": "network.subnet", "source": "./modules/subnet", "version": null, "fileCount": 6, "sha256": "20789f30db0ebcf63cb45175cc9b24ae851ea4993b3924f9341358712dc7a225" },
+    { "key": "network.subnet.interfaces", "source": "registry.terraform.io/Azure/avm-utl-interfaces/azure", "version": "0.6.0", "fileCount": 27, "sha256": "13fa673156ebd0961971376567c28531e271815284c694111e306b44ffcd598e" },
+    { "key": "security", "source": "registry.terraform.io/Azure/avm-res-network-networksecuritygroup/azurerm", "version": "0.5.1", "fileCount": 8, "sha256": "ab601baec43d82c8aa1ea67ae4c7064716bd2bb49ba333c66c982a557fbc6749" }
+  ]
+}

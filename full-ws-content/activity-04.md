@@ -91,11 +91,21 @@ Inspect **Actions → Lab checks → latest branch commit → Test learner modul
 
 **If not:** for `Unknown test file`/zero tests, remove accidental filters. Retain `expect_failures = [var.address_space]`. Ask about approved network/architecture for download failures; never weaken TLS, locks, inputs or assertions. Check pending progress against the observed SHA/guide feedback.
 
-No Azure login, real plan/apply/destroy or state commands. Mocks do not prove policy, overlap or connectivity.
+For these four offline steps: no Azure login, real plan/apply/destroy or state commands. Mocks do not prove policy, overlap or connectivity.
 
 **Terraform AVM hands-on:** use the [separate AVM profile](../avm/README.md), AzureRM **4.81.0**, not core **5.4.0**. Core mocks and historical **4/4** results do **not** complete/validate that profile. Keep configuration/state separate.
 
-**Next:** [Laboratory 03](https://github.com/alvinea28/ws2-subnet-security-laboratory-03) in a new private copy with its supplied security root; do not transfer this implementation.
+### Required live continuation — instructor-approved cohorts
+
+The core above stays at **four steps**. Its **4/4** is not an AVM deployment, human approval or cleanup result, and AgentAlvine does not certify this additional lifecycle.
+
+1. [Author the single AVM delivery workflow](../docs/workflow-authoring.md) after completing the core. Copy the explained sections from the complete **non-runnable reference into an untitled buffer**, then replace the one canonical workflow as a complete file **while disabled**. Do not install partial drafts or a duplicate writer. Complete the documented workflow, Node, kit and companion checks; the original learner helper still checks this original root.
+2. The instructor must separately complete [Lab 02's real delivery configuration](../docs/delivery-configuration.md): approved private non-template copy, protected current `main`, eligible Enterprise hosting, main-only **avm-plan** / **avm-apply** environments, actual independent reviewers with no self-review/admin bypass, distinct OIDC identities, private backend connectivity and the exact-workflow trusted ephemeral runner. Keep `WORKSHOP_AZURE_ENABLED=false` throughout authoring; no Azure/identity/subscription/state operations or local live backend initialization. Missing gates mean **live continuation pending**, not simulated approval.
+3. Only after real enablement, complete **main-push create → actual Azure configuration verification → benign HCL tag change and main-push update with the same IDs → fresh followup with exit 0 → explicit independently reviewed destroy and verified absence**. Main push starts the same-run **preflight → validation → plan → apply** chain; do not dispatch another deploy. Manual choices are only **followup** and **destroy**; scheduled drift is report-only. The root is fixed to AVM, with separate resources/state from Lab 07 and no import/adoption. Public `dev` stays inert.
+
+No live stage is claimed by this lesson or its offline history. Optional runtime API extensions require separate real preflight; costs are not assumed zero. For approved live cohorts, complete the protected lifecycle before moving on; otherwise retain the explicit pending status.
+
+**Next independent lab:** [Laboratory 03](https://github.com/alvinea28/ws2-subnet-security-laboratory-03) in a new private copy with its supplied security root; do not transfer this implementation or any state.
 <!-- FULL-WS-LESSON:END -->
 
 ## Recorded simulation outcome
