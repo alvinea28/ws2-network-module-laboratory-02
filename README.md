@@ -40,6 +40,10 @@ Read [all four lessons, setup and historical outcomes](full-ws-content/README.md
 
 ## Required live continuation — instructor-approved cohorts
 
+**Source PRs:** [inspect and merge your own PR after required checks](docs/pr-author-merge.md).
+This Lab 02 policy requires zero approving PR reviews, not self-approval; the
+separate independent Azure plan/apply/cleanup approvals remain mandatory.
+
 After the four offline steps, [author the single AVM delivery workflow](docs/workflow-authoring.md): copy explained sections from the non-runnable reference into an **untitled buffer**, then replace the one canonical workflow as a complete file **while disabled**. No partially installed draft or duplicate writer. The [instructor configuration prerequisite](docs/delivery-configuration.md) covers the real admin setup; copying this repository does not configure it.
 
 In the approved **private, non-template** copy only, a reviewed push to protected **main** runs **preflight → validation → plan → independent approval → apply**. Deploy is push-driven, not a second manual button. Manual operations are only **followup** and **destroy**; scheduled drift is report-only. Real human environment reviewers, an eligible Enterprise host, separate OIDC identities, private backend connectivity and the exact-workflow trusted runner are prerequisites, not simulated checks.

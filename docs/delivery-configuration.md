@@ -63,7 +63,10 @@ setup, not by renaming a branch to satisfy an example.
 ## 2. Protect the branch, environments and runner
 
 1. In the approved copy, establish and protect **main** with the required reviewed
-   change process and current-revision checks. Verify the actual rules apply to
+   [author-merged PR process](pr-author-merge.md): require a PR, **zero approving PR
+   reviews**, resolved conversations and strict current-revision checks. The author
+   may inspect and merge their own PR; GitHub self-approval is neither needed nor
+   supported. Verify the actual rules apply to
    the participants; a rule with bypass paths is not proof. The driver requires
    the run's revision to be the **current protected main** and run attempt **1**.
 2. Under **Settings → Environments**, create **avm-plan** and **avm-apply**. For
