@@ -7,21 +7,13 @@
 <!-- FULL-WS-LESSON:START -->
 ## Laboratory 02 - Step 2/4
 
-### Build one VNet and standalone, named subnets
+### Build the network and create GitHub Actions
 
-| Goal / workspace | This step |
-| --- | --- |
-| Goal | Wire the supplied inputs into two resource declarations. |
-| Branch | `lab/network` in your private copy. |
-| Files | Edit [main.tf](../main.tf) only; read [variables.tf](../variables.tf). |
+Work on `lab/network` in your private copy. Keep `WORKSHOP_AZURE_ENABLED=false` throughout authoring; no Azure login, live backend/state or real plan/apply.
 
-[Independent setup](activity-01.md) · [Git workflow](../docs/git-workflow.md) · [Toolchain](../docs/toolchain.md) · [Copilot context](../docs/copilot-guide.md).
+### 1. Code the original network
 
-Keep Terraform **1.16.1**, AzureRM **5.4.0**, Node **24.16.0**, typed inputs, validations and locks unchanged.
-
-### 1. Replace the learner scaffold
-
-Confirm the clone/branch. Read the input names and `subnets` object type, then replace the root implementation's unfinished comments—not a reference solution—with:
+Replace the scaffold in [main.tf](../main.tf) with this exact HCL, without Markdown fences:
 
 ```hcl
 resource "azurerm_virtual_network" "this" {
@@ -43,55 +35,41 @@ resource "azurerm_subnet" "this" {
 }
 ```
 
-**Why:** the VNet consumes caller inputs; standalone subnets retain caller names and depend on that VNet. Preserve both `this` labels, two-space indentation and plain quotes; save without Markdown fences or `TODO`.
-
-### 2. Check each connection
-
-| Expression | Purpose |
-| --- | --- |
-| `var.resource_group_name` | Uses an existing name; no group creation or discovery. |
-| `for_each = var.subnets` | Stable instances such as `azurerm_subnet.this["web"]`. |
-| `each.key` | Caller key becomes the subnet name. |
-| `each.value.address_prefixes` | Uses the object's CIDR list unchanged. |
-| `azurerm_virtual_network.this.name` | Links each subnet to this VNet and establishes dependency. |
-| `default_outbound_access_enabled = false` | Disables default outbound access, not a complete egress/firewall design. |
-
-Tags belong on the VNet, not subnets. Adding `app` must not renumber `web`/`data`. Do not mix inline/standalone subnets or add `count`, provider/backend blocks, resource groups, data lookups or `module "security"`.
-
-Optional: in Copilot **Ask**, attach the implementation and inputs with `#`:
-
-```text
-Review these two resource declarations against the supplied typed inputs and
-AzureRM 5.4.0. Explain each.key, each.value.address_prefixes and the VNet dependency.
-Do not edit files, add resources, upgrade pins, run commands, or contact Azure.
-```
-
-**Why:** request a read-only explanation of map wiring and dependencies. Verify its claims against the input file and table; Chat is not schema validation.
-
-### 3. Check formatting
-
-From the clone-root terminal:
+Keep the `this` labels, stable subnet keys, typed inputs, validations and locks. No inline subnets, security composition, resource groups or provider/backend additions. Check formatting at the clone root:
 
 ```powershell
 terraform fmt -check main.tf
 ```
 
-**Why:** `fmt` checks Terraform formatting; `-check` reports differences without rewriting the named file. No backend or plan runs. Fix reported indentation/alignment, save, and retry; do not reformat unrelated files or reset global settings.
+### 2. Construct the complete workflow
 
-### 4. Publish and inspect
+This workflow uses the separate [avm root](../avm/README.md) on AzureRM **4.81.0**, not the original **5.4.0** learner root; keep their state/ownership separate.
 
-Review the implementation-only diff and publish using the Git guide; message: `lab: build the VNet and named subnets`. Inspect **Actions → Lab checks → newest commit → Test learner module**, then refresh the same Exercise. Output failures can remain until Step 3; read the actual diagnostic.
+Open [solutions/avm-delivery.yml](../solutions/avm-delivery.yml), the non-runnable reference. Choose **File → New Text File**, leave it **untitled**, and select **YAML** language. Construct these sections from the reference, in order:
+
+1. Copy the complete header: `name`, `on`, `permissions`, `concurrency`, `env`, including `jobs:`.
+2. Copy the complete `preflight` job: disabled/private/protected-main admission.
+3. Copy the complete `validation` job: same-SHA credential-free checks.
+4. Copy the complete `plan` job: `avm-plan`, scoped OIDC, encrypted saved plan.
+5. Copy the complete `apply` job: `avm-apply`, distinct identity, exact saved plan.
+6. Copy the complete `followup` job, then the complete `drift` job: no-change confirmation and report-only drift; neither applies.
+
+Preserve indentation, pinned actions, driver calls, conditions, permissions and expressions exactly. Compare the **whole** untitled document with the reference. Still disabled, atomically replace all of [.github/workflows/avm-delivery.yml](../.github/workflows/avm-delivery.yml) in **one complete editor save**. Close the untitled buffer without saving another workflow. Keep [avm-cleanup.yml](../.github/workflows/avm-cleanup.yml) separate and unchanged. Never install partial drafts, alternate filenames or an extra writer.
+
+An exact reconstruction may produce **no Git diff**; that is valid. Do not invent a YAML change or empty commit.
+
+### 3. Save the network work
+
+**Source Control → inspect diff → Stage Changes** for intended files → **Commit → Publish Branch/Push**. Refresh the same Exercise. Run the complete checks in Step 3 after adding outputs.
 
 ![Microsoft reference showing the file-level Stage Changes control](../docs/images/vscode-stage.png)
-*REFERENCE — Microsoft, CC BY 3.0 US; example files, not your root. [Attribution](../docs/images/NOTICE.md).*
+*REFERENCE — Microsoft, CC BY 3.0 US; example, not evidence. [Attribution](../docs/images/NOTICE.md).*
 
-**Expected:** the pushed `azurerm_virtual_network.this` / `azurerm_subnet.this` declarations preserve caller inputs, map iteration, VNet/CIDR wiring and disabled default outbound access, without unfinished text or security composition. Structural checks precede final Terraform validation.
+**Expected:** network gate advances; one complete disabled delivery workflow remains. Output failures can remain until Step 3.
 
-**Recovery:** compare spelling, `this` labels, subnet arguments and the pushed branch. Keep tests intact; do not substitute solution runs.
+**Recovery:** fix the actual formatting/wiring difference; keep pins/tests intact and delivery disabled.
 
-Separate [Azure account setup](../docs/azure-setup.md) does not authorize deployment. This file-edit step needs no backend, state or real plan/apply; mocks check contracts, not deployment.
-
-**Next:** [Step 3: return resource-backed IDs](activity-03.md).
+**Next:** [Step 3: outputs and checks](activity-03.md).
 <!-- FULL-WS-LESSON:END -->
 
 ## Recorded simulation outcome

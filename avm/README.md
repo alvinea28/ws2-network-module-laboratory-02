@@ -61,7 +61,7 @@ not a claim that they ran just because this page exists. The original
 [learner helper](../scripts/check-learner.mjs) still checks the **original root's
 four cases**; do not redirect it here or equate the two totals.
 
-Also complete the [workflow and repository checks](../docs/workflow-authoring.md#7-replace-one-complete-file-while-disabled-validate-offline)
+Also complete the [workflow and repository checks](../.github/steps/03.md)
 while delivery is disabled. No local Azure login, identity/subscription operation,
 live backend initialization, state access or real plan/apply/destroy belongs in
 authoring or PR CI.
@@ -91,7 +91,7 @@ Source maintenance stays on **dev**, not participant live main.
 
 ## Required live lifecycle and cleanup — Actions is the only writer
 
-After actual instructor preflight, follow the [live walkthrough](../docs/workflow-authoring.md#8-complete-the-required-live-lifecycle--only-after-instructor-preflight):
+After actual instructor preflight, follow the [live walkthrough](../.github/steps/04.md):
 
 1. Only when ready/enabled, the author merges a real checks-passing PR. Its **main
    push** starts **preflight → validation → saved plan/encryption → automatic

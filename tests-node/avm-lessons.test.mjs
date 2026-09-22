@@ -217,17 +217,16 @@ test("historical simulation counts remain facts about offline cycles, not new AV
   assert.deepEqual(activities.map((row) => [row[0], ...row.slice(2)]), ["01", "02", "03", "04"].map((id) => [id, "Recorded verified", "Recorded verified"]));
 });
 
-test("the real continuation entry points link both Lab 02 guides without adding a core gate", async () => {
-  const entries = [
-    "README.md", "docs/start-here.md", ".github/steps/04.md", "avm/README.md",
-    "full-ws-content/README.md", "full-ws-content/00-start-here.md", "full-ws-content/activity-04.md",
-    "docs/azure-setup.md", "full-ws-content/azure-setup.md",
-  ];
+test("entry navigation points to existing inline lessons without adding a core gate", async () => {
+  const entries = ["README.md", "docs/start-here.md", ".github/agentalvine/README.md", "full-ws-content/README.md", "full-ws-content/00-start-here.md"];
   for (const source of entries) {
     const paths = new Set(localLinks(await read(source), source).map(({ path }) => path));
-    for (const target of ["docs/workflow-authoring.md", "docs/delivery-configuration.md"]) assert.ok(paths.has(target), `${source} must link ${target}`);
+    for (const step of originalGates) {
+      const target = source.startsWith("full-ws-content/") ? activityPath(step.id) : step.lesson;
+      assert.ok(paths.has(target), `${source} must link ${target}`);
+    }
   }
-  for (const source of ["docs/workflow-authoring.md", "docs/delivery-configuration.md", "avm/README.md"]) {
+  for (const source of [".github/steps/02.md", "docs/delivery-configuration.md", "avm/README.md"]) {
     const paths = new Set(localLinks(await read(source), source).map(({ path }) => path));
     for (const target of ["solutions/avm-delivery.yml", ".github/workflows/avm-delivery.yml"]) assert.ok(paths.has(target), `${source} must distinguish the reference from the canonical writer`);
   }
@@ -235,34 +234,32 @@ test("the real continuation entry points link both Lab 02 guides without adding 
 
 test("4/4 expressly means offline completion rather than deployment, approval or cleanup", async () => {
   const boundaries = {
-    "README.md": /offline 4\/4 is not deployment proof/i,
-    "docs/start-here.md": /Offline 4\/4 is not Azure deployment or approval proof/i,
-    ".github/steps/04.md": /4\/4 is not an AVM deployment, human approval or cleanup result/i,
-    "docs/workflow-authoring.md": /4\/4 remains offline learner-root completion, not deployment, Azure authorization or cleanup proof/i,
+    "README.md": /4\/4 is offline proof only.*not Azure authorization or live completion/i,
+    "docs/start-here.md": /4\/4 is offline proof only.*not Azure authorization or live completion/i,
+    ".github/steps/04.md": /4\/4 is offline proof only.*not deployment, authorization or cleanup/i,
     "docs/delivery-configuration.md": /neither those cases nor historical 4\/4 results verify AVM delivery/i,
     "avm/README.md": /4\/4 remains core learner-root completion only; it proves no AVM deployment, live approval or cleanup/i,
-    "full-ws-content/README.md": /historical 4\/4 do not complete\/validate AVM/i,
+    "full-ws-content/README.md": /4\/4 is offline proof only.*not Azure authorization or live completion/i,
   };
   for (const [source, pattern] of Object.entries(boundaries)) explains(await read(source), source, { "explicit non-live 4/4 boundary": pattern });
-  for (const source of ["README.md", "docs/start-here.md", ".github/steps/04.md", "docs/workflow-authoring.md", "avm/README.md", "full-ws-content/README.md"]) {
+  for (const source of ["README.md", "docs/start-here.md", ".github/steps/04.md", "avm/README.md", "full-ws-content/README.md"]) {
     explains(await read(source), source, { "missing real preflight leaves the continuation pending": /live continuation pending/i });
   }
 });
 
 test("learners construct a complete untitled reference before one disabled whole-file installation", async () => {
-  const source = "docs/workflow-authoring.md";
+  const source = ".github/steps/02.md";
   explains(await read(source), source, {
-    "required continuation, not a fifth gate": /required live continuation.*not a fifth AgentAlvine gate/i,
     "disabled authoring": /WORKSHOP_AZURE_ENABLED=false/,
-    "new untitled YAML buffer": /File.*New Text File.*buffer untitled.*YAML/i,
-    "non-runnable reference": /non-runnable reference, not a second delivery entry/i,
-    "copy and explain sections": /Copy the sections.*original order and indentation.*Explain each/i,
-    "no runnable draft or duplicate writer": /Do not save a draft, backup, alternate filename or partial workflow/i,
-    "whole-file installation while disabled": /still disabled.*replace the entire contents.*one complete editor edit\/save/i,
+    "new untitled YAML buffer": /File.*New Text File.*untitled.*YAML/i,
+    "non-runnable reference": /solutions\/avm-delivery\.yml.*non-runnable reference/i,
+    "complete ordered sections": /Construct these sections.*in order.*complete header.*jobs:/i,
+    "no runnable draft or duplicate writer": /Never install partial drafts, alternate filenames or an extra writer/i,
+    "whole-file installation while disabled": /Still disabled, atomically replace all.*one complete editor save/i,
     "no saved second workflow": /Close the untitled buffer without saving another workflow/i,
-    "preserve action pins and driver calls": /Copy action commit pins and driver invocations exactly/i,
-    "no authoring cloud/state operations": /No Azure login, identity creation, subscription changes, backend\/state access or real plan\/apply\/destroy belongs in authoring or PR validation/i,
-    "missing authorized scope stops offline": /Missing sandbox, budget, lifetime, bootstrap authorization.*stop offline.*not simulated readiness/i,
+    "preserve action pins and driver calls": /Preserve indentation, pinned actions, driver calls, conditions, permissions and expressions exactly/i,
+    "no authoring cloud/state operations": /no Azure login, live backend\/state or real plan\/apply/i,
+    "honest identical reconstruction": /no Git diff.*valid.*Do not invent a YAML change or empty commit/i,
   });
 });
 
@@ -273,64 +270,56 @@ test("the lesson teaches copying all six actual jobs, including followup and dri
   // Inventory the reviewed file's two-space job headings, not a YAML/security parser.
   const actual = [...jobs.matchAll(/^ {2}([a-z][a-z\d_-]*):[ \t]*$/gm)].map((match) => match[1]);
   assert.deepEqual(actual, jobIds);
-  const source = "docs/workflow-authoring.md";
+  const source = ".github/steps/02.md";
   const lesson = await read(source);
-  for (const id of actual) explains(lesson, source, {
-    [`copy the ${id} job, not merely mention its name`]: new RegExp(`\\bcopy(?:ing)?\\b[^.]{0,240}\\b${id}\\b[^.]{0,120}\\bjobs?\\b`, "i"),
-  });
+  const copied = [...lesson.matchAll(/(?:Copy|then) the complete `([a-z]+)` job/g)].map((match) => match[1]);
+  assert.deepEqual(copied, actual, "Copy complete jobs in the installed order");
   explains(lesson, source, {
-    "whole-document review includes six jobs": /all six jobs/i,
-    "admission is not a checkbox": /preflight.*Admission checks.*not a learner checkbox/i,
-    "same-revision validation before privileged planning": /Checks the same source revision before privileged planning/i,
-    "plan uses its protected environment and exact runner": /uses environment avm-plan.*ephemeral Linux x64 ws2-trusted/i,
-    "apply has its own identity and scoped key": /uses avm-apply, the distinct apply identity, and the environment-scoped PLAN_DECRYPTION_PRIVATE_KEY/i,
-    "both environments remain main-only without reviewers or bypass": /Both live environments require main-only deployment rules, no Required reviewers and no administrator bypass/i,
-    "author may merge without fabricated self-approval": /author may merge their own passing PR.*zero required PR approvals is not fabricated self-approval/i,
-    "followup is fresh and verifies topology": /Followup requires a fresh exit-zero plan and checks actual topology/i,
-    "failed drift assessment never permits apply": /Drift reports either detected changes or a failed\/incomplete assessment; neither result permits apply/i,
+    "admission": /preflight job: disabled\/private\/protected-main admission/i,
+    "same-revision validation": /validation job: same-SHA credential-free checks/i,
+    "plan environment and encryption": /plan job: avm-plan, scoped OIDC, encrypted saved plan/i,
+    "distinct apply identity": /apply job: avm-apply, distinct identity, exact saved plan/i,
+    "followup and drift cannot apply": /followup job.*drift job.*neither applies/i,
   });
 });
 
 test("main push automatically applies one exact plan; delivery dispatch is followup-only and cleanup is separate", async () => {
-  const source = "docs/workflow-authoring.md";
+  const source = ".github/steps/04.md";
   explains(await read(source), source, {
-    "push-driven exact-plan deployment": /Reviewed push\/merge to protected main.*apply the exact plan in the same run/i,
-    "no manual deploy or second deploy button": /no manual deploy choice and no second deploy button/i,
-    "no reviewer wait or approvals API": /There is no waiting human-review job or approvals API call/i,
-    "delivery dispatch is followup-only": /delivery workflow's manual operation choice is followup only/i,
-    "cleanup has a string authorization, not an operation menu": /Dedicated cleanup accepts a required string authorization, no operation input/i,
-    "dependency chain": /preflight\s*\u2192\s*validation\s*\u2192\s*plan\s*\u2192\s*apply/i,
-    "read-only operations cannot apply": /followup and drift must never reach apply/i,
-    "exclusive destroy": /A destroy run must not also deploy/i,
-    "first attempt only": /Only attempt 1 of a live run is eligible/i,
-    "scheduled drift does not repair": /Report-only live drift check; never repair or apply automatically/i,
-    "default dev needs deliberate owner choice, not automatic changes": /schedules use the default branch.*If the copy uses dev.*only when ready may the owner deliberately select approved protected main.*No automatic default change/i,
+    "push-driven exact-plan deployment": /Main push applies that same run's encrypted saved plan, not a replacement plan/i,
+    "no manual reviewer or second deployment": /No manual review wait or second deploy dispatch/i,
+    "delivery dispatch is followup-only": /Run workflow.*main.*operation: followup only/i,
+    "separate admin-authorized cleanup": /current authenticated repository admin.*separate explicit owner authorization.*Trusted AVM cleanup/i,
+    "cleanup is not an operation menu": /Required string authorization.*No operation input/i,
+    "actual dependency chain": /Verify scoped AVM deployment policy.*Validate reviewed AVM revision.*Trusted AVM plan.*Apply exact AVM saved plan/i,
+    "first attempt only": /fresh attempt 1.*never rerun live jobs/i,
+    "read-only followup and drift": /Followup never applies.*scheduled drift is report-only/i,
+    "never ordinary cleanup": /Ordinary pushes never clean up.*deletion\/replacement is rejected/i,
   });
 });
 
 test("offline instructions distinguish four original cases from three AVM cases with all providers mocked", async () => {
   const core = await read("tests/network.tftest.hcl");
   assert.deepEqual([...core.matchAll(/^run "([^"]+)"/gm)].map((match) => match[1]), coreCases);
-  const step = await read(".github/steps/04.md");
-  for (const name of coreCases) assert.ok(step.includes(`\`${name}\``), `Step 4 must teach ${name}`);
+  const step = await read(".github/steps/03.md");
+  for (const name of coreCases) assert.ok(step.includes(`\`${name}\``), `Step 3 must teach ${name}`);
   const companion = await read("avm/tests/contract.tftest.hcl");
   assert.deepEqual([...companion.matchAll(/^mock_provider "([^"]+)"/gm)].map((match) => match[1]).sort(), ["azapi", "azurerm", "modtm", "random"]);
   assert.equal([...companion.matchAll(/^run "/gm)].length, 3, "Count declared AVM contracts; this does not execute them");
   assert.equal([...companion.matchAll(/^\s*command\s*=\s*plan[ \t]*$/gm)].length, 3);
-  const source = "docs/workflow-authoring.md";
+  const source = ".github/steps/03.md";
   const guide = await read(source);
   for (const command of ["npm run workflow:check", "npm test", "npm run kit:check", "npm run companion:check", "node scripts/check-learner.mjs"]) {
     assert.ok(guide.includes(command), `${source}: explain the approved ${command} check`);
   }
   explains(guide, source, {
-    "all providers are mocked": /AzureRM, AzAPI, ModTM and Random are all mocked/i,
-    "AVM has three plan-only cases": /three plan-only mocked contracts/i,
-    "zero failures, errors or skipped cases": /no failed, errored or skipped cases/i,
-    "backend-disabled, read-only lock": /backend-disabled initialization and the read-only provider lock/i,
-    "original helper remains four cases on 5.4.0": /original learner root on AzureRM 5\.4\.0 and its four mocked cases/i,
-    "offline does not mean no public downloads": /Credential-free validation may download pinned public providers\/modules/i,
-    "no cloud credentials, caches or state": /must not receive Azure credentials, OIDC, CLI caches or live state/i,
-    "checks are not already-obtained results": /instructions for learner validation, not results already obtained/i,
+    "all providers are mocked": /mock AzureRM, AzAPI, ModTM and Random/i,
+    "distinct core and AVM counts": /4 core \+ 3 AVM provider-mocked cases/i,
+    "zero failures, errors or skipped cases": /zero failed, errored or skipped/i,
+    "backend-disabled, read-only lock": /backend-disabled initialization and read-only locks/i,
+    "offline does not mean no public downloads": /Public dependency downloads may need internet/i,
+    "no cloud credentials, caches or state": /no Azure credentials, OIDC, CLI caches or live state/i,
+    "checks are not already-obtained results": /Expected, not observed/i,
   });
 });
 
@@ -419,33 +408,26 @@ test("saved-plan guidance preserves exact bindings, encrypted artifacts and appl
     "same saved plan, no replacement or cross-run artifact": /apply job must never generate a new plan instead of the saved plan or accept an artifact from another run/i,
     "no public secrets or plaintext plan/state": /Never paste key material, state, tokens, plaintext plans, raw plan JSON/i,
   });
-  explains(await read("docs/workflow-authoring.md"), "docs/workflow-authoring.md", {
-    "bindings explained before apply": /exact run, first attempt, source revision, fixed root, state target, inputs, module source fingerprints and provider lock/i,
-    "two-hour limit": /two-hour maximum age/i,
-    "ciphertext only": /Only the encrypted plan envelope is uploaded.*one-day artifact retention/i,
-    "saved-plan bindings checked before apply": /driver checks saved-plan bindings before applying/i,
-    "runtime authorization delegates, not approval history": /avm-approval\.cjs.*delegates to.*deployment-authorization\.cjs.*no approvals API/i,
-    "educational progress cannot replace owner authorization": /Scope\/budget\/bootstrap authorization still belongs to the owner, not to Copilot or the Exercise issue/i,
+  explains(await read(".github/steps/04.md"), ".github/steps/04.md", {
+    "first-attempt exact saved plan": /fresh attempt 1.*same run's encrypted saved plan, not a replacement plan/i,
+    "educational progress cannot replace owner authorization": /AgentAlvine never authorizes Azure.*owner approves.*scope\/budget\/lifetime.*explicit bootstrap authorization/i,
   });
 });
 
 test("the live lifecycle requires real verification, an in-place HCL update, fresh convergence and full cleanup", async () => {
-  const source = "docs/workflow-authoring.md";
+  const source = ".github/steps/04.md";
   explains(await read(source), source, {
-    "actual ARM verification": /real live verification must check Azure Resource Manager configuration/i,
-    "outputs and screenshots are not enough": /Terraform outputs alone, screenshots or synthetic provider IDs are insufficient/i,
-    "benign tag update is in HCL": /benign HCL tag change in the tags map of the locals block in avm\/main\.tf/i,
-    "retain source/provenance and required tags": /Keep required workshop\/environment tags.*module-source pins, controls and provenance fixed/i,
-    "in-place update keeps IDs": /Require an in-place update and verify the same resource IDs/i,
-    "unexpected replacement stops mutation": /Unexpected replacement\/deletion stops the run before mutation/i,
-    "fresh followup accepts only zero": /fresh live plan.*Require exit 0, not a cached pre-apply plan or ignored exit 2/i,
-    "exclusive same-root/state destroy": /whole owned workload, same root\/state and exclusive operation/i,
-    "exact destroy plan separately authorized": /separately authorized full cleanup.*same run's validated exact destroy plan/i,
-    "one authorized owner, no second cleanup reviewer": /No independent cleanup reviewer is required.*one explicitly authorized owner dispatches/i,
-    "both state and real Azure absence": /actual managed-state and Azure absence checks.*404s/i,
-    "retain shared infrastructure": /Preserve the existing RG, backend, identities and runner infrastructure/i,
-    "uncertain cleanup stays open": /Failed or uncertain cleanup stays open.*never delete state or switch to local destroy/i,
-    "drift is not lifecycle completion": /Scheduled drift is an additional report, not any of these create\/update\/follow-up\/\s*destroy outcomes/i,
+    "actual configuration inspection": /Azure portal.*JSON View.*provisioningState: Succeeded.*Address space.*defaultOutboundAccess: false/i,
+    "green workflow is not configuration proof": /Green Actions\/mocks are not configuration proof/i,
+    "HCL tag update": /locals\.tags in avm\/main\.tf.*activity = "actions-azure-updated".*same locals\.tags/i,
+    "required tags and topology preserved": /Keep names\/CIDRs\/subnet keys\/required tags/i,
+    "in-place update keeps IDs": /in-place update, no replacement, same VNet\/subnet\/NSG IDs/i,
+    "fresh followup accepts only zero": /fresh plan exit 0.*exit 2 is not success/i,
+    "separately authorized whole cleanup": /separate explicit owner authorization for the whole owned workload.*same-run exact saved destroy plan/i,
+    "both state and real Azure absence": /empty managed state and portal VNet\/NSG absence/i,
+    "retain shared infrastructure": /Retain RG\/backend\/identities\/runner/i,
+    "safe recovery": /Recovery: stop.*never force-unlock, widen roles, delete state or use local destroy/i,
+    "drift remains report-only": /scheduled drift is report-only/i,
   });
   explains(await read("docs/delivery-configuration.md"), "docs/delivery-configuration.md", {
     "full destroy, not a target": /fresh full destroy plan.*No partial targets/i,
@@ -463,24 +445,24 @@ test("the live lifecycle requires real verification, an in-place HCL update, fre
 });
 
 test("dedicated cleanup instructions match installed/reference names and exact admin authorization, never ordinary main", async () => {
-  const source = "docs/workflow-authoring.md";
+  const source = ".github/steps/04.md";
   const lesson = await read(source);
-  const paths = new Set(localLinks(lesson, source).map(({ path }) => path));
+  const paths = new Set(localLinks(await read(".github/steps/02.md"), ".github/steps/02.md").map(({ path }) => path));
+  assert.ok(paths.has(".github/workflows/avm-cleanup.yml"), "Step 2 identifies the separate installed cleanup workflow");
   for (const path of [".github/workflows/avm-cleanup.yml", "solutions/avm-cleanup.yml"]) {
-    assert.ok(paths.has(path), `${source} must link ${path}`);
     const workflow = await read(path);
     assert.match(workflow, /^name: Trusted AVM cleanup \(explicit owner authorization required\)/);
     assert.match(workflow, /name: Apply exact authorized AVM destroy plan/);
   }
   explains(lesson, source, {
     "exact binding string": /destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>/,
-    "current admin performs explicit dispatch": /authenticated current repository admin.*explicitly authorizes.*Trusted AVM cleanup/i,
-    "actor and same-run checks": /current admin permission, actor\/sender\/trigger IDs, current SHA\/state, and the same run's validated exact destroy plan/i,
-    "same ownership boundary": /same state\/concurrency\/environments\/identities/i,
-    "never cleanup on main": /ordinary main never performs cleanup/i,
-    "no destructive regular push": /Regular pushes reject destroy and replacements/i,
+    "current admin performs explicit dispatch": /current authenticated repository admin.*separate explicit owner authorization.*Trusted AVM cleanup.*Run workflow.*main/i,
+    "same-run exact destruction": /same-run exact saved destroy plan/i,
+    "real authorization values": /real 40-character SHA\/state-lock value.*never submit placeholders/i,
+    "never cleanup on push": /Ordinary pushes never clean up/i,
+    "no destructive regular push": /regular deletion\/replacement is rejected/i,
     "cleanup input is required string": /required string authorization.*destroy:1379147533/i,
-    "delivery never accepts destroy dispatch": /delivery workflow's manual operation choice is followup only/i,
+    "delivery never accepts destroy dispatch": /operation: followup only/i,
   });
 });
 
@@ -512,53 +494,68 @@ test("readiness distinguishes generic public prerequisites from the private date
   });
 });
 
-test("actual entry pages expose a named required activity with Actions before Azure and distinct outcomes", async () => {
-  for (const source of ["README.md", ".github/steps/04.md", "full-ws-content/README.md", "full-ws-content/activity-04.md"]) {
-    const document = await read(source);
-    assert.match(document, /^#{2,3} Required activity .*Create GitHub Actions, then deploy Azure$/m, `${source}: a named activity, not a hidden help link`);
-    assert.ok(localLinks(document, source).some(({ path }) => path === "docs/workflow-authoring.md"), `${source}: link the actual authoring guide`);
-    const text = prose(document);
-    assert.ok(text.indexOf("Phase A") >= 0 && text.indexOf("Phase B") > text.indexOf("Phase A"), `${source}: teach Actions before Azure`);
-    explains(document, source, {
-      "offline authoring phase": /Phase A.*Actions authoring \(offline\)/i,
-      "live phase is distinct": /Phase B.*Azure lifecycle/i,
-      "real PR, no trigger-only fake work": /checks-passing PR.*(?:empty commit|fake change)/i,
-      "disabled authoring": /WORKSHOP_AZURE_ENABLED=false/,
-      "pending is not live completion": /live continuation pending/i,
-      "progress is not authorization": /AgentAlvine only observes\/guides/i,
-    });
+test("inline course sequence teaches Actions before live operation and retains offline-only completion", async () => {
+  assert.equal(course.lessonPresentation, "concise");
+  assert.match(course.steps[1].title, /create GitHub Actions/i);
+  assert.match(course.steps[2].title, /run the checks/i);
+  assert.match(course.steps[3].title, /inspect Azure.*offline only/i);
+  for (const { lesson } of originalGates) {
+    const document = await read(lesson);
+    assert.doesNotMatch(document, /^#{2,3} Required (?:next )?activity/im);
+    assert.ok(!localLinks(document, lesson).some(({ path }) => path === "docs/workflow-authoring.md"), "No mandatory auxiliary-guide hand-off");
   }
-  for (const source of [".github/steps/01.md", "full-ws-content/activity-01.md", "docs/start-here.md", "full-ws-content/00-start-here.md"]) {
-    const document = await read(source);
-    assert.ok(localLinks(document, source).some(({ path }) => path === "docs/workflow-authoring.md"));
-    explains(document, source, { "early discovery": /Create GitHub Actions, then deploy Azure/i, "ordinary copies do not deploy": /(?:generic.*copy.*cannot deploy|only.*exact approved private copy)/i });
-  }
-  explains(course.description + " " + course.completion, "course prose", { "named continuation": /required Create GitHub Actions, then deploy Azure activity/, "no fake live completion": /No live completion is awarded by 4\/4/ });
-});
-
-test("authoring teaches actual checks, variable meanings and owner handoff without bypass instructions", async () => {
-  const source = "docs/workflow-authoring.md", document = await read(source);
-  for (const command of ["terraform fmt -check -recursive", "terraform init -backend=false -lockfile=readonly -input=false", "terraform validate", "terraform test"]) assert.ok(document.includes(command));
-  for (const value of ["github.sha", "vars.WORKSHOP_AZURE_ENABLED", "needs.preflight.outputs.operation", "vars.AZURE_PLAN_CLIENT_ID", "vars.AZURE_APPLY_CLIENT_ID", "vars.WORKLOAD_INPUTS_JSON", "needs.plan.outputs.*", "secrets.PLAN_DECRYPTION_PRIVATE_KEY"]) assert.ok(document.includes(`\`${value}\``), `Explain ${value}`);
-  explains(document, source, {
-    "real expected core result": /Success! 4 passed, 0 failed/,
-    "real expected AVM result": /3 mocked authoring contracts passed, 0 failed\/skipped; native mocked plan admission verified. Not live Azure acceptance/i,
-    "read-only workflow inventory": /1 canonical delivery workflow; 1 separately authorized cleanup workflow; 4 reviewed companions/i,
-    "actual syntax check": /actionlint 1\.7\.12.*success prints no diagnostics/i,
-    "no eligible-ID bypass": /Do not repin IDs, names, workflow hashes or ruleset revisions, or toggle flags, to make another copy eligible/i,
-    "owner handoff on absent main": /If protected main does not exist.*stop at the offline handoff.*owner establish protected main while disabled/i,
-    "no authoring publication to main": /Source-template maintenance belongs on dev, not participant live main/i,
-    "no manual evidence protocol": /No manual checkboxes, evidence PRs or success comments award live completion/i,
+  explains(course.completion, "course prose", {
+    "final instructions stay in Step 4": /inside Step 4 after automatic advancement/i,
+    "no fake live completion": /no fifth activity or live completion is awarded/i,
   });
 });
 
+test("the concise steps preserve the exact original two-resource and two-output HCL snippets", async () => {
+  const snippets = [
+    `resource "azurerm_virtual_network" "this" {
+  name                = var.name
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  address_space       = var.address_space
+  tags                = var.tags
+}
+
+resource "azurerm_subnet" "this" {
+  for_each = var.subnets
+
+  name                            = each.key
+  resource_group_name             = var.resource_group_name
+  virtual_network_name            = azurerm_virtual_network.this.name
+  address_prefixes                = each.value.address_prefixes
+  default_outbound_access_enabled = false
+}`,
+    `output "vnet_id" {
+  description = "Azure resource ID of the virtual network."
+  value       = azurerm_virtual_network.this.id
+}
+
+output "subnet_ids" {
+  description = "Subnet IDs keyed by the caller's stable subnet names."
+  value       = tomap({ for name, subnet in azurerm_subnet.this : name => subnet.id })
+}`,
+  ];
+  for (const [index, id] of ["02", "03"].entries()) {
+    const blocks = [...(await read(`.github/steps/${id}.md`)).matchAll(/^```hcl\n([\s\S]*?)^```/gm)];
+    assert.equal(blocks.length, 1);
+    assert.equal(blocks[0][1].trim(), snippets[index]);
+  }
+});
+
 function assertNoPrivateSnapshot(text) {
+  // This fixed eligible identity is a control boundary, not a private readback.
+  text = text.replace(/\balvine-aurelio-org\/ws2-sim-20260921-network-module-laboratory-02(?=$|[\s,*`):;])/g, "");
   assert.doesNotMatch(text, /ws2-sim-\d{8}-|\b\d{11}\b|Last supplied readback|Verified configuration update|initial live baseline at|\/actions\/runs\/\d+/i, "Public active guidance must not embed private metadata or live-result claims");
 }
 
 test("public active guidance never imports private snapshots while allowing the fixed cleanup authorization syntax", async () => {
-  for (const value of ["ws2-sim-20990101-example", "12345678901", "Verified configuration update, 00:00 UTC", "https://example.invalid/actions/runs/123"]) assert.throws(() => assertNoPrivateSnapshot(value));
+  for (const value of ["ws2-sim-20990101-example", "alvine-aurelio-org/ws2-sim-20260921-network-module-laboratory-02-other", "12345678901", "Verified configuration update, 00:00 UTC", "https://example.invalid/actions/runs/123"]) assert.throws(() => assertNoPrivateSnapshot(value));
   assert.doesNotThrow(() => assertNoPrivateSnapshot("Prerequisites only; destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>"));
+  assert.doesNotThrow(() => assertNoPrivateSnapshot("Approved identity: alvine-aurelio-org/ws2-sim-20260921-network-module-laboratory-02, ID 1379147533; not a live result."));
   if ((await read("docs/delivery-configuration.md")).includes("**Public-source context:**")) {
     for (const source of ["README.md", "docs/start-here.md", "docs/workflow-authoring.md", "docs/delivery-configuration.md", "docs/pr-author-merge.md", "docs/git-workflow.md", "avm/README.md", ".github/steps/01.md", ".github/steps/04.md", "full-ws-content/README.md", "full-ws-content/00-start-here.md"]) assertNoPrivateSnapshot(await read(source));
   } else {

@@ -7,13 +7,13 @@
     "D1.3"
   ],
   "duration": "60–90 minutes",
-  "description": "No earlier repository required. This copy includes the typed inputs, provider lock, mocks and a network-only starter. After the four offline gates, complete the required Create GitHub Actions, then deploy Azure activity: Actions authoring offline first, Azure only in the approved ready private copy.",
+  "description": "Four inline lessons: setup/design, network and Actions authoring, outputs and offline checks, then authorized PR/Azure inspection/update/cleanup in Step 4. No earlier lab required; generic copies stay offline.",
   "nextRepository": "alvinea28/ws2-subnet-security-laboratory-03",
-  "completion": "The learner network root passes its schema and mocked contract checks. This lab returns vnet_id and subnet_ids only; the reusable security boundary is the next lab. No Azure resources were deployed by these checks. Continue with the required Create GitHub Actions, then deploy Azure activity linked in Step 4 and the README: workflow authorship is offline; live continuation pending until owner readiness and actual lifecycle results. No live completion is awarded by 4/4. Every laboratory is independent; the catalogue order is a learning recommendation, not a requirement to create or finish another repository.",
+  "completion": "4/4 is offline learner-root proof only. No Azure resources were deployed by these checks. Continue the instructions inside Step 4 after automatic advancement; no fifth activity or live completion is awarded. Until owner readiness and actual lifecycle results exist: live continuation pending. AgentAlvine never authorizes Azure.",
   "steps": [
     {
       "id": "1",
-      "title": "Choose the reusable boundary",
+      "title": "Set up and define the network boundary",
       "lesson": ".github/steps/01.md",
       "requiresCommit": true,
       "checks": [
@@ -33,7 +33,7 @@
     },
     {
       "id": "2",
-      "title": "Create the VNet and named subnets",
+      "title": "Build the network and create GitHub Actions",
       "lesson": ".github/steps/02.md",
       "requiresCommit": true,
       "checks": [
@@ -67,7 +67,7 @@
     },
     {
       "id": "3",
-      "title": "Return resource-backed outputs",
+      "title": "Add outputs and run the checks",
       "lesson": ".github/steps/03.md",
       "requiresCommit": true,
       "checks": [
@@ -92,7 +92,7 @@
     },
     {
       "id": "4",
-      "title": "Prove the learner root offline; start the required Actions/Azure activity",
+      "title": "Merge, inspect Azure, update and clean up (4/4 is offline only)",
       "lesson": ".github/steps/04.md",
       "requiresCommit": false,
       "checks": [
@@ -108,6 +108,7 @@
     }
   ],
   "beginnerSetup": true,
+  "lessonPresentation": "concise",
   "sourceRepository": "alvinea28/ws2-network-module-laboratory-02",
   "sourceBranch": "dev",
   "independent": true,

@@ -9,11 +9,9 @@
 
 **Goal:** reach the current Exercise in **your own private copy** with working local tools. Each numbered lab supplies its own baseline; no earlier repository is required. Choose one in the [workshop catalogue](https://github.com/alvinea28/ws2-workshop-catalogue).
 
-**Lab 02 boundary:** the four core steps remain credential-free and independent. Instructor-approved live cohorts must then complete the [AVM workflow-authoring continuation](../docs/workflow-authoring.md), after the [real instructor configuration prerequisite](../docs/delivery-configuration.md). Offline **4/4** is not Azure deployment or approval proof.
+**Lab 02 route:** [Step 1 setup/design](activity-01.md) → [Step 2 network/Actions authoring](activity-02.md) → [Step 3 outputs/checks](activity-03.md) → [Step 4 PR/Azure inspection/update/cleanup](activity-04.md). The actions are embedded in those four lessons, not a separate activity.
 
-**Required activity: [Create GitHub Actions, then deploy Azure](../docs/workflow-authoring.md).**
-Phase A is Actions authoring/checking offline in every copy. Phase B is the actual
-Azure lifecycle, only for the exact approved private copy after owner readiness.
+**4/4 is offline proof only**, not Azure authorization or live completion. Generic copies stay offline; only the exact approved private copy may follow Step 4 after owner readiness.
 
 **Before cloning on Windows x64:** [prepare all eight labs with one command](https://github.com/alvinea28/ws2-workshop-catalogue/blob/dev/docs/windows-setup.md#2-paste-this-one-command).
 It installs the tools and VS Code extensions once. After **READY**, reopen VS Code
@@ -191,13 +189,9 @@ Labs **01/05** allow self-inspection and educational PR merges where rules permi
 
 ## Required live continuation for approved Lab 02 cohorts
 
-Finish the same **four** core steps first; their learner-root checks and automatic Exercise progression are unchanged. **Phase A — Actions authoring (offline):** [author the AVM delivery workflow](../docs/workflow-authoring.md) in an **untitled buffer**, copying and explaining the complete non-runnable reference section by section. Replace only the one canonical workflow as a whole file **while disabled**; do not install partial drafts or duplicate writers. Complete the documented offline checks before considering Azure. A generic copy can author/check, but cannot deploy.
+Create Actions inside [Step 2](activity-02.md), run the inline [Step 3 checks](activity-03.md), then continue [Step 4](activity-04.md), even after automatic 4/4 advancement. Step 4 contains the STOP conditions, passing-PR merge, portal clicks, tag update, followup and separately authorized cleanup.
 
-The owner must verify the exact approved private non-template identity, scope/budget/lifetime and explicit bootstrap authorization, protected current main/strict checks, eligible Enterprise hosting, main-only **avm-plan / avm-apply** with **no Required reviewers** and no admin bypass, distinct OIDC, private locked separate state, encryption and the restricted ephemeral **Linux x64 ws2-trusted** runner. These are [admin prerequisites](../docs/delivery-configuration.md), not completed setup or live results. Keep `WORKSHOP_AZURE_ENABLED=false`. If main is absent, stop at the offline handoff; only after baseline/readiness review may the owner establish protected main while disabled. No PR into nonexistent main or unready creation. Never initialize live state locally or repin IDs/pins/toggle flags to make another copy eligible.
-
-**Phase B — Azure lifecycle:** only when ready/enabled, the author merges a real checks-passing PR to protected main. Its push starts validation → saved plan/encryption → automatic exact-plan apply in the same run; no second deploy button, approvals API or reviewer wait. Complete **create → actual Azure verification → benign HCL tag/main-push update with the same IDs → fresh followup exit 0 → separately authorized full cleanup and verified absence**. Delivery's manual choice is **followup only**. The current authenticated repository admin separately authorizes owned-scope cleanup and dispatches [avm-cleanup.yml](../.github/workflows/avm-cleanup.yml), required string `authorization` = `destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>`, no operation input or independent cleanup reviewer. Retain the same state/concurrency/environments/identities and shared RG/backend/runner. Ordinary main never cleans up. Scheduled drift is report-only. No empty commit or fake change merely to trigger deployment; source maintenance stays on **dev**, not participant live main.
-
-Missing prerequisites mean **core complete; live continuation pending**, not permission to fabricate authorization or claim deployment from **4/4**. AgentAlvine only observes/guides; progress is not Azure authorization. Optional runtime API extensions remain blocked until separate real preflight; costs are not assumed zero. No live execution is claimed by these instructions.
+Keep `WORKSHOP_AZURE_ENABLED=false` until the owner verifies readiness. Missing prerequisites mean **live continuation pending**, not permission to create main or bypass controls. [Owner configuration](../docs/delivery-configuration.md) is a reference, not a fifth lesson. No live result is claimed.
 <!-- FULL-WS-SETUP:END -->
 
 [Continue to Activity 01](activity-01.md) · [Return to the review index](README.md)

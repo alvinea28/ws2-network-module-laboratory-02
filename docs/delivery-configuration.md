@@ -252,7 +252,7 @@ claims that the setup was executed**:
 | Workload ownership | Approved existing group/region/CIDRs, unique name, no imports/adoption, no Lab 07 overlap; budget, lifetime, bootstrap authorization and cleanup owner assigned |
 
 The learner first reconstructs and validates the whole workflow **while disabled**
-using the [authoring lesson](workflow-authoring.md#7-replace-one-complete-file-while-disabled-validate-offline).
+using the [authoring lesson](../.github/steps/02.md).
 Never install fragments or a second writer. Review actual current-revision offline
 results; those results do not replace any gate in the table.
 
@@ -265,7 +265,7 @@ by following or editing these documents.
 ## 7. Required acceptance and full cleanup
 
 The approved cohort must observe the following **real** lifecycle, using the
-[learner walkthrough](workflow-authoring.md#8-complete-the-required-live-lifecycle--only-after-instructor-preflight):
+[learner walkthrough](../.github/steps/04.md):
 
 1. A reviewed **main push** creates the disposable AVM network through the same
    run's preflight, validation, saved plan/encryption and **automatic exact-plan apply**.

@@ -196,10 +196,12 @@ function beginnerSetup(config, full, branch) {
   if (!config.beginnerSetup) return "";
   ensure(/^[\w.-]+\/[\w.-]+$/.test(full), "Invalid repository identity");
   const docs = `https://github.com/${full}/blob/${branch}/docs`;
+  if (config.lessonPresentation === "concise") return `\n### Quick setup\n\nUse **${full}**, not the template. In VS Code: **Git: Clone** → **https://github.com/${full}.git** → **Open**. In **Terminal → New Terminal**, run **node scripts/doctor.mjs** from this clone's repository root.\n\nUse the intended GitHub/Copilot account; check [account preferences](${docs}/copilot-guide.md). The lesson below contains the full setup. Help: [Clone/accounts](${docs}/start-here.md) · [Tools](${docs}/toolchain.md) · [Git](${docs}/git-workflow.md) · [Recovery](${docs}/troubleshooting.md).\n`;
   return `\n> [!IMPORTANT]\n> **First time with GitHub or VS Code? Start with [the illustrated setup guide](${docs}/start-here.md).**\n> Your working repository is **${full}**, not the public template.\n\n### Before editing: clone, open and sign in\n\n1. In your browser, verify the intended personal GitHub account and open **this copy**.\n2. In VS Code press **Ctrl+Shift+P** (macOS **Cmd+Shift+P**), choose **Git: Clone**, and paste **https://github.com/${full}.git**.\n3. Complete browser sign-in for the intended account, choose a local parent folder, then select **Open** for **${full.split("/")[1]}**. Trust only this known workshop copy.\n4. Use **Accounts → Sign in with GitHub to use GitHub Copilot** (or the Copilot status menu). Confirm account/seat and [extension account preferences](${docs}/copilot-guide.md). Git commit name/email is not sign-in.\n5. Open **Terminal → New Terminal** in this clone, verify the [pinned tools](${docs}/toolchain.md), then run **node scripts/doctor.mjs**. It is read-only; browser/Copilot access still needs your manual check.\n6. Return to the current task below. [Save, stage, commit and push](${docs}/git-workflow.md) are different actions; GitHub cannot see unsaved/unpushed work.\n\n**Need Settings or Actions?** Use [the illustrated recovery guide](${docs}/troubleshooting.md); do not widen permissions or disable safeguards to make a task pass.\n`;
 }
 
 function render(config, state, feedback, full, branch, readLesson) {
+  ensure(!Object.hasOwn(config, "lessonPresentation") || config.lessonPresentation === "concise", 'lessonPresentation must be "concise" when present');
   const done = state.step === config.steps.length;
   const bar = config.steps.map((_, index) => index < state.step ? "🟩" : "⬜").join("");
   const checklist = config.steps.map((step, index) => `- [${index < state.step ? "x" : " "}] ${index + 1}. ${step.title}`).join("\n");
@@ -213,6 +215,14 @@ function render(config, state, feedback, full, branch, readLesson) {
     const imageRepository = config.sourceRepository || full;
     ensure(/^[\w.-]+\/[\w.-]+$/.test(imageRepository), "Invalid image repository");
     body += `\n## Step ${state.step + 1}: ${step.title}\n\n${lessonLinks(readLesson(step.lesson), step.lesson, full, branch, state.sha, learnerPaths, imageRepository, config.sourceBranch || branch)}\n\n### AgentAlvine is watching\n\n${feedback || "Waiting for your GitHub activity. Follow the task above, commit and push."}\n\nNo check command or evidence PR is needed. For an administrative setting that has no event, use **Actions → AgentAlvine → Run workflow → Check progress**.\n`;
+  }
+  if (done && config.lessonPresentation === "concise") {
+    // Keep the existing final instructions readable, not a new progress gate.
+    const step = config.steps.at(-1);
+    const learnerPaths = new Set(config.steps.flatMap((task) => task.checks).filter((check) => check.path).map((check) => check.path));
+    const imageRepository = config.sourceRepository || full;
+    ensure(/^[\w.-]+\/[\w.-]+$/.test(imageRepository), "Invalid image repository");
+    body += `\n## Step ${config.steps.length} — final instructions (retained): ${step.title}\n\n${lessonLinks(readLesson(step.lesson), step.lesson, full, branch, state.sha, learnerPaths, imageRepository, config.sourceBranch || branch)}\n`;
   }
   body += `\n<details>\n<summary>Progress details</summary>\n\nObserved branch: \`${state.branch}\`. Last checked revision: \`${state.sha}\`.\n\n${state.completed.map((item) => `- ${item.id}: [verified revision](https://github.com/${full}/commit/${item.sha})`).join("\n") || "No completed steps yet."}\n\nThis is a teaching checklist, not Azure authorization. Scope, budget, bootstrap and cleanup authorizations remain separate owner decisions. The approved private automatic exact-plan path has no manual deployment reviewer. AgentAlvine only observes metadata and guides; it has no cloud tokens or execution authority.\n</details>\n\n${STATE}${JSON.stringify(state)}${END}`;
   return body;

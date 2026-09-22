@@ -295,3 +295,124 @@ test("observer footer keeps owner authorizations separate and preserves the prio
   assert.deepEqual(run.readState(body, local), original);
   assert.deepEqual(state, original);
 });
+
+// Presentation fixtures only, NOT live progress/deployment evidence. All API
+// calls below use the existing in-memory fake; render itself needs no client.
+function presentationState(step) {
+  return { version: 2, lab: config.id, startedAt: "2026-09-21T12:00:00Z", startSha: A, sha: B, branch: "lab/example", step,
+    completed: config.steps.slice(0, step).map(({ id }, index) => ({ id, sha: index ? B : A, at: "2026-09-21T12:01:00Z" })),
+    events: ["synthetic:historical"], preview: false, cycle: 3 };
+}
+const conciseConfig = { ...config, lessonPresentation: "concise", sourceRepository: "publisher/public-lab", sourceBranch: "dev", completion: "Checks only; not Azure authorization." };
+const finalLesson = "SYNTHETIC FINAL INSTRUCTIONS\n[Work](../../exercise/notes.md#review) [Help](../../docs/start-here.md#clone) [Other step](01.md#task)\n![Reference](../../docs/images/example.png#view)\n~~~markdown\n[Unchanged](relative.md)\n~~~\n";
+
+test("concise presentation retains the complete final lesson after completion without changing history", () => {
+  const state = presentationState(config.steps.length), before = JSON.stringify(state);
+  const metadata = JSON.stringify(conciseConfig), reads = [];
+  const body = run.render(conciseConfig, state, "Not a live result", "test/copy", "main", (file) => { reads.push(file); return finalLesson; });
+  assert.deepEqual(reads, [config.steps.at(-1).lesson]);
+  assert.ok(body.includes(`Step 2 — final instructions (retained): ${config.steps.at(-1).title}`));
+  assert.equal(body.split("SYNTHETIC FINAL INSTRUCTIONS").length, 2);
+  assert.ok(body.indexOf("Exercise complete") < body.indexOf("SYNTHETIC FINAL INSTRUCTIONS"));
+  assert.ok(body.indexOf("SYNTHETIC FINAL INSTRUCTIONS") < body.indexOf("<details>"));
+  assert.ok(body.includes(`blob/${B}/exercise/notes.md#review`));
+  assert.ok(body.includes("blob/main/docs/start-here.md#clone"));
+  assert.ok(body.includes("blob/main/.github/steps/01.md#task"));
+  assert.ok(body.includes("https://raw.githubusercontent.com/publisher/public-lab/dev/docs/images/example.png#view"));
+  assert.ok(body.includes("~~~markdown\n[Unchanged](relative.md)\n~~~"));
+  assert.match(body, /2\/2 steps complete/);
+  assert.doesNotMatch(body, /AgentAlvine is watching/);
+  assert.equal(JSON.stringify(state), before);
+  assert.equal(JSON.stringify(run.readState(body, conciseConfig)), before);
+  assert.equal(JSON.stringify(conciseConfig), metadata);
+});
+
+test("concise presentation displays the current final lesson once, not a second retained copy", () => {
+  const state = presentationState(config.steps.length - 1), before = JSON.stringify(state), reads = [];
+  const body = run.render(conciseConfig, state, "Still waiting", "test/copy", "dev", (file) => { reads.push(file); return finalLesson; });
+  assert.deepEqual(reads, [config.steps.at(-1).lesson]);
+  assert.equal(body.split("SYNTHETIC FINAL INSTRUCTIONS").length, 2);
+  assert.match(body, /Step 2: Push second change/);
+  assert.match(body, /AgentAlvine is watching/);
+  assert.doesNotMatch(body, /final instructions \(retained\)|Exercise complete/);
+  assert.equal(JSON.stringify(state), before);
+  assert.equal(JSON.stringify(run.readState(body, conciseConfig)), before);
+});
+
+test("concise presentation is opt-in: legacy completion does not read or retain a lesson", () => {
+  const state = presentationState(config.steps.length), before = JSON.stringify(state);
+  const body = run.render(config, state, "", "test/copy", "dev", () => assert.fail("Legacy completion must not read a lesson"));
+  assert.match(body, /Exercise complete/);
+  assert.doesNotMatch(body, /final instructions \(retained\)|SYNTHETIC FINAL INSTRUCTIONS/);
+  assert.equal(JSON.stringify(state), before);
+  assert.equal(JSON.stringify(run.readState(body, config)), before);
+});
+
+test("concise presentation shortens first setup but keeps own-clone, root, doctor and account help", () => {
+  const state = presentationState(0), before = JSON.stringify(state);
+  const render = (course) => run.render(course, state, "", "test/copy", "main", () => "Full setup in this lesson.");
+  const concise = render({ ...conciseConfig, beginnerSetup: true });
+  const legacy = render({ ...config, beginnerSetup: true });
+  const setup = concise.split("## Step 1:")[0], oldSetup = legacy.split("## Step 1:")[0];
+  assert.ok(setup.length < oldSetup.length * 0.75, "Do not repeat the verbose six-action introduction");
+  for (const token of ["Git: Clone", "https://github.com/test/copy.git", "repository root", "node scripts/doctor.mjs", "GitHub/Copilot", "full setup", "docs/start-here.md", "docs/copilot-guide.md", "docs/git-workflow.md", "docs/toolchain.md", "docs/troubleshooting.md"]) assert.ok(setup.includes(token), token);
+  assert.ok(setup.includes("https://github.com/test/copy/blob/main/docs/copilot-guide.md"));
+  assert.doesNotMatch(setup, /publisher\/public-lab\.git|^6\. /m);
+  assert.match(oldSetup, /^6\. Return to the current task below\./m);
+  assert.ok(concise.includes("Full setup in this lesson."));
+  assert.equal(JSON.stringify(state), before);
+});
+
+test("concise presentation still respects beginnerSetup false on first and later steps", () => {
+  for (const course of [config, conciseConfig]) for (const step of [0, 1]) {
+    const body = run.render({ ...course, beginnerSetup: false }, presentationState(step), "", "test/copy", "dev", () => "Only the lesson.");
+    assert.doesNotMatch(body, /Git: Clone|Setup help|doctor\.mjs|Quick setup/);
+    assert.ok(body.includes("Only the lesson."));
+  }
+});
+
+test("concise presentation rejects any present flag other than the exact string", () => {
+  for (const flag of [undefined, null, false, true, 2, {}, [], new String("concise"), "", "legacy", "Concise", " concise "]) {
+    for (const step of [0, config.steps.length]) assert.throws(() => run.render({ ...config, lessonPresentation: flag }, presentationState(step), "", "test/copy", "dev", () => finalLesson), /lessonPresentation/);
+  }
+});
+
+test("concise presentation preview cannot award progress, write a README or close its issue", async () => {
+  const f = fake(); f.m.metadata.is_template = true;
+  f.github.rest.repos.getContent = async () => assert.fail("Preview cannot read learner evidence or update README");
+  const call = () => run({ github: f.github, context: f.context, core: f.core, config: { ...conciseConfig, beginnerSetup: true }, now: () => "2026-09-21T12:00:00Z", readLesson: () => "Synthetic current lesson." });
+  await call(); assert.equal(f.m.issues.length, 0);
+  f.context.eventName = "workflow_dispatch"; f.context.payload.inputs = { mode: "Preview" };
+  await call();
+  const before = JSON.stringify(f.state());
+  f.m.files.set("exercise/team.json", '{"team":"Synthetic complete"}');
+  f.m.files.set("exercise/notes.md", "reviewed");
+  f.m.branches.dev = B; f.context.runId++;
+  await call();
+  assert.equal(JSON.stringify(f.state()), before);
+  assert.equal(f.state().step, 0); assert.equal(f.state().preview, true);
+  assert.equal(f.m.issues.length, 1); assert.equal(f.m.issues[0].state, "open");
+  assert.equal(f.m.comments.length, 0); assert.equal(f.m.writes.length, 0);
+});
+
+test("concise presentation refreshes an already closed issue on a normal event without regrading", async () => {
+  const f = fake(); await f.call();
+  f.push(B, "exercise/team.json", '{"team":"Synthetic complete"}');
+  f.m.files.set("exercise/notes.md", "reviewed"); await f.call();
+  assert.equal(f.m.issues[0].state, "closed");
+  const before = JSON.stringify(f.state()), comments = f.m.comments.length, writes = f.m.writes.length;
+  const update = f.github.rest.issues.update, updates = [], reads = [];
+  f.github.rest.issues.update = async (args) => { updates.push(args); return update(args); };
+  const getContent = f.github.rest.repos.getContent;
+  f.github.rest.repos.getContent = async (args) => { assert.equal(args.path, "README.md", "No learner evidence reads after completion"); return getContent(args); };
+  f.github.rest.actions.listWorkflowRuns = async () => assert.fail("Do not evaluate completed checks");
+  f.push(C);
+  await run({ github: f.github, context: f.context, core: f.core, config: conciseConfig, readLesson: (file) => { reads.push(file); return finalLesson; } });
+  assert.deepEqual(reads, [config.steps.at(-1).lesson]);
+  assert.equal(updates.length, 1); assert.ok(updates[0].body);
+  assert.equal(Object.hasOwn(updates[0], "state"), false);
+  assert.equal(JSON.stringify(f.state()), before);
+  assert.equal(f.m.issues.length, 1); assert.equal(f.m.issues[0].state, "closed");
+  assert.equal(f.m.comments.length, comments); assert.equal(f.m.writes.length, writes);
+  assert.match(f.m.issues[0].body, /SYNTHETIC FINAL INSTRUCTIONS/);
+});

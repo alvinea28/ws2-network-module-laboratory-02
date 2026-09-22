@@ -199,7 +199,7 @@ Lab 07 is a different writer/root/state and cannot deploy or clean up this netwo
 ## 7. Cleanup, privacy and returning to the Exercise
 
 1. **Live workload cleanup is mandatory:** use the **same approved root/state** and
-    [separately authorized dedicated AVM cleanup](../docs/workflow-authoring.md#8-complete-the-required-live-lifecycle--only-after-instructor-preflight)
+    [separately authorized dedicated AVM cleanup](activity-04.md#5-separately-authorize-cleanup)
     before moving on. The current authenticated repo admin explicitly authorizes
     owned-scope cleanup and dispatches [avm-cleanup.yml](../.github/workflows/avm-cleanup.yml),
     required string `authorization` = `destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>`,
