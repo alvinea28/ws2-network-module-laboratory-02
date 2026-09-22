@@ -191,16 +191,22 @@ metadata location is not necessarily the approved workload region.
 | PR checks | No login, OIDC, user tokens, remote state or CLI cache |
 
 Local variables/login do **not** configure Actions or its OIDC workload identity.
-Never copy CLI tokens/caches to GitHub. **Lab 02 live is not solo:** retain this copy's
-[protected AVM configuration and independent approvals](delivery-configuration.md).
+Never copy CLI tokens/caches to GitHub. Retain the exact approved private copy's
+[protected AVM automatic exact-plan configuration](delivery-configuration.md):
+no manual deployment reviewer, but real scope/budget/bootstrap readiness is required.
 Lab 07 is a different writer/root/state and cannot deploy or clean up this network.
 
 ## 7. Cleanup, privacy and returning to the Exercise
 
 1. **Live workload cleanup is mandatory:** use the **same approved root/state** and
-    [fresh, independently reviewed AVM destroy plan](workflow-authoring.md#8-complete-the-required-live-lifecycle--only-after-instructor-preflight)
-    before moving on. The workflow's `plan -destroy` proposes full destruction; it
-    applies that exact reviewed plan. No ungated local `terraform destroy`, `-target`
+    [separately authorized dedicated AVM cleanup](workflow-authoring.md#8-complete-the-required-live-lifecycle--only-after-instructor-preflight)
+    before moving on. The current authenticated repo admin explicitly authorizes
+    owned-scope cleanup and dispatches [avm-cleanup.yml](../.github/workflows/avm-cleanup.yml),
+    required string `authorization` = `destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>`,
+    no operation input or independent cleanup reviewer. A fresh `plan -destroy`
+    proposes full destruction; same-run validation and exact saved-plan application
+    retain state/concurrency/environments/identities. Ordinary main never cleans up.
+    No ungated local `terraform destroy`, `-target`
     (partial selection), state deletion, or deletion of existing/shared RGs, backends,
     identities or runners. Failed/uncertain cleanup keeps the activity open: escalate.
 2. **Redaction is mandatory before sharing captures:** hide tenant/subscription/client/object

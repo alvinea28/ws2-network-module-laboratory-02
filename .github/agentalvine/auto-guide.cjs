@@ -137,7 +137,7 @@ async function evaluate(check, api) {
     if (!trusted) params.head_sha = state.sha;
     else params.branch = "main";
     let runs;
-    try { runs = await github.paginate(github.rest.actions.listWorkflowRuns, params); } catch (error) { if (error.status === 404) return `Create and run ${check.file} as shown below.`; throw error; }
+    try { runs = await github.paginate(github.rest.actions.listWorkflowRuns, params); } catch (error) { if (error.status === 404) return trusted ? "The trusted workflow is unavailable. Keep live work blocked and ask the owner to verify readiness; do not create main or enable Azure to advance this guide." : `Create and run ${check.file} as shown below.`; throw error; }
     const candidates = runs.filter((run) => run.head_repository?.full_name === full && run.path === `.github/workflows/${check.file}` && run.status === "completed" && run.conclusion === (check.conclusion || "success") && Date.parse(run.created_at) >= Date.parse(state.startedAt) && (trusted ? run.head_branch === "main" && ["push", "workflow_dispatch", "schedule"].includes(run.event) && run.run_attempt === 1 : run.head_sha === state.sha && ["push", "pull_request", "workflow_dispatch"].includes(run.event)));
     for (const run of candidates) {
       if (trusted && (run.head_sha !== state.sha || Date.parse(run.created_at) < Date.parse(state.completed.at(-1)?.at || state.startedAt))) continue;
@@ -214,7 +214,7 @@ function render(config, state, feedback, full, branch, readLesson) {
     ensure(/^[\w.-]+\/[\w.-]+$/.test(imageRepository), "Invalid image repository");
     body += `\n## Step ${state.step + 1}: ${step.title}\n\n${lessonLinks(readLesson(step.lesson), step.lesson, full, branch, state.sha, learnerPaths, imageRepository, config.sourceBranch || branch)}\n\n### AgentAlvine is watching\n\n${feedback || "Waiting for your GitHub activity. Follow the task above, commit and push."}\n\nNo check command or evidence PR is needed. For an administrative setting that has no event, use **Actions → AgentAlvine → Run workflow → Check progress**.\n`;
   }
-  body += `\n<details>\n<summary>Progress details</summary>\n\nObserved branch: \`${state.branch}\`. Last checked revision: \`${state.sha}\`.\n\n${state.completed.map((item) => `- ${item.id}: [verified revision](https://github.com/${full}/commit/${item.sha})`).join("\n") || "No completed steps yet."}\n\nThis is a teaching checklist, not Azure authorization. Independent review and cloud approvals remain separate.\n</details>\n\n${STATE}${JSON.stringify(state)}${END}`;
+  body += `\n<details>\n<summary>Progress details</summary>\n\nObserved branch: \`${state.branch}\`. Last checked revision: \`${state.sha}\`.\n\n${state.completed.map((item) => `- ${item.id}: [verified revision](https://github.com/${full}/commit/${item.sha})`).join("\n") || "No completed steps yet."}\n\nThis is a teaching checklist, not Azure authorization. Scope, budget, bootstrap and cleanup authorizations remain separate owner decisions. The approved private automatic exact-plan path has no manual deployment reviewer. AgentAlvine only observes metadata and guides; it has no cloud tokens or execution authority.\n</details>\n\n${STATE}${JSON.stringify(state)}${END}`;
   return body;
 }
 

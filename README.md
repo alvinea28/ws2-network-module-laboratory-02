@@ -4,6 +4,8 @@
 
 > [!NOTE]
 > **This lab is independent:** build a VNet and stable-key subnets, expose resource-backed IDs, and inspect four mocked tests. Typed inputs, locks and starter files are supplied; no earlier lab or Azure account is required for the four-step core. Instructor-approved live cohorts must then complete the separate AVM delivery continuation below.
+>
+> **Required activity: [Create GitHub Actions, then deploy Azure](docs/workflow-authoring.md).** First author/check Actions offline in every copy; then complete the Azure lifecycle only in the approved, ready private copy. This is not a fifth Exercise gate.
 
 ## Start here — copy, clone, open and sign in
 
@@ -38,17 +40,39 @@ Read [all four lessons, setup and historical outcomes](full-ws-content/README.md
 - No core PR/merge, Azure credentials, backend/state access or deployment required. Mock success does not prove connectivity or policy compliance.
 - [Terraform AVM hands-on](avm/README.md) uses a **separate AzureRM 4.81.0 profile** and fixed AVM root. Core mocks and historical **4/4** results do not complete/validate it; keep its configuration/state separate from the original root and Lab 07.
 
-## Required live continuation — instructor-approved cohorts
+## Required activity — Create GitHub Actions, then deploy Azure
+
+This is the **required live continuation for instructor-approved cohorts**, not
+extra offline credit. Keep the two phases distinct:
+
+1. **Phase A — Actions authoring (offline):** open the [complete walkthrough](docs/workflow-authoring.md), read the non-runnable solution, build header/preflight/validation/plan/apply/followup/drift in **File → New Text File → untitled YAML**, then atomically replace **one** canonical workflow while `WORKSHOP_AZURE_ENABLED=false`. Run its workflow, Node, kit and provider-mocked checks. An ordinary copy can complete this phase, not deploy.
+2. **Owner readiness:** read [delivery configuration](docs/delivery-configuration.md). Confirm explicit scope, budget, maximum lifetime and bootstrap authorization, protected main, required checks, main-only environments without reviewers/admin bypass, scoped OIDC, locked separate state, encrypted saved plans and the restricted runner. If main does not exist, stop at the offline handoff; only the owner establishes it **while disabled, after baseline/readiness review**.
+3. **Phase B — Azure lifecycle:** only when the exact approved private copy is ready and enabled, the author merges a real checks-passing PR to protected main. Observe validation → encrypted saved plan → automatic same-run exact-plan apply; no approvals API, human-review wait or second deploy button. Never invent an empty commit or fake change to trigger it.
 
 **Source PRs:** [inspect and merge your own PR after required checks](docs/pr-author-merge.md).
-This Lab 02 policy requires zero approving PR reviews, not self-approval; the
-separate independent Azure plan/apply/cleanup approvals remain mandatory.
+This Lab 02 policy requires zero approving PR reviews, not self-approval, and
+**no manual deployment reviewer**. AgentAlvine only observes/guides; it does not
+authorize or execute Azure work, and its issue body never grants permission.
 
-After the four offline steps, [author the single AVM delivery workflow](docs/workflow-authoring.md): copy explained sections from the non-runnable reference into an **untitled buffer**, then replace the one canonical workflow as a complete file **while disabled**. No partially installed draft or duplicate writer. The [instructor configuration prerequisite](docs/delivery-configuration.md) covers the real admin setup; copying this repository does not configure it.
+Public templates and unapproved copies **cannot deploy**: exact immutable repository
+ID/name, private and non-template guards remain. Do not repin IDs/pins or toggle
+flags to make another copy eligible. Public source maintenance stays on **dev**;
+participant live **main** is a different, protected path. This guide supplies no
+current setup inventory or live success claim.
 
-In the approved **private, non-template** copy only, a reviewed push to protected **main** runs **preflight → validation → plan → independent approval → apply**. Deploy is push-driven, not a second manual button. Manual operations are only **followup** and **destroy**; scheduled drift is report-only. Real human environment reviewers, an eligible Enterprise host, separate OIDC identities, private backend connectivity and the exact-workflow trusted runner are prerequisites, not simulated checks.
+Required live outcomes: **create → verify actual Azure configuration → benign HCL
+tag update through another PR/main push with the same resource IDs → fresh followup
+with exit 0 → separately authorized full cleanup and verified absence**. Delivery's
+manual menu is **followup only**; scheduled drift is report-only. The current
+authenticated repository admin separately authorizes cleanup through
+[avm-cleanup.yml](.github/workflows/avm-cleanup.yml), using required string
+`authorization` = `destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>`.
+There is no operation input or independent cleanup reviewer. Ordinary main pushes
+never clean up; preserve the shared RG/backend/identities/runner.
 
-Required live outcomes: **create → verify actual Azure configuration → benign HCL tag update through another main push with the same resource IDs → fresh no-change follow-up → explicitly reviewed full destroy and verified absence**. Keep `WORKSHOP_AZURE_ENABLED=false` during authoring; public `dev` stays inert. Until real preflight is available, report **core complete; live continuation pending**. No live execution is claimed here, and **offline 4/4 is not deployment proof**.
+Until real preflight is available, report **core complete; live continuation pending**.
+No live execution is claimed here, **offline 4/4 is not deployment proof**, and
+scope/budget/lifetime are not supplied or assumed zero-cost by this template.
 
 [Azure values/sign-in setup](docs/azure-setup.md) remains optional for the offline core and uses your own assigned tenant, subscription and existing group. Local sign-in is not Actions/OIDC setup or authorization. For Lab 02 live configuration and cleanup, use the two Lab 02 guides above, not the shared setup page's Lab 07 writer. No local live backend initialization, state access or cloud operations during authoring.
 

@@ -9,6 +9,11 @@ the four offline steps**, not a fifth AgentAlvine gate. **4/4** remains core
 learner-root completion only; it proves no AVM deployment, live approval or cleanup.
 Until the real prerequisite is ready, report **live continuation pending**.
 
+**Required activity: [Create GitHub Actions, then deploy Azure](../docs/workflow-authoring.md).**
+First author/check Actions offline; then perform the Azure lifecycle only in the
+exact approved private copy after owner readiness. Public templates and unapproved
+copies cannot deploy. Never repin IDs/pins or toggle flags to bypass that guard.
+
 **Version boundary:** Terraform **1.16.1**; VNet AVM **0.22.2**, NSG AVM **0.5.1**,
 interfaces **0.6.0**; AzureRM **4.81.0**, AzAPI **2.12.0**, locked ModTM **0.3.5**,
 Random **3.9.1**. The NSG AVM requires AzureRM 4.x, so this directory has its
@@ -71,19 +76,27 @@ second writer. The live root is always this AVM directory, never a dispatch inpu
 
 The instructor must first configure an approved private non-template copy,
 protected current `main`, eligible Enterprise hosting, main-only **avm-plan** /
-**avm-apply** environments with genuine independent human reviewers, no self-review
-and no admin bypass. Separate OIDC identities, a private Entra-only backend and
+**avm-apply** environments with **no Required reviewers** and no admin bypass.
+There is no manual deployment reviewer. Separate OIDC identities, a private Entra-only backend and
 an exact-workflow-restricted ephemeral Linux x64 **ws2-trusted** runner are required.
 These are administrator prerequisites, not something a clone, mock or local login
 has already done. Public `dev` stays inert and `WORKSHOP_AZURE_ENABLED=false`
 throughout authoring.
 
+Read [owner readiness](../docs/delivery-configuration.md), including approved scope,
+budget, maximum lifetime and explicit bootstrap authorization. If main is absent,
+stop at the offline handoff; only the owner establishes protected main while disabled
+after baseline/readiness review. No PR into nonexistent main or unready creation.
+Source maintenance stays on **dev**, not participant live main.
+
 ## Required live lifecycle and cleanup — Actions is the only writer
 
 After actual instructor preflight, follow the [live walkthrough](../docs/workflow-authoring.md#8-complete-the-required-live-lifecycle--only-after-instructor-preflight):
 
-1. Reviewed **main push** starts **preflight → validation → plan → apply** with real
-   independent environment approval. No additional manual deploy dispatch.
+1. Only when ready/enabled, the author merges a real checks-passing PR. Its **main
+   push** starts **preflight → validation → saved plan/encryption → automatic
+   exact-plan apply** in the same run. No approvals API, reviewer wait or additional
+   deploy dispatch. No empty commit or fake change just to trigger Actions.
 2. Verify the real Azure VNet, at least two named subnets, NSG associations,
    approved CIDRs and `default_outbound_access_enabled=false` through the live
    driver's ARM configuration/inventory checks, not mocked IDs.
@@ -93,18 +106,27 @@ After actual instructor preflight, follow the [live walkthrough](../docs/workflo
    Another reviewed main push performs the gated update; verify **the same IDs**.
 4. Manually select **followup** on `main`; require a **fresh live plan with exit 0**.
    Changes (exit 2) or errors do not complete convergence; this operation never applies.
-5. Manually select **destroy** on `main` for the exclusive full-cleanup operation.
-   Review a fresh saved destroy plan independently; apply those exact bytes and
+5. After separately authorizing owned-scope full cleanup, the authenticated current
+   repo admin dispatches [avm-cleanup.yml](../.github/workflows/avm-cleanup.yml) on
+   main, with required string `authorization` =
+   `destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>` and **no operation input**.
+   The [cleanup reference](../solutions/avm-cleanup.yml) explains this separate route.
+   The helper checks current admin, actor/sender/trigger IDs and current SHA/state;
+   no independent cleanup reviewer is required. Validate a fresh full destroy plan
+   in that same run, apply those exact bytes and
    verify no managed workload state plus actual Azure **404s** for the intended
    resources. Keep the assigned RG, backend, identities and runner infrastructure.
 
 Saved plans are bound to the exact run/root/state/inputs/source/module fingerprints
 and provider lock, expire after **two hours**, and are uploaded only as ciphertext
 with **one-day retention**. Repository concurrency and state leases enforce one
-writer. No live re-run attempts, replacement plans after approval, simulated
-reviewers, partial targets, state deletion or local destroy shortcuts.
+writer. No live re-run attempts, replacement plans at apply time, fabricated
+authorization, partial targets, state deletion or local destroy shortcuts.
 
-Scheduled drift is **report-only**, not auto-repair or cleanup proof. Failed or
+Delivery's manual menu is **followup only**; ordinary main never cleans up and
+destroy/replacement actions on regular pushes fail. Scheduled drift is **report-only**,
+not auto-repair or cleanup proof. It needs the owner's deliberate protected-main
+default choice when ready; no automatic branch change. Failed or
 uncertain destruction remains pending with the cleanup owner. Optional runtime
 API extensions stay blocked until real preflight; storage, runners and approved
 extensions can incur costs, so do not assume zero cost.

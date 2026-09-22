@@ -238,7 +238,7 @@ test("4/4 expressly means offline completion rather than deployment, approval or
     "README.md": /offline 4\/4 is not deployment proof/i,
     "docs/start-here.md": /Offline 4\/4 is not Azure deployment or approval proof/i,
     ".github/steps/04.md": /4\/4 is not an AVM deployment, human approval or cleanup result/i,
-    "docs/workflow-authoring.md": /4\/4 remains offline learner-root completion, not deployment, independent approval or cleanup proof/i,
+    "docs/workflow-authoring.md": /4\/4 remains offline learner-root completion, not deployment, Azure authorization or cleanup proof/i,
     "docs/delivery-configuration.md": /neither those cases nor historical 4\/4 results verify AVM delivery/i,
     "avm/README.md": /4\/4 remains core learner-root completion only; it proves no AVM deployment, live approval or cleanup/i,
     "full-ws-content/README.md": /historical 4\/4 do not complete\/validate AVM/i,
@@ -262,7 +262,7 @@ test("learners construct a complete untitled reference before one disabled whole
     "no saved second workflow": /Close the untitled buffer without saving another workflow/i,
     "preserve action pins and driver calls": /Copy action commit pins and driver invocations exactly/i,
     "no authoring cloud/state operations": /No Azure login, identity creation, subscription changes, backend\/state access or real plan\/apply\/destroy belongs in authoring or PR validation/i,
-    "missing reviewers stop offline": /Missing real reviewers.*stop offline, not simulate approval/i,
+    "missing authorized scope stops offline": /Missing sandbox, budget, lifetime, bootstrap authorization.*stop offline.*not simulated readiness/i,
   });
 });
 
@@ -284,26 +284,27 @@ test("the lesson teaches copying all six actual jobs, including followup and dri
     "same-revision validation before privileged planning": /Checks the same source revision before privileged planning/i,
     "plan uses its protected environment and exact runner": /uses environment avm-plan.*ephemeral Linux x64 ws2-trusted/i,
     "apply has its own identity and scoped key": /uses avm-apply, the distinct apply identity, and the environment-scoped PLAN_DECRYPTION_PRIVATE_KEY/i,
-    "both environments need real review without bypass": /Both live environments require real GitHub human reviewers, main-only deployment rules, prevention of self-review and no administrator bypass/i,
-    "reviewer is independent of all change actors": /independent of the PR author, run actor and triggering actor/i,
+    "both environments remain main-only without reviewers or bypass": /Both live environments require main-only deployment rules, no Required reviewers and no administrator bypass/i,
+    "author may merge without fabricated self-approval": /author may merge their own passing PR.*zero required PR approvals is not fabricated self-approval/i,
     "followup is fresh and verifies topology": /Followup requires a fresh exit-zero plan and checks actual topology/i,
     "failed drift assessment never permits apply": /Drift reports either detected changes or a failed\/incomplete assessment; neither result permits apply/i,
   });
 });
 
-test("main push deploys in one run; only followup and destroy are manual, and drift is report-only", async () => {
+test("main push automatically applies one exact plan; delivery dispatch is followup-only and cleanup is separate", async () => {
   const source = "docs/workflow-authoring.md";
   explains(await read(source), source, {
     "push-driven exact-plan deployment": /Reviewed push\/merge to protected main.*apply the exact plan in the same run/i,
     "no manual deploy or second deploy button": /no manual deploy choice and no second deploy button/i,
-    "approval releases the waiting job rather than dispatching": /environment review releases a waiting job; it is not a new workflow dispatch/i,
-    "only followup and destroy are manual": /manual operation choices are only followup and destroy/i,
+    "no reviewer wait or approvals API": /There is no waiting human-review job or approvals API call/i,
+    "delivery dispatch is followup-only": /delivery workflow's manual operation choice is followup only/i,
+    "cleanup has a string authorization, not an operation menu": /Dedicated cleanup accepts a required string authorization, no operation input/i,
     "dependency chain": /preflight\s*\u2192\s*validation\s*\u2192\s*plan\s*\u2192\s*apply/i,
     "read-only operations cannot apply": /followup and drift must never reach apply/i,
     "exclusive destroy": /A destroy run must not also deploy/i,
     "first attempt only": /Only attempt 1 of a live run is eligible/i,
     "scheduled drift does not repair": /Report-only live drift check; never repair or apply automatically/i,
-    "schedule uses approved main, not dev": /schedules use the default branch.*approved protected main, not source-template dev/i,
+    "default dev needs deliberate owner choice, not automatic changes": /schedules use the default branch.*If the copy uses dev.*only when ready may the owner deliberately select approved protected main.*No automatic default change/i,
   });
 });
 
@@ -376,7 +377,7 @@ test("the five documented workload fields agree with actual AVM variables and th
   });
 });
 
-test("live prerequisites require real independent reviewers, distinct OIDC identities and the protected runner", async () => {
+test("live prerequisites require exact private identity, owner scope, distinct OIDC identities and the protected runner", async () => {
   const source = "docs/delivery-configuration.md";
   explains(await read(source), source, {
     "prerequisites are not completed work": /prerequisites, not completed work/i,
@@ -384,9 +385,10 @@ test("live prerequisites require real independent reviewers, distinct OIDC ident
     "eligible private host": /eligible Enterprise GitHub host.*private repositories/i,
     "private non-template route": /repository must be private, non-template and explicitly approved/i,
     "main and first-attempt admission": /current protected main and run attempt 1/i,
-    "both protected environments": /create avm-plan and avm-apply.*For each.*main.*human reviewers.*self-review.*administrator bypass/i,
-    "reviewer independent of all three actors": /must not be the PR author, the run actor, or the triggering actor/i,
-    "real records and possible third person": /actual approval records.*third person necessary/i,
+    "both protected environments without reviewers": /verify avm-plan and avm-apply.*For each.*main.*no Required reviewers.*disable administrator bypass/i,
+    "no manual deployment reviewer": /No manual deployment reviewer is required/i,
+    "fresh runtime identity and same-run checks": /freshly checks immutable private identity, live rules, current main, run\/SHA\/attempt, actual merged-PR association, both environments and successful same-run validation\/plan jobs/i,
+    "no approvals API": /does not query the approvals API/i,
     "distinct plan/apply identities": /verify distinct plan\/apply client IDs/i,
     "plan Reader and blob leasing": /Plan identity.*Reader.*Storage Blob Data Contributor.*lease operations/i,
     "apply Contributor, not subscription owner": /Apply identity.*Contributor.*not subscription-wide ownership.*Storage Blob Data Contributor/i,
@@ -397,30 +399,33 @@ test("live prerequisites require real independent reviewers, distinct OIDC ident
     "actual private connectivity": /private backend DNS resolution and actual network reachability/i,
     "one state writer with leases": /WS2_STATE_LOCK_ID.*actual Azure Blob lease locking.*one writer/i,
     "Entra/OIDC only, no local backend": /OIDC plus Microsoft Entra.*No storage account key, SAS, client secret.*Do not initialize it locally/i,
-    "no fabricated approval": /No simulated reviewer is acceptable/i,
+    "no invented scope or authorization": /never invent scope or authorization from this page/i,
+    "explicit bootstrap approval": /Bootstrap changes require explicit owner authorization before any setup mutation/i,
+    "immutable private identity": /(?:Immutable repository ID and exact name are fixed|1379147533).*wrong IDs\/names, public copies and templates fail/i,
   });
 });
 
-test("saved-plan guidance preserves exact bindings, encrypted artifacts, reviewer escrow and apply-only decryption", async () => {
+test("saved-plan guidance preserves exact bindings, encrypted artifacts and apply-only decryption without a reviewer gate", async () => {
   const workflow = await read(".github/workflows/avm-delivery.yml");
   assert.deepEqual([...new Set([...workflow.matchAll(/\bsecrets\.([A-Z][A-Z0-9_]*)\b/g)].map((match) => match[1]))], ["PLAN_DECRYPTION_PRIVATE_KEY"]);
   const source = "docs/delivery-configuration.md";
   explains(await read(source), source, {
     "private key only in apply environment": /PLAN_DECRYPTION_PRIVATE_KEY as an environment secret only in avm-apply, not a repository\/organization secret and not in avm-plan or PR CI/i,
-    "independent private escrow": /human reviewer escrow.*independent reviewer can inspect the exact plan privately before approving it/i,
+    "owner escrow is not a manual gate": /owner key escrow is for private inspection\/recovery, not a manual reviewer gate/i,
     "no module App credentials for public AVMs": /only delivery secret.*do not add module GitHub App secrets or long-lived Azure credentials/i,
-    "ciphertext retention is not approval age": /ciphertext only, retained for one day.*older than two hours cannot be applied/i,
+    "ciphertext retention is not apply age": /ciphertext only, retained for one day.*older than two hours cannot be applied/i,
     "source/module/state/input bindings": /exact run\/attempt, source revision, fixed root, state, inputs, module fingerprints and provider-lock binding/i,
     "provider lock is not module provenance": /a provider lock is not a module lock/i,
-    "same saved plan, no replacement or cross-run artifact": /apply job must never generate a new plan after approval or accept an artifact from another run/i,
+    "same saved plan, no replacement or cross-run artifact": /apply job must never generate a new plan instead of the saved plan or accept an artifact from another run/i,
     "no public secrets or plaintext plan/state": /Never paste key material, state, tokens, plaintext plans, raw plan JSON/i,
   });
   explains(await read("docs/workflow-authoring.md"), "docs/workflow-authoring.md", {
     "bindings explained before apply": /exact run, first attempt, source revision, fixed root, state target, inputs, module source fingerprints and provider lock/i,
     "two-hour limit": /two-hour maximum age/i,
     "ciphertext only": /Only the encrypted plan envelope is uploaded.*one-day artifact retention/i,
-    "approval checked before apply": /checks actual GitHub approval records and the saved-plan bindings before applying/i,
-    "no self-operated substitute reviewer": /second account operated by the same person.*does not replace an actual eligible environment approval/i,
+    "saved-plan bindings checked before apply": /driver checks saved-plan bindings before applying/i,
+    "runtime authorization delegates, not approval history": /avm-approval\.cjs.*delegates to.*deployment-authorization\.cjs.*no approvals API/i,
+    "educational progress cannot replace owner authorization": /Scope\/budget\/bootstrap authorization still belongs to the owner, not to Copilot or the Exercise issue/i,
   });
 });
 
@@ -432,10 +437,11 @@ test("the live lifecycle requires real verification, an in-place HCL update, fre
     "benign tag update is in HCL": /benign HCL tag change in the tags map of the locals block in avm\/main\.tf/i,
     "retain source/provenance and required tags": /Keep required workshop\/environment tags.*module-source pins, controls and provenance fixed/i,
     "in-place update keeps IDs": /Require an in-place update and verify the same resource IDs/i,
-    "unexpected replacement stops approval": /Unexpected replacement\/deletion stops the run before approval/i,
+    "unexpected replacement stops mutation": /Unexpected replacement\/deletion stops the run before mutation/i,
     "fresh followup accepts only zero": /fresh live plan.*Require exit 0, not a cached pre-apply plan or ignored exit 2/i,
-    "exclusive same-root/state destroy": /whole workload, same root\/state and exclusive operation/i,
-    "exact destroy plan independently reviewed": /Review the fresh encrypted destroy plan independently.*consume those exact bytes/i,
+    "exclusive same-root/state destroy": /whole owned workload, same root\/state and exclusive operation/i,
+    "exact destroy plan separately authorized": /separately authorized full cleanup.*same run's validated exact destroy plan/i,
+    "one authorized owner, no second cleanup reviewer": /No independent cleanup reviewer is required.*one explicitly authorized owner dispatches/i,
     "both state and real Azure absence": /actual managed-state and Azure absence checks.*404s/i,
     "retain shared infrastructure": /Preserve the existing RG, backend, identities and runner infrastructure/i,
     "uncertain cleanup stays open": /Failed or uncertain cleanup stays open.*never delete state or switch to local destroy/i,
@@ -451,9 +457,117 @@ test("the live lifecycle requires real verification, an in-place HCL update, fre
   explains(await read("docs/azure-setup.md"), "docs/azure-setup.md", {
     "Lab 02 mapping, not Lab 07's writer": /Instructor-approved Lab 02 AVM Actions/,
     "other lab cannot clean up this root": /Lab 07 is a different writer\/root\/state and cannot deploy or clean up this network/i,
-    "same-state full destroy": /same approved root\/state.*independently reviewed AVM destroy plan.*plan -destroy proposes full destruction/i,
+    "same-state full destroy": /same approved root\/state.*separately authorized dedicated AVM cleanup.*plan -destroy proposes full destruction/i,
     "no local, partial or state-deletion workaround": /No ungated local terraform destroy, -target.*state deletion/i,
   });
+});
+
+test("dedicated cleanup instructions match installed/reference names and exact admin authorization, never ordinary main", async () => {
+  const source = "docs/workflow-authoring.md";
+  const lesson = await read(source);
+  const paths = new Set(localLinks(lesson, source).map(({ path }) => path));
+  for (const path of [".github/workflows/avm-cleanup.yml", "solutions/avm-cleanup.yml"]) {
+    assert.ok(paths.has(path), `${source} must link ${path}`);
+    const workflow = await read(path);
+    assert.match(workflow, /^name: Trusted AVM cleanup \(explicit owner authorization required\)/);
+    assert.match(workflow, /name: Apply exact authorized AVM destroy plan/);
+  }
+  explains(lesson, source, {
+    "exact binding string": /destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>/,
+    "current admin performs explicit dispatch": /authenticated current repository admin.*explicitly authorizes.*Trusted AVM cleanup/i,
+    "actor and same-run checks": /current admin permission, actor\/sender\/trigger IDs, current SHA\/state, and the same run's validated exact destroy plan/i,
+    "same ownership boundary": /same state\/concurrency\/environments\/identities/i,
+    "never cleanup on main": /ordinary main never performs cleanup/i,
+    "no destructive regular push": /Regular pushes reject destroy and replacements/i,
+    "cleanup input is required string": /required string authorization.*destroy:1379147533/i,
+    "delivery never accepts destroy dispatch": /delivery workflow's manual operation choice is followup only/i,
+  });
+});
+
+test("readiness distinguishes generic public prerequisites from the private dated configuration record", async () => {
+  const source = "docs/delivery-configuration.md";
+  const document = await read(source);
+  const publicSource = document.includes("**Public-source context:**");
+  assert.notEqual(publicSource, document.includes("## Private-copy configuration record"), "Declare exactly one source-generic or private-record context");
+  explains(document, source, {
+    "owner-verified hidden-field revision": /read-only workflow token cannot see.*updated_at revision.*zero bypass actors.*Missing\/changed revision fails closed/i,
+    "no nonexistent-main PR or unready creation": /open a PR into nonexistent main, or create it while unready/i,
+    "owner establishes protected main while disabled": /Only after reviewing the baseline and prerequisite readiness.*owner establishes protected main while delivery remains disabled/i,
+    "no automatic default change": /There is no automatic default-branch change/i,
+    "progress is educational only": /AgentAlvine only observes\/guides.*educational issue status is not Azure authorization/i,
+    "no empty trigger-only work": /real checks-passing PR, not an empty commit or fake change/i,
+    "source maintenance is dev-only": /Source maintenance stays on dev/i,
+  });
+  if (publicSource) explains(document, source, {
+    "generic prerequisites, not an inventory": /documents prerequisites, not a current configuration inventory or live result/i,
+    "actual scope is not supplied": /No actual Azure scope or cost allowance is supplied by this template/i,
+    "ordinary copies remain offline": /Every copy can complete Actions authoring offline; only the exact approved private profile can proceed to Azure/i,
+  });
+  else explains(document, source, {
+    "in-progress only": /configuration is in progress, not complete or live success/i,
+    "historical baseline remains dated": /initial live baseline at \d{2}:\d{2} UTC.*WORKSHOP_AZURE_ENABLED=false.*default dev.*no main, environments, runners, secrets or other variables/i,
+    "retained environment readback": /Verified configuration update, \d{2}:\d{2} UTC.*avm-plan.*avm-apply.*no Required reviewers.*can_admins_bypass=false.*enablement remains false/i,
+    "retained private profile": /alvine-aurelio-org\/ws2-sim-20260921-network-module-laboratory-02.*1379147533/i,
+    "missing authorized Azure prerequisites": /No approved Azure RG, region, budget, lifetime or bootstrap authorization was found/i,
+  });
+});
+
+test("actual entry pages expose a named required activity with Actions before Azure and distinct outcomes", async () => {
+  for (const source of ["README.md", ".github/steps/04.md", "full-ws-content/README.md", "full-ws-content/activity-04.md"]) {
+    const document = await read(source);
+    assert.match(document, /^#{2,3} Required activity .*Create GitHub Actions, then deploy Azure$/m, `${source}: a named activity, not a hidden help link`);
+    assert.ok(localLinks(document, source).some(({ path }) => path === "docs/workflow-authoring.md"), `${source}: link the actual authoring guide`);
+    const text = prose(document);
+    assert.ok(text.indexOf("Phase A") >= 0 && text.indexOf("Phase B") > text.indexOf("Phase A"), `${source}: teach Actions before Azure`);
+    explains(document, source, {
+      "offline authoring phase": /Phase A.*Actions authoring \(offline\)/i,
+      "live phase is distinct": /Phase B.*Azure lifecycle/i,
+      "real PR, no trigger-only fake work": /checks-passing PR.*(?:empty commit|fake change)/i,
+      "disabled authoring": /WORKSHOP_AZURE_ENABLED=false/,
+      "pending is not live completion": /live continuation pending/i,
+      "progress is not authorization": /AgentAlvine only observes\/guides/i,
+    });
+  }
+  for (const source of [".github/steps/01.md", "full-ws-content/activity-01.md", "docs/start-here.md", "full-ws-content/00-start-here.md"]) {
+    const document = await read(source);
+    assert.ok(localLinks(document, source).some(({ path }) => path === "docs/workflow-authoring.md"));
+    explains(document, source, { "early discovery": /Create GitHub Actions, then deploy Azure/i, "ordinary copies do not deploy": /(?:generic.*copy.*cannot deploy|only.*exact approved private copy)/i });
+  }
+  explains(course.description + " " + course.completion, "course prose", { "named continuation": /required Create GitHub Actions, then deploy Azure activity/, "no fake live completion": /No live completion is awarded by 4\/4/ });
+});
+
+test("authoring teaches actual checks, variable meanings and owner handoff without bypass instructions", async () => {
+  const source = "docs/workflow-authoring.md", document = await read(source);
+  for (const command of ["terraform fmt -check -recursive", "terraform init -backend=false -lockfile=readonly -input=false", "terraform validate", "terraform test"]) assert.ok(document.includes(command));
+  for (const value of ["github.sha", "vars.WORKSHOP_AZURE_ENABLED", "needs.preflight.outputs.operation", "vars.AZURE_PLAN_CLIENT_ID", "vars.AZURE_APPLY_CLIENT_ID", "vars.WORKLOAD_INPUTS_JSON", "needs.plan.outputs.*", "secrets.PLAN_DECRYPTION_PRIVATE_KEY"]) assert.ok(document.includes(`\`${value}\``), `Explain ${value}`);
+  explains(document, source, {
+    "real expected core result": /Success! 4 passed, 0 failed/,
+    "real expected AVM result": /3 mocked authoring contracts passed, 0 failed\/skipped; native mocked plan admission verified. Not live Azure acceptance/i,
+    "read-only workflow inventory": /1 canonical delivery workflow; 1 separately authorized cleanup workflow; 4 reviewed companions/i,
+    "actual syntax check": /actionlint 1\.7\.12.*success prints no diagnostics/i,
+    "no eligible-ID bypass": /Do not repin IDs, names, workflow hashes or ruleset revisions, or toggle flags, to make another copy eligible/i,
+    "owner handoff on absent main": /If protected main does not exist.*stop at the offline handoff.*owner establish protected main while disabled/i,
+    "no authoring publication to main": /Source-template maintenance belongs on dev, not participant live main/i,
+    "no manual evidence protocol": /No manual checkboxes, evidence PRs or success comments award live completion/i,
+  });
+});
+
+function assertNoPrivateSnapshot(text) {
+  assert.doesNotMatch(text, /ws2-sim-\d{8}-|\b\d{11}\b|Last supplied readback|Verified configuration update|initial live baseline at|\/actions\/runs\/\d+/i, "Public active guidance must not embed private metadata or live-result claims");
+}
+
+test("public active guidance never imports private snapshots while allowing the fixed cleanup authorization syntax", async () => {
+  for (const value of ["ws2-sim-20990101-example", "12345678901", "Verified configuration update, 00:00 UTC", "https://example.invalid/actions/runs/123"]) assert.throws(() => assertNoPrivateSnapshot(value));
+  assert.doesNotThrow(() => assertNoPrivateSnapshot("Prerequisites only; destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>"));
+  if ((await read("docs/delivery-configuration.md")).includes("**Public-source context:**")) {
+    for (const source of ["README.md", "docs/start-here.md", "docs/workflow-authoring.md", "docs/delivery-configuration.md", "docs/pr-author-merge.md", "docs/git-workflow.md", "avm/README.md", ".github/steps/01.md", ".github/steps/04.md", "full-ws-content/README.md", "full-ws-content/00-start-here.md"]) assertNoPrivateSnapshot(await read(source));
+  } else {
+    for (const source of ["README.md", "docs/start-here.md", "docs/workflow-authoring.md", "docs/pr-author-merge.md", "avm/README.md"]) {
+      const document = await read(source);
+      assert.ok(localLinks(document, source).some(({ path }) => path === "docs/delivery-configuration.md"));
+      assert.doesNotMatch(prose(document), /Last supplied readback.*no main.*environments|no main\/environments\/runners|no main or live configuration/i, `${source}: use the dated configuration record, not stale absence claims`);
+    }
+  }
 });
 
 const linkedDocuments = [

@@ -19,6 +19,12 @@
 
 > Already in your private copy or Exercise? **Reuse it; do not copy again.** No Lab 01/Azure prerequisite; inputs, locks and mocks are supplied.
 
+**Learning route:** complete the four offline gates, then the required
+**[Create GitHub Actions, then deploy Azure activity](../docs/workflow-authoring.md)**
+linked again in Step 4. Actions authoring is offline; the Azure lifecycle is only
+for the exact approved private copy after [owner readiness](../docs/delivery-configuration.md).
+A generic private copy cannot deploy. Do not create main or enable Azure during setup.
+
 ### 1. Install, sign in, and copy once
 
 Install Git, desktop VS Code, Node and Terraform using the toolchain guide. Create/verify your personal GitHub account, sign in and accept any organization invitation.

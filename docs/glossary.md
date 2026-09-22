@@ -114,12 +114,12 @@ A real merge/current CI is not a fabricated approval or an Azure authorization. 
 | **Mock provider** | Substitute preventing live operations; required cases must actually execute. |
 | **Offline check** | Credential-free validation; registry downloads may use internet, never Azure/state. |
 | **Backend / state** | State storage configuration / managed-resource record; do not initialize/read a live backend for setup. |
-| **Saved plan / encrypted-plan review** | Exact proposed change artifact / protected independent review; never share raw plans or keys. |
+| **Saved plan / encrypted-plan integrity** | Exact proposed change bytes, encrypted and bound to the current authorized run; automatic apply uses those bytes, never a replacement. Never share raw plans or keys. |
 | **OIDC identity / runner** | Workflow authentication mechanism / job machine; live infrastructure belongs to instructor setup. |
 | **terraform-docs** | **0.24.0**, Lab 04 only; generate actual module API docs through the canonical helper. |
 | **Doctor** | Read-only root/tool/Git-authorship check; cannot install, sign in or prove Copilot/cloud readiness. |
 
-Zero/skipped tests are not passes. Lab 07 offline study needs no prior lab, but its [protected live workflow](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/docs/delivery-configuration.md) requires approved identities, backend, restricted runner and independent encrypted-plan approvals. Never start/rerun it to repair setup; issue progress grants no deployment permission.
+Zero/skipped tests are not passes. The exact approved private Lab 02 [scoped live route](delivery-configuration.md) requires approved identities, backend, restricted runner and encrypted exact plans, but no manual deployment reviewer. Main-only environments have no Required reviewers and no admin bypass. Scope/budget/bootstrap authorization and dedicated admin-authorized cleanup remain separate; ordinary main never cleans up. Never start/rerun live work to repair setup; issue progress grants no Azure permission. Lab 07 is a different writer/root/state.
 
 ## Choose the next action
 

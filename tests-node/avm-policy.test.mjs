@@ -7,21 +7,52 @@ import { terraformEnvironment, currentMain } from "../scripts/avm-delivery.mjs";
 import { environment, fixture } from "./avm-fixtures.mjs";
 const approvedSource = await readFile(new URL("../avm/main.tf", import.meta.url), "utf8");
 
-test("only protected main push deploys; schedules report and dispatch only follows up or destroys", () => {
-  assert.equal(operationFor("push"), "deploy"); assert.equal(operationFor("schedule"), "drift");
-  for (const operation of ["destroy", "followup"]) assert.equal(operationFor("workflow_dispatch", operation), operation);
-  for (const event of ["pull_request", "pull_request_target", "workflow_run"]) assert.throws(() => operationFor(event, "deploy"));
-  for (const operation of ["deploy", "plan", "drift", "anything"]) assert.throws(() => operationFor("workflow_dispatch", operation));
+test("only the exact main delivery route deploys or reports; cleanup requires its separate dispatch path", () => {
+  const delivery = environment().GITHUB_WORKFLOW_REF, cleanup = delivery.replace("avm-delivery.yml", "avm-cleanup.yml");
+  assert.equal(operationFor("push", undefined, delivery), "deploy");
+  assert.equal(operationFor("schedule", undefined, delivery), "drift");
+  assert.equal(operationFor("workflow_dispatch", "followup", delivery), "followup");
+  for (const input of [undefined, "destroy"]) assert.equal(operationFor("workflow_dispatch", input, cleanup), "destroy");
+  for (const event of ["pull_request", "pull_request_target", "workflow_run"]) assert.throws(() => operationFor(event, "deploy", delivery));
+  for (const input of [undefined, "deploy", "plan", "destroy", "drift", "anything"]) assert.throws(() => operationFor("workflow_dispatch", input, delivery));
+  for (const event of ["push", "schedule"]) assert.throws(() => operationFor(event, "destroy", cleanup));
+  for (const ref of [undefined, delivery.replace("main", "dev"), delivery.replace("avm-delivery.yml", "delivery.yml"), `other/repo/.github/workflows/avm-delivery.yml@refs/heads/main`]) assert.throws(() => operationFor("push", "deploy", ref));
 });
 
 test("configuration accepts the fixed isolated AVM context and binds explicit inputs", () => {
   const { inputs, binding } = configuration(environment());
   assert.equal(binding.root, "avm"); assert.equal(binding.stateKey, "avm/unit.tfstate"); assert.equal(inputs.tenant_id, environment().ARM_TENANT_ID);
   assert.equal(binding.inputs, hash(JSON.stringify(inputs)));
+  assert.equal(binding.repositoryId, "1379147533");
+  assert.equal(binding.workflowRef, environment().GITHUB_WORKFLOW_REF);
+  assert.equal(binding.stateLockId, environment().WS2_STATE_LOCK_ID);
 });
 
 test("disabled, public, template, unprotected, PR and rerun contexts fail closed", () => {
   for (const [key, value] of Object.entries({ WORKSHOP_AZURE_ENABLED: "false", REPOSITORY_PRIVATE: "false", REPOSITORY_TEMPLATE: "true", GITHUB_REF: "refs/heads/dev", GITHUB_REF_PROTECTED: "false", GITHUB_RUN_ATTEMPT: "2", GITHUB_EVENT_NAME: "pull_request", ARM_USE_CLI: "true", OPERATION: "destroy" })) assert.throws(() => configuration({ ...environment(), [key]: value }), key);
+});
+
+test("runtime rejects same-name recreation, cross-lab identity, foreign names and missing profile metadata", () => {
+  for (const GITHUB_REPOSITORY_ID of [undefined, "1379147534", "1379149907", "01379147533", 1379147533]) assert.throws(() => configuration({ ...environment(), GITHUB_REPOSITORY_ID }));
+  for (const GITHUB_REPOSITORY of [undefined, "other-owner/ws2-sim-20260921-network-module-laboratory-02", "alvine-aurelio-org/other-copy", "alvine-aurelio-org/ws2-sim-20260921-azure-delivery-laboratory-07"]) assert.throws(() => configuration({ ...environment(), GITHUB_REPOSITORY }));
+  for (const key of ["REPOSITORY_PRIVATE", "REPOSITORY_TEMPLATE", "GITHUB_WORKFLOW_REF", "WS2_STATE_LOCK_ID"]) assert.throws(() => configuration({ ...environment(), [key]: undefined }), key);
+});
+
+test("runtime binds OPERATION to the actual event and exact delivery or cleanup workflow", () => {
+  const base = environment(), cleanup = base.GITHUB_WORKFLOW_REF.replace("avm-delivery.yml", "avm-cleanup.yml");
+  for (const patch of [
+    { GITHUB_EVENT_NAME: "schedule", OPERATION: "drift" },
+    { GITHUB_EVENT_NAME: "workflow_dispatch", OPERATION: "followup" },
+    { GITHUB_EVENT_NAME: "workflow_dispatch", OPERATION: "destroy", GITHUB_WORKFLOW_REF: cleanup },
+  ]) assert.equal(configuration({ ...base, ...patch }).binding.operation, patch.OPERATION);
+  for (const patch of [
+    { OPERATION: "drift" }, { OPERATION: "followup" }, { OPERATION: undefined },
+    { GITHUB_EVENT_NAME: "schedule", OPERATION: "deploy" },
+    ...["deploy", "plan", "drift", "destroy"].map((OPERATION) => ({ GITHUB_EVENT_NAME: "workflow_dispatch", OPERATION })),
+    { GITHUB_WORKFLOW_REF: cleanup, OPERATION: "destroy" },
+    { GITHUB_EVENT_NAME: "schedule", GITHUB_WORKFLOW_REF: cleanup, OPERATION: "destroy" },
+    { GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_WORKFLOW_REF: cleanup, OPERATION: "followup" },
+  ]) assert.throws(() => configuration({ ...base, ...patch }), JSON.stringify(patch));
 });
 
 test("scope, identity and backend mistakes cannot reuse the baseline state", () => {
@@ -115,26 +146,55 @@ test("ordinary pushes cannot delete or replace; cleanup may delete only owned ID
   assert.throws(() => validatePlan(plan, inputs, "destroy"));
 });
 
-test("environment policy requires a single main branch, independent reviewers and no bypass", () => {
-  const env = { deployment_branch_policy: { protected_branches: false, custom_branch_policies: true }, can_admins_bypass: false, protection_rules: [{ type: "required_reviewers", prevent_self_review: true, reviewers: [{}] }] };
+test("environment policy delegates main-only, no-bypass and no-required-reviewers checks unconditionally", () => {
+  const env = { deployment_branch_policy: { protected_branches: false, custom_branch_policies: true }, can_admins_bypass: false, protection_rules: [] };
   const branches = [{ name: "main", type: "branch" }];
   assert.doesNotThrow(() => assertEnvironmentProtection(env, branches));
-  for (const bad of [{ ...env, can_admins_bypass: true }, { ...env, protection_rules: [] }]) assert.throws(() => assertEnvironmentProtection(bad, branches));
+  for (const legacyFlag of [undefined, false, true]) {
+    assert.doesNotThrow(() => assertEnvironmentProtection(env, branches, legacyFlag));
+    for (const bad of [{ ...env, can_admins_bypass: true }, { ...env, can_admins_bypass: undefined }, { ...env, protection_rules: undefined }, { ...env, protection_rules: [{ type: "required_reviewers", prevent_self_review: true, reviewers: [{}] }] }, { ...env, protection_rules: [{ type: "required_reviewers", reviewers: [] }] }]) assert.throws(() => assertEnvironmentProtection(bad, branches, legacyFlag));
+  }
   assert.throws(() => assertEnvironmentProtection(env, [{ name: "*", type: "branch" }]));
   assert.throws(() => assertEnvironmentProtection(env, [{ name: "main", type: "tag" }]));
+  assert.throws(() => assertEnvironmentProtection(env, [...branches, { name: "dev", type: "branch" }]));
+  assert.throws(() => assertEnvironmentProtection({ ...env, deployment_branch_policy: { protected_branches: true, custom_branch_policies: false } }, branches));
 });
 
-test("saved plan binds current SHA/run/attempt/root/state/inputs/dependencies and age", () => {
-  const { binding } = fixture(); const planBytes = Buffer.from("synthetic-only"); const now = Date.UTC(2026, 8, 21);
+test("saved plan binds exact repository/workflow/SHA/run/attempt/root/state/inputs/dependencies and age", () => {
+  const binding = { ...fixture().binding, source: hash("synthetic-source"), moduleLock: hash("synthetic-module-lock"), providerLock: hash("synthetic-provider-lock") };
+  const planBytes = Buffer.from("synthetic-only"); const now = Date.UTC(2026, 8, 21);
   const manifest = makeManifest(binding, planBytes, 2, now); const manifestBytes = Buffer.from(JSON.stringify(manifest));
   const args = { manifestBytes, planBytes, binding, planHash: hash(planBytes), manifestHash: hash(manifestBytes), mainSha: binding.sha, now };
   assert.equal(verifyManifest(args).exitCode, 2);
+  assert.equal(verifyManifest({ ...args, now: now + MAX_AGE }).exitCode, 2);
   assert.throws(() => verifyManifest({ ...args, now: now + MAX_AGE + 1 }));
   assert.throws(() => verifyManifest({ ...args, now: now - 1 }));
   assert.throws(() => verifyManifest({ ...args, mainSha: "b".repeat(40) }));
   assert.throws(() => verifyManifest({ ...args, planBytes: Buffer.from("tampered") }));
-  for (const field of ["root", "stateKey", "inputs", "sha", "runId", "runAttempt", "operation", "planClientId"]) assert.throws(() => verifyManifest({ ...args, binding: { ...binding, [field]: "different" } }));
+  assert.throws(() => verifyManifest({ ...args, manifestBytes: Buffer.from("tampered") }));
+  for (const field of Object.keys(binding)) assert.throws(() => verifyManifest({ ...args, binding: { ...binding, [field]: "different" } }), field);
+  for (const field of ["repositoryId", "workflowRef", "stateLockId"]) {
+    const old = structuredClone(manifest); delete old.binding[field];
+    const oldBytes = Buffer.from(JSON.stringify(old));
+    assert.throws(() => verifyManifest({ ...args, manifestBytes: oldBytes, manifestHash: hash(oldBytes) }), /mismatch/, field);
+  }
   assert.throws(() => makeManifest(binding, planBytes, 1));
+});
+
+test("authentic read-only manifests cannot apply and dedicated cleanup manifests retain exact bindings", () => {
+  for (const operation of ["deploy", "destroy", "followup", "drift"]) {
+    const base = environment();
+    const GITHUB_WORKFLOW_REF = operation === "destroy" ? base.GITHUB_WORKFLOW_REF.replace("avm-delivery.yml", "avm-cleanup.yml") : base.GITHUB_WORKFLOW_REF;
+    const GITHUB_EVENT_NAME = operation === "deploy" ? "push" : operation === "drift" ? "schedule" : "workflow_dispatch";
+    const { binding } = configuration({ ...base, OPERATION: operation, GITHUB_EVENT_NAME, GITHUB_WORKFLOW_REF });
+    for (const exitCode of [0, 2]) {
+      const now = Date.UTC(2026, 8, 21), planBytes = Buffer.from("synthetic-only");
+      const manifestBytes = Buffer.from(JSON.stringify(makeManifest(binding, planBytes, exitCode, now)));
+      const args = { manifestBytes, planBytes, binding, planHash: hash(planBytes), manifestHash: hash(manifestBytes), mainSha: binding.sha, now };
+      if (["followup", "drift"].includes(operation)) assert.throws(() => verifyManifest(args), /Read-only operations cannot apply/);
+      else assert.equal(verifyManifest(args).exitCode, exitCode);
+    }
+  }
 });
 
 test("fresh main check fails closed on unavailable API, lost protection and moved SHA", async () => {

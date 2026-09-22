@@ -12,14 +12,33 @@ Exercise steps remain independently usable without Azure.
 > authoring or PR validation. Keep `WORKSHOP_AZURE_ENABLED=false` until the instructor
 > explicitly authorizes the specific private copy after real checks. Do not infer
 > permission from AgentAlvine progress, a successful mock run, supplied values or
-> an available sign-in. No simulated reviewer is acceptable.
+> an available sign-in. No manual deployment reviewer is required for this scoped
+> automatic path; sandbox, budget, bootstrap and cleanup authorizations remain separate.
+
+**Public-source context:** this page documents prerequisites, not a current
+configuration inventory or live result. Start with the **required activity:
+Create GitHub Actions, then deploy Azure** in the [authoring lesson](workflow-authoring.md).
+Every copy can complete Actions authoring offline; only the exact approved private
+profile can proceed to Azure. Missing scope, budget, lifetime or explicit bootstrap
+authorization means **live continuation pending**. No actual Azure scope or cost
+allowance is supplied by this template.
+
+The read-only workflow token cannot see GitHub's ruleset bypass list. The helper
+binds fresh rules to an exact owner-verified server-issued `updated_at` revision
+with **zero bypass actors**. Missing/changed revision fails closed; never treat a
+hidden bypass list as empty or grant ruleset-write permission to the workflow.
+Ask the owner to investigate a mismatch; do not repin IDs, names, rules or workflow
+hashes, or toggle flags, to make an unapproved copy eligible. See
+[GitHub's response visibility contract](https://docs.github.com/en/rest/repos/rules#get-a-repository-ruleset).
 
 ## Fixed scope and ownership
 
 | Boundary | Required contract |
 | --- | --- |
+| Exact private identity | Immutable repository ID and exact name are fixed in [deployment-authorization.cjs](../scripts/deployment-authorization.cjs) through the Lab 02 wrapper; wrong IDs/names, public copies and templates fail |
 | Installed writer | Exactly one [canonical AVM workflow](../.github/workflows/avm-delivery.yml), named **Trusted AVM delivery (instructor enablement required)** |
 | Teaching reference | Complete [solutions/avm-delivery.yml](../solutions/avm-delivery.yml), outside the workflow directory and therefore non-runnable there |
+| Separate cleanup | [Installed cleanup](../.github/workflows/avm-cleanup.yml) and [non-runnable cleanup reference](../solutions/avm-cleanup.yml); explicit owner dispatch only, never a main push |
 | Terraform root | Fixed **avm**; never the original learner root or a user-selected path |
 | Toolchain | Terraform **1.16.1**; AzureRM **4.81.0**, AzAPI **2.12.0**, ModTM **0.3.5**, Random **3.9.1**; Node **24.16.0** for supplied helpers |
 | Registry modules | Network AVM **0.22.2**, NSG AVM **0.5.1**, interfaces module **0.6.0** |
@@ -44,15 +63,17 @@ do not copy Lab 07's private module-transport credentials into Lab 02.
 
 The instructor must confirm an authorized disposable Azure scope, existing
 workload group, approved region/address ranges, resource ownership, budget and
-named cleanup owner. Identify the real participants/reviewers through the
-organization's private process; never put personal IDs or emails into public
-examples. The live route is not a solo exercise.
+maximum lifetime, plus a named cleanup owner. Bootstrap changes require explicit
+owner authorization before any setup mutation. Identify the participants and
+authorized repository admin privately; never invent scope or authorization from
+this page. One authorized owner may operate the route; no second deployment or
+cleanup reviewer is required.
 
-Use an **eligible Enterprise GitHub host** that actually supports required human
-reviewers and the required protections for **private** repositories, together
+Use an **eligible Enterprise GitHub host** that actually supports the required
+branch/environment protections for **private** repositories, together
 with exact-workflow runner restrictions. A private copy on a host/plan without
-these capabilities is **not ready**. Do not make it public, remove reviewers,
-simulate responses, or replace the gated workflow with a local deployment.
+these capabilities is **not ready**. Do not make it public, simulate readiness,
+broaden access or replace the protected workflow with a local deployment.
 
 The enabled repository must be private, non-template and explicitly approved.
 The public source remains on inert `dev`; its templates and read-only Preview
@@ -62,35 +83,47 @@ setup, not by renaming a branch to satisfy an example.
 
 ## 2. Protect the branch, environments and runner
 
-1. In the approved copy, establish and protect **main** with the required reviewed
+1. Only after reviewing the baseline and prerequisite readiness, the authorized
+   owner establishes protected **main while delivery remains disabled**, with the
    [author-merged PR process](pr-author-merge.md): require a PR, **zero approving PR
    reviews**, resolved conversations and strict current-revision checks. The author
    may inspect and merge their own PR; GitHub self-approval is neither needed nor
    supported. Verify the actual rules apply to
    the participants; a rule with bypass paths is not proof. The driver requires
    the run's revision to be the **current protected main** and run attempt **1**.
-2. Under **Settings → Environments**, create **avm-plan** and **avm-apply**. For
-   **each**, restrict deployment branches to `main`, require actual human
-   reviewers, enable prevention of self-review, and disable administrator bypass.
+2. Under **Settings → Environments**, verify **avm-plan** and **avm-apply**. For
+   **each**, allow exactly branch `main`, configure **no Required reviewers**, and
+   disable administrator bypass. This is automatic deployment, not self-approval.
    Verify the effective settings rather than relying on the environment name.
-3. Select genuinely independent reviewers. An approving person must not be the
-   **PR author**, the **run actor**, or the **triggering actor**. GitHub's built-in
-   self-review prevention is only part of this requirement; the delivery guard
-   also checks actual approval records. A different merger may make a third
-   person necessary. PR approval alone does not approve the saved Terraform plan.
+   Missing configuration requires explicit owner-authorized bootstrap, not a
+   learner workaround. Reuse the existing exact-profile ruleset; do not create a
+   replacement rule or broaden its scope merely to pass admission.
+3. The historical [avm-approval.cjs](../scripts/avm-approval.cjs) filename is kept,
+   but it delegates to [deployment-authorization.cjs](../scripts/deployment-authorization.cjs).
+   It freshly checks immutable private identity, live rules, current main,
+   run/SHA/attempt, actual merged-PR association, both environments and successful
+   same-run validation/plan jobs. It does **not** query the approvals API or wait
+   for a human deployment decision. Never replace these checks with issue progress.
 4. Prepare an isolated **ephemeral Linux x64** runner with the reference's
    **ws2-trusted** labels and an instructor-owned runner group restricted to
-   **this exact workflow on the trusted ref**. Matching a label is not enough.
+   **this exact workflow on the trusted ref** and the separately installed cleanup
+   workflow on that same protected-main ref; no other workflow/ref is allowed.
+   Matching a label is not enough.
    Never schedule PR/untrusted code onto this runner or reuse a developer's
    logged-in machine as the privileged runner.
 5. Verify the runner's approved tools, private backend DNS resolution and actual
    network reachability, including the necessary OIDC, GitHub artifact, Azure and
    public-registry endpoints. Clear sensitive working data by retiring the
    ephemeral runner. Do not expose the backend publicly to work around DNS.
-6. For scheduled drift, confirm the copy's default branch is the approved protected
-   `main`; GitHub schedules execute on the default branch. A schedule from `dev`
-   is not a permitted alternate writer. Default-branch changes are instructor
-   setup, not a learner workaround.
+6. GitHub schedules execute on the default branch. If it is **dev**, scheduled
+   live drift needs the owner's deliberate choice of protected **main** as default
+   **only when ready**. There is no automatic default-branch change.
+   A schedule from dev is not a permitted alternate writer; it proves no drift result.
+
+If protected main does not exist, stop at the offline handoff. Do not invent scope,
+open a PR into nonexistent main, or create it while unready. The first eligible
+deployment revision must come from a real checks-passing PR, not an empty commit
+or fake change to trigger Actions. Source maintenance stays on `dev`.
 
 Preflight and validation stay free of **Azure credentials, OIDC and state access**;
 restricted GitHub metadata reads do not grant cloud access. Only the authorized
@@ -184,9 +217,9 @@ No public example needs real IDs, email addresses, state names or key material.
 
 Create **PLAN_DECRYPTION_PRIVATE_KEY** as an environment secret **only in
 avm-apply**, not a repository/organization secret and not in avm-plan or PR CI.
-Keep a separate approved **human reviewer escrow** copy through the organization's
-secure process so an independent reviewer can inspect the exact plan privately
-before approving it. This is the only delivery secret required by this public-AVM
+Any separately authorized owner key escrow is for private inspection/recovery,
+not a manual reviewer gate. Automatic apply decrypts only after the scoped
+authorization checks pass. This is the only delivery secret required by this public-AVM
 route; do not add module GitHub App secrets or long-lived Azure credentials.
 
 Verify the public/private key pairing through the approved process. Never paste
@@ -195,11 +228,12 @@ URLs into Git, chat, issues, logs or screenshots. Review copies must remain priv
 and be disposed of according to the approved procedure, not uploaded as evidence.
 
 The artifact is **ciphertext only**, retained for **one day**. That retention is
-not an approval window: a saved plan older than **two hours** cannot be applied.
+not an apply window: a saved plan older than **two hours** cannot be applied.
 The [delivery driver](../scripts/avm-delivery.mjs) checks the exact run/attempt,
 source revision, fixed root, state, inputs, module fingerprints and provider-lock
-binding before decryption/application. The apply job must never generate a new
-plan after approval or accept an artifact from another run.
+binding before application. The job checks scoped authorization before decryption.
+The apply job must never generate a new plan instead of the saved plan or accept
+an artifact from another run.
 
 ## 6. Verify real readiness before enablement
 
@@ -209,13 +243,13 @@ claims that the setup was executed**:
 | Gate | Required observation in the authorized live preflight |
 | --- | --- |
 | GitHub admission | Approved private non-template copy, current protected main, real branch rules and eligible first-attempt workflow |
-| Human gates | Both environments enforce main-only deployment, actual independent reviewers, no self-review and no admin bypass; actual approval records are available to the guard |
+| Environment controls | Both environments enforce main-only deployment, no Required reviewers and no admin bypass; scoped authorization checks real current settings |
 | Runner | Ephemeral Linux x64 trusted runner with exact-workflow restriction; untrusted/PR jobs excluded |
 | OIDC/RBAC | Correct tenant/subscription, distinct subjects/client IDs and least-privilege workload/container scopes; no role-grant rights |
 | Backend | Intended separate state tuple, private DNS/reachability from that runner, Entra access and actual blob leasing; no alternate writer |
 | Inputs/provenance | Exact five-field input object, fixed AVM root, source pins/fingerprints and provider lock agree with the approved revision |
-| Plan review | Working encryption/decryption pairing, approved independent human escrow, ciphertext-only one-day artifacts and two-hour apply limit |
-| Workload ownership | Approved existing group/region/CIDRs, unique name, no imports/adoption, no Lab 07 overlap; cleanup owner and budget assigned |
+| Saved-plan integrity | Working encryption/decryption pairing, apply-only private key, ciphertext-only one-day artifacts and two-hour apply limit |
+| Workload ownership | Approved existing group/region/CIDRs, unique name, no imports/adoption, no Lab 07 overlap; budget, lifetime, bootstrap authorization and cleanup owner assigned |
 
 The learner first reconstructs and validates the whole workflow **while disabled**
 using the [authoring lesson](workflow-authoring.md#7-replace-one-complete-file-while-disabled-validate-offline).
@@ -234,7 +268,7 @@ The approved cohort must observe the following **real** lifecycle, using the
 [learner walkthrough](workflow-authoring.md#8-complete-the-required-live-lifecycle--only-after-instructor-preflight):
 
 1. A reviewed **main push** creates the disposable AVM network through the same
-   run's preflight, validation, plan, independent approval and exact-plan apply.
+   run's preflight, validation, saved plan/encryption and **automatic exact-plan apply**.
 2. The driver's actual **Azure Resource Manager inventory/configuration checks**
    verify the intended VNet, named subnets, NSG links, address ranges and disabled
    default outbound access. Keep identifiers privately for the update comparison.
@@ -242,20 +276,28 @@ The approved cohort must observe the following **real** lifecycle, using the
    deployment and updates those **same resource IDs**, not a replacement network.
 4. A new manual **followup** on main produces a **fresh live plan with exit 0**.
    Exit 2 means changes, exit 1 means an error; neither completes convergence.
-5. A new manual **destroy** on main is an **exclusive operation**, with a fresh
-   full destroy plan, independent review and application of exactly that plan.
+5. After separately authorizing owned-scope full cleanup, an authenticated current
+   repository admin explicitly dispatches **Trusted AVM cleanup (explicit owner
+   authorization required)** on main. Its only input is the required **string**
+   `authorization`: `destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>`.
+   There is **no operation input**. The helper verifies current admin permission,
+   actor/sender/trigger IDs, current SHA/state and same-run validation/plan. The
+   **Apply exact authorized AVM destroy plan** job consumes that fresh full destroy
+   plan, with no independent cleanup reviewer required.
    Require absence of managed workload state and actual Azure **404s** for the
    intended resources. Preserve the existing group, backend, identities and runner.
 
 No partial targets, local live initialization/apply/destroy, state deletion,
-Lab 07 import/adoption or approval simulation is an alternative. Actual GitHub
-environment reviews authorize the protected jobs; AgentAlvine's educational
-issue status does not. Failure/uncertainty leaves cleanup open with the owner.
+Lab 07 import/adoption or fabricated authorization is an alternative. Dedicated
+cleanup uses the same state, concurrency, environments and identities as delivery.
+Ordinary main never cleans up; destroy or replacement actions on regular pushes
+fail. AgentAlvine only observes/guides: its educational issue status is not Azure
+authorization. Failure/uncertainty leaves cleanup open with the owner.
 
 Scheduled **drift** remains **report-only**: it neither repairs differences nor
-counts as create/update/cleanup proof. Manual choices remain only **followup** and
-**destroy**; deployment comes from the reviewed main push, without another deploy
-dispatch. Optional runtime API extensions are blocked until a separate real
+counts as create/update/cleanup proof. Delivery's manual menu has **followup only**;
+cleanup has its own explicit authorization workflow. Deployment comes from the
+reviewed main push, without another deploy dispatch. Optional runtime API extensions are blocked until a separate real
 preflight, authorization and cost review. Storage, runner hosting and any approved
 optional services can cost money even without billable VNet resources; never
 promise a zero-cost exercise.

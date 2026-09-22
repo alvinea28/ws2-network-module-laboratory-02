@@ -93,7 +93,9 @@ git rev-parse HEAD
 2. Set **base** to the actual default, normally `dev`, and **compare** to your task branch. Review files, add a title and brief description of changes/checks/limitations, then **Create pull request**; use **Create draft pull request** when required.
 3. **Expected:** the correct same-copy comparison and requested draft/ready state.
 
-**Lab 02 live route:** use the instructor-prepared protected `main` with this copy's [delivery configuration](delivery-configuration.md) and [author-merged PR rule](pr-author-merge.md). A PR and current passing checks are required, but the author may merge without another user's PR approval. This does **not** remove independent encrypted-plan environment approvals. Missing live readiness means **stay offline**; do not create unprotected `main`, substitute `dev`, enable Azure or rerun a live job. Public template maintenance stays dev-only.
+**Lab 02 required activity:** first [author and validate GitHub Actions offline](workflow-authoring.md), with `WORKSHOP_AZURE_ENABLED=false`. For the live phase, only the exact approved private profile may use protected `main` after [owner readiness](delivery-configuration.md) and the [author-merged PR rule](pr-author-merge.md). If main does not exist, stop at the offline handoff; only the owner establishes it while disabled after baseline/readiness review. Never open a PR into nonexistent main, create it while unready, repin IDs/pins or toggle flags to bypass eligibility.
+
+A real PR and current passing checks are required, but the author may merge without another user's PR approval. Its main push performs validation → encrypted saved plan → automatic same-run exact-plan apply, with no manual deployment reviewer, approvals API or second deploy button. No empty commit or fake change just to trigger Actions. Followup is read-only; cleanup requires separately authorized current-admin dispatch of [avm-cleanup.yml](../.github/workflows/avm-cleanup.yml), never an ordinary push. Public templates and unapproved copies cannot deploy. Public source maintenance stays **dev-only**, distinct from participant live main; AgentAlvine only observes/guides.
 
 ![GitHub reference showing Compare and pull request](images/github-pull-request.webp)
 
@@ -102,7 +104,7 @@ git rev-parse HEAD
 ## Obtain a real review and continue
 
 1. Open **Files changed** and inspect your own diff and **current-head checks**. Under this Lab 02 [author-merge policy](pr-author-merge.md), approving PR reviews are **0**: resolve conversations and merge with your own account when the required checks pass. This is self-inspection, **not self-approval**; GitHub does not allow approving your own PR. Other labs and organization policies are not changed by this rule.
-2. If repository policy requires human approval, request an eligible nonauthor and wait. Address feedback on the same task branch and obtain any required fresh approval after edits. Do not impersonate reviewers, substitute AI approval, disable checks, change organization policy or use an administrator bypass.
+2. Address feedback on the same task branch and obtain fresh current-head checks after edits. If effective rules conflict with the approved scoped policy, stop for owner reconciliation, not a learner workaround. Do not impersonate reviewers, substitute AI authorization, disable checks, change organization policy or use administrator bypass.
 3. When the task requires merging and every enforced check/approval is satisfied, choose the permitted merge method and confirm the target/revision. **Expected:** a real merged PR, not merely a closed one. Refresh the same Exercise.
 4. With committed work and a clean tree, select the default branch and **Pull** before starting the next task.
 
@@ -114,4 +116,4 @@ git rev-parse HEAD
 | --- | --- |
 | Push rejected/conflict | Preserve work; inspect [pull/push recovery](troubleshooting.md#pull-or-push-is-rejected) |
 | Old/missing check or pending gate | Check the latest head and [PR feedback](troubleshooting.md#a-pr-or-progress-gate-remains-pending); never bypass it |
-| Independent Azure environment approval unavailable | Leave live work pending; source-PR author merge and offline progress are not cloud authorization |
+| Live scope, bootstrap or protected configuration unready | Leave live work pending; source-PR author merge and offline progress are not cloud authorization; do not add a reviewer or bypass controls as a workaround |

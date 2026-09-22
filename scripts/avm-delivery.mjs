@@ -27,7 +27,7 @@ export async function currentMain(binding, request = fetch) {
   const response = await request(`https://api.github.com/repos/${binding.repository}/branches/main`, { headers: { Authorization: `Bearer ${process.env.GH_READ_TOKEN}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }, redirect: "error", signal: AbortSignal.timeout(30_000) });
   assert.equal(response.status, 200, "Cannot recheck protected main");
   const branch = await response.json();
-  assert.ok(branch.protected && branch.commit.sha === binding.sha, "Main changed: a new plan and independent approval are required");
+  assert.ok(branch.protected && branch.commit.sha === binding.sha, "Main changed: start a fresh protected-main run and saved plan");
   return branch.commit.sha;
 }
 
@@ -67,12 +67,12 @@ export async function deliver(phase) {
     const bytes = Buffer.from(`${JSON.stringify(manifest)}\n`);
     await writeFile(manifestPath, bytes, { mode: 0o600 });
     await appendFile(process.env.GITHUB_OUTPUT, `plan_sha256=${manifest.planSha256}\nmanifest_sha256=${hash(bytes)}\nexitcode=${result.status}\nartifact=ws2-avm-${binding.runId}-${binding.runAttempt}\n`);
-    await appendFile(process.env.GITHUB_STEP_SUMMARY, `## AgentAlvine - AVM ${context.operation}\n\nSource ${binding.sha}; run ${binding.runId}/${binding.runAttempt}.\n\nPlan digest ${manifest.planSha256}; manifest digest ${hash(bytes)}.\n\nCreates ${summary.create}, updates ${summary.update}, deletes ${summary.delete}, unchanged ${summary.noChange}.\n\nIndependent reviewer must decrypt and inspect this exact plan privately. Maximum age 2 hours; encrypted artifact retention 1 day. No raw plan, state, account values or resource IDs are published.\n`);
+    await appendFile(process.env.GITHUB_STEP_SUMMARY, `## AgentAlvine - AVM ${context.operation}\n\nSource ${binding.sha}; run ${binding.runId}/${binding.runAttempt}.\n\nPlan digest ${manifest.planSha256}; manifest digest ${hash(bytes)}.\n\nCreates ${summary.create}, updates ${summary.update}, deletes ${summary.delete}, unchanged ${summary.noChange}.\n\nOnly this run's policy-verified exact saved plan may be applied; no human deployment review is required or inferred. Cleanup requires separate explicit authorization. Maximum age 2 hours; encrypted artifact retention 1 day. No raw plan, state, account values or resource IDs are published.\n`);
   } else {
-    await verify(await currentMain(binding));
     assert.deepEqual(await sourceBinding(root), { source: binding.source, moduleLock: binding.moduleLock, providerLock: binding.providerLock });
     // Re-read exact-plan content after decryption and initialization, before mutation.
     validatePlan(JSON.parse(terraform(["show", "-json", planPath]).stdout), inputs, context.operation, await verifyRootContract(root));
+    await verify(await currentMain(binding));
     terraform(["apply", "-input=false", "-no-color", "-lock-timeout=5m", planPath]);
     if (phase === "destroy") assert.equal(terraform(["state", "list"]).stdout.trim(), "", "Managed workload state is not empty");
     const checked = await verifyAzure(inputs, phase === "destroy", await armReader(process.env));

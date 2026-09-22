@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { assertApprovedWiring, hash } from "./avm-dependencies.mjs";
+import authorization from "./deployment-authorization.cjs";
 
 export const TERRAFORM = "1.16.1";
 export const PROVIDERS = Object.freeze({ "registry.terraform.io/hashicorp/azurerm": "4.81.0", "registry.terraform.io/azure/azapi": "2.12.0", "registry.terraform.io/azure/modtm": "0.3.5", "registry.terraform.io/hashicorp/random": "3.9.1" });
@@ -8,19 +9,17 @@ const guid = /^[a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}$/i;
 const operations = new Set(["deploy", "destroy", "followup", "drift"]);
 const identicalId = (actual, expected) => assert.ok(typeof actual === "string" && actual.toLowerCase() === expected.toLowerCase(), "Resource is outside the exact owned topology");
 
-export function operationFor(event, input) {
-  if (event === "push") return "deploy";
-  if (event === "schedule") return "drift";
-  assert.equal(event, "workflow_dispatch", "Untrusted delivery event");
-  assert.ok(["followup", "destroy"].includes(input), "Manual deployment is not this lab's push route");
-  return input;
+export function operationFor(event, input, workflowRef) {
+  return authorization.operationFor(event, input, workflowRef, "avm");
 }
 
 export function configuration(env) {
   for (const [key, value] of Object.entries({ WORKSHOP_AZURE_ENABLED: "true", REPOSITORY_PRIVATE: "true", REPOSITORY_TEMPLATE: "false", GITHUB_REF: "refs/heads/main", GITHUB_REF_PROTECTED: "true", GITHUB_RUN_ATTEMPT: "1", ARM_USE_OIDC: "true", ARM_USE_AZUREAD: "true", ARM_USE_CLI: "false" })) assert.equal(env[key], value, `Invalid trusted context: ${key}`);
+  const profile = authorization.assertRepository({ id: Number(env.GITHUB_REPOSITORY_ID), full_name: env.GITHUB_REPOSITORY, private: env.REPOSITORY_PRIVATE === "true", is_template: env.REPOSITORY_TEMPLATE !== "false" }, "avm");
+  assert.equal(env.GITHUB_REPOSITORY_ID, String(profile.id), "Unapproved immutable repository identity");
   assert.ok(["push", "schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME));
   assert.ok(operations.has(env.OPERATION));
-  assert.equal(env.OPERATION, operationFor(env.GITHUB_EVENT_NAME, env.OPERATION));
+  assert.equal(env.OPERATION, operationFor(env.GITHUB_EVENT_NAME, env.OPERATION, env.GITHUB_WORKFLOW_REF), "Operation differs from trusted workflow/event");
   for (const key of Object.keys(env)) {
     if (/^ARM_.*(?:SECRET|CERTIFICATE|ACCESS_KEY|SAS|TOKEN_FILE|CLIENT_ID_FILE|TENANT_ID_FILE)/.test(key)) assert.ok(!env[key], "Ambient credentials are forbidden");
     if (/^TF_(?:VAR_|CLI_ARGS|LOG)/.test(key)) assert.ok(!env[key], "Ambient Terraform overrides are forbidden");
@@ -51,7 +50,7 @@ export function configuration(env) {
   assert.ok(raw.subnets && !Array.isArray(raw.subnets) && Object.keys(raw.subnets).length >= 2);
   for (const [key, value] of Object.entries(raw.subnets)) { assert.match(key, /^[a-z][a-z\d-]{0,40}$/); assert.deepEqual(Object.keys(value), ["address_prefixes"]); cidrs(value.address_prefixes); }
   const inputs = { ...raw, tenant_id: env.ARM_TENANT_ID, subscription_id: env.ARM_SUBSCRIPTION_ID };
-  const binding = { root: "avm", environment: "avm", operation: env.OPERATION, repository: env.GITHUB_REPOSITORY, sha: env.GITHUB_SHA, runId: env.GITHUB_RUN_ID, runAttempt: "1", tenant: env.ARM_TENANT_ID, subscription: env.ARM_SUBSCRIPTION_ID, planClientId: env.PLAN_CLIENT_ID, applyClientId: env.APPLY_CLIENT_ID, resourceGroup: env.WORKLOAD_RG, stateAccount: env.STATE_STORAGE_ACCOUNT, stateContainer: env.STATE_CONTAINER, stateKey: env.STATE_KEY, stateLockId: env.WS2_STATE_LOCK_ID, terraform: TERRAFORM, providers: PROVIDERS, inputs: hash(JSON.stringify(inputs)) };
+  const binding = { root: "avm", environment: "avm", operation: env.OPERATION, repository: env.GITHUB_REPOSITORY, repositoryId: env.GITHUB_REPOSITORY_ID, workflowRef: env.GITHUB_WORKFLOW_REF, sha: env.GITHUB_SHA, runId: env.GITHUB_RUN_ID, runAttempt: "1", tenant: env.ARM_TENANT_ID, subscription: env.ARM_SUBSCRIPTION_ID, planClientId: env.PLAN_CLIENT_ID, applyClientId: env.APPLY_CLIENT_ID, resourceGroup: env.WORKLOAD_RG, stateAccount: env.STATE_STORAGE_ACCOUNT, stateContainer: env.STATE_CONTAINER, stateKey: env.STATE_KEY, stateLockId: env.WS2_STATE_LOCK_ID, terraform: TERRAFORM, providers: PROVIDERS, inputs: hash(JSON.stringify(inputs)) };
   return { inputs, binding };
 }
 
@@ -87,7 +86,7 @@ export function validatePlan(plan, inputs, operation, reviewedSource) {
     assert.equal(item.provider_name, expected.provider);
     assert.ok(!item.change.importing && !item.previous_address, "No import or moved ownership in this route");
     const actions = item.change.actions;
-    assert.ok(Array.isArray(actions) && actions.length === 1, "Replacement requires separately reviewed full cleanup");
+    assert.ok(Array.isArray(actions) && actions.length === 1, "Replacement requires separately authorized full cleanup");
     const action = actions[0];
     assert.ok((operation === "destroy" ? ["delete", "no-op"] : ["create", "update", "no-op"]).includes(action), "Destruction is explicit, never an ordinary push");
     if (item.change.before) identicalId(item.change.before.id, expected.id);
@@ -137,14 +136,8 @@ export function validatePlan(plan, inputs, operation, reviewedSource) {
   return totals;
 }
 
-export function assertEnvironmentProtection(environment, branches, requireApproval = true) {
-  assert.deepEqual(environment.deployment_branch_policy, { protected_branches: false, custom_branch_policies: true });
-  assert.ok(branches.length === 1 && branches[0].name === "main" && branches[0].type === "branch", "Only main can use this environment");
-  if (requireApproval) {
-    const rule = environment.protection_rules?.find((entry) => entry.type === "required_reviewers");
-    assert.ok(rule?.reviewers?.length && rule.prevent_self_review === true, "Independent review and no self-review required");
-    assert.equal(environment.can_admins_bypass, false);
-  }
+export function assertEnvironmentProtection(environment, branches) {
+  return authorization.assertEnvironmentProtection(environment, branches);
 }
 
 export function makeManifest(binding, plan, exitCode, now = Date.now()) {
@@ -156,8 +149,8 @@ export function verifyManifest({ manifestBytes, planBytes, binding, planHash, ma
   assert.match(planHash, /^[a-f\d]{64}$/); assert.match(manifestHash, /^[a-f\d]{64}$/);
   assert.equal(hash(manifestBytes), manifestHash, "Manifest altered");
   const manifest = JSON.parse(manifestBytes);
-  assert.equal(manifest.schemaVersion, 1); assert.deepEqual(manifest.binding, binding, "Commit/run/root/state/inputs/dependencies mismatch");
-  assert.equal(mainSha, binding.sha, "Main moved; obtain a new plan and independent review");
+  assert.equal(manifest.schemaVersion, 1); assert.deepEqual(manifest.binding, binding, "Commit/run/root/state/inputs/dependencies mismatch; repository and workflow identity must also match");
+  assert.equal(mainSha, binding.sha, "Main moved; start a fresh protected-main run and saved plan");
   assert.ok(["deploy", "destroy"].includes(binding.operation), "Read-only operations cannot apply");
   assert.equal(hash(planBytes), planHash, "Plan altered"); assert.equal(manifest.planSha256, planHash);
   const age = now - Date.parse(manifest.createdAt);

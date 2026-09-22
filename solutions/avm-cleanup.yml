@@ -1,18 +1,13 @@
-name: Trusted AVM delivery (instructor enablement required)
+name: Trusted AVM cleanup (explicit owner authorization required)
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
-      operation:
-        description: Explicit no-change confirmation only; cleanup has its own authorized workflow
-        type: choice
-        options: [followup]
-        default: followup
-  schedule:
-    - cron: '37 2 * * 2'
+      authorization:
+        description: 'destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>'
+        required: true
+        type: string
 permissions: {}
-# Repository-scoped serialization; this copy is the only writer to its AVM state.
+# Share delivery serialization, state and identities; never clean up on a push.
 concurrency:
   group: ws2-avm-state-${{ vars.WS2_STATE_LOCK_ID || github.repository }}
   cancel-in-progress: false
@@ -35,7 +30,7 @@ env:
   WORKLOAD_INPUTS_JSON: ${{ vars.WORKLOAD_INPUTS_JSON }}
 jobs:
   preflight:
-    name: Verify scoped AVM deployment policy
+    name: Verify separate AVM cleanup authorization
     if: vars.WORKSHOP_AZURE_ENABLED == 'true' && !github.event.repository.is_template && github.event.repository.private && github.ref == 'refs/heads/main' && github.ref_protected
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -119,7 +114,7 @@ jobs:
         with:
           terraform_version: 1.16.1
           terraform_wrapper: false
-      - name: OIDC init, verified AVM modules and exact scoped plan
+      - name: OIDC init, verified AVM modules and exact scoped destroy plan
         id: plan
         run: node scripts/avm-delivery.mjs plan
       - name: Encrypt saved plan before upload
@@ -136,9 +131,9 @@ jobs:
       - if: always()
         run: node scripts/avm-delivery.mjs clean
   apply:
-    name: Apply exact AVM saved plan
+    name: Apply exact authorized AVM destroy plan
     needs: [preflight, plan]
-    if: needs.preflight.outputs.operation == 'deploy' && needs.plan.result == 'success'
+    if: needs.preflight.outputs.operation == 'destroy' && needs.plan.result == 'success'
     runs-on: [self-hosted, linux, x64, ws2-trusted]
     environment: avm-apply
     timeout-minutes: 40
@@ -166,7 +161,7 @@ jobs:
         with:
           name: ${{ needs.plan.outputs.artifact }}
           path: .workshop/sealed
-      - name: Verify scoped authorization and current main
+      - name: Recheck explicit cleanup authorization and current main
         id: approval
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         with:
@@ -176,46 +171,12 @@ jobs:
         env:
           PLAN_DECRYPTION_PRIVATE_KEY: ${{ secrets.PLAN_DECRYPTION_PRIVATE_KEY }}
         run: node scripts/plan-envelope.mjs open
-      - name: Apply exact plan and verify real Azure configuration
+      - name: Apply exact destroy plan and verify owned resource absence
         env:
           EXPECTED_PLAN_HASH: ${{ needs.plan.outputs.plan_sha256 }}
           EXPECTED_MANIFEST_HASH: ${{ needs.plan.outputs.manifest_sha256 }}
           CURRENT_MAIN_SHA: ${{ steps.approval.outputs.main_sha }}
           GH_READ_TOKEN: ${{ github.token }}
-        run: node scripts/avm-delivery.mjs apply
+        run: node scripts/avm-delivery.mjs destroy
       - if: always()
         run: node scripts/avm-delivery.mjs clean
-  followup:
-    name: Confirm AVM no-change
-    needs: [preflight, plan]
-    if: needs.preflight.outputs.operation == 'followup' && needs.plan.result == 'success'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 2
-    permissions: {}
-    env:
-      PLAN_EXIT: ${{ needs.plan.outputs.exitcode }}
-    steps:
-      - run: |
-          test "$PLAN_EXIT" = 0
-          echo 'A fresh AVM followup plan reported no changes.' >> "$GITHUB_STEP_SUMMARY"
-  drift:
-    name: Report AVM drift without applying
-    needs: [preflight, plan]
-    if: always() && needs.preflight.outputs.operation == 'drift' && (needs.plan.result != 'success' || needs.plan.outputs.exitcode == '2')
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    permissions:
-      issues: write
-    env:
-      PLAN_RESULT: ${{ needs.plan.result }}
-    steps:
-      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
-        with:
-          script: |
-            const marker = '<!-- ws2-avm-drift -->';
-            const issues = await github.paginate(github.rest.issues.listForRepo, {...context.repo, state:'open', per_page:100});
-            const outcome = process.env.PLAN_RESULT === 'success' ? 'Drift detected' : 'Drift assessment failed or was incomplete; configuration is not verified';
-            const body = `${marker}\nAgentAlvine: ${outcome}. Inspect ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId} privately. Fix through a reviewed PR and main push; never auto-approve, unlock or broaden access.`;
-            const existing = issues.find(item => item.user.login === 'github-actions[bot]' && item.body?.includes(marker));
-            if (existing) await github.rest.issues.createComment({...context.repo, issue_number:existing.number, body});
-            else await github.rest.issues.create({...context.repo, title:'AgentAlvine - AVM drift requires review', body});

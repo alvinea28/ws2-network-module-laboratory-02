@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { checkWorkflow, COMPANION_SHA256, normalizeWorkflow, readWorkflowSources, REFERENCE_SHA256, validateWorkflowSources, workflowHash } from "../scripts/check-avm-workflow.mjs";
+import { checkWorkflow, CLEANUP_REFERENCE_SHA256, COMPANION_SHA256, normalizeWorkflow, readWorkflowSources, REFERENCE_SHA256, validateWorkflowSources, workflowHash } from "../scripts/check-avm-workflow.mjs";
 
 // Actual local reference, text mutations and disposable filesystem fixtures.
 // The only child process is this read-only checker under process.execPath.
@@ -13,33 +13,38 @@ import { checkWorkflow, COMPANION_SHA256, normalizeWorkflow, readWorkflowSources
 // never import/execute the delivery, approval, policy or encryption drivers.
 const sources = await readWorkflowSources();
 const canonical = normalizeWorkflow(sources.workflows["avm-delivery.yml"]);
+const cleanupCanonical = normalizeWorkflow(sources.workflows["avm-cleanup.yml"]);
 const fresh = () => structuredClone(sources);
 const jobNames = ["preflight", "validation", "plan", "apply", "followup", "drift"];
-const names = ["avm-delivery.yml", ...Object.keys(COMPANION_SHA256)].sort();
-const inputs = [...names.map((name) => `.github/workflows/${name}`), "solutions/avm-delivery.yml"];
+const routes = ["avm-delivery.yml", "avm-cleanup.yml"];
+const names = [...routes, ...Object.keys(COMPANION_SHA256)].sort();
+const inputs = [...names.map((name) => `.github/workflows/${name}`), ...routes.map((name) => `solutions/${name}`)];
+const expectedResult = { deliverySha256: REFERENCE_SHA256, cleanupSha256: CLEANUP_REFERENCE_SHA256, deliveryWorkflows: 1, cleanupWorkflows: 1, companionWorkflows: 4 };
 const script = fileURLToPath(new URL("../scripts/check-avm-workflow.mjs", import.meta.url));
 const repository = fileURLToPath(new URL("../", import.meta.url));
 const directoryLinkType = process.platform === "win32" ? "junction" : "dir";
 
-function section(name) {
+function section(name, source = canonical) {
   const marker = `\n  ${name}:\n`;
-  const start = canonical.indexOf(marker);
+  const start = source.indexOf(marker);
   assert.ok(start >= 0, "Mutation must target a real reviewed job");
-  const ends = jobNames.map((next) => canonical.indexOf(`\n  ${next}:\n`, start + marker.length)).filter((end) => end >= 0);
+  const ends = jobNames.map((next) => source.indexOf(`\n  ${next}:\n`, start + marker.length)).filter((end) => end >= 0);
   // Include the final step's newline, without consuming the next job header.
-  const end = ends.length ? Math.min(...ends) + 1 : canonical.length;
-  return { start, end, text: canonical.slice(start, end) };
+  const end = ends.length ? Math.min(...ends) + 1 : source.length;
+  return { start, end, text: source.slice(start, end) };
 }
 
-function changed(from, to, jobName) {
-  const scope = jobName ? section(jobName) : { start: 0, end: canonical.length, text: canonical };
+function changed(from, to, jobName, file = "avm-delivery.yml") {
+  const source = normalizeWorkflow(sources.workflows[file]);
+  const scope = jobName ? section(jobName, source) : { start: 0, end: source.length, text: source };
   assert.ok(scope.text.includes(from) && from !== to, "Mutation must change a real source fragment");
   const input = fresh();
-  input.workflows["avm-delivery.yml"] = canonical.slice(0, scope.start) + scope.text.replace(from, to) + canonical.slice(scope.end);
+  input.workflows[file] = source.slice(0, scope.start) + scope.text.replace(from, to) + source.slice(scope.end);
   return input;
 }
 
-const reject = (from, to, jobName) => assert.throws(() => validateWorkflowSources(changed(from, to, jobName)), /differs from the trusted reference/);
+const reject = (from, to, jobName, file) => assert.throws(() => validateWorkflowSources(changed(from, to, jobName, file)), /differs from the trusted reference/);
+const rejectCleanup = (from, to, jobName) => reject(from, to, jobName, "avm-cleanup.yml");
 
 async function temporary(t, prefix = "ws2-avm-workflow-") {
   // Canonicalize the system temp parent, so a platform temp-directory alias is
@@ -55,6 +60,7 @@ async function fixture(t) {
   await mkdir(join(root, "solutions"));
   for (const [name, text] of Object.entries(sources.workflows)) await writeFile(join(root, ".github/workflows", name), text);
   await writeFile(join(root, "solutions/avm-delivery.yml"), sources.reference);
+  await writeFile(join(root, "solutions/avm-cleanup.yml"), sources.cleanupReference);
   return root;
 }
 
@@ -85,27 +91,35 @@ function cli(file, cwd, args = []) {
   return spawnSync(process.execPath, [file, ...args], { cwd, encoding: "utf8", shell: false, timeout: 30_000 });
 }
 
-test("the actual complete reference has five independently pinned installed workflows and one writer", async () => {
-  assert.equal(REFERENCE_SHA256, "a4c51088b733919d0d18eebe8af3e980b5973a10144506e7e1184310faf2bbda");
-  assert.deepEqual(await checkWorkflow(), { deliverySha256: REFERENCE_SHA256, deliveryWorkflows: 1, companionWorkflows: 4 });
+test("six installed workflows retain independent delivery/cleanup pins and four unchanged companions", async () => {
+  assert.equal(REFERENCE_SHA256, "a1beed13bc48371224d44cd0be94ff67ab76a587d64289d34e308f12b5cfc8e4");
+  assert.equal(CLEANUP_REFERENCE_SHA256, "42579434a903ca7221eb4476654f824f93b7abc08473fd87e83aea91fc8a5dd2");
+  assert.notEqual(REFERENCE_SHA256, CLEANUP_REFERENCE_SHA256);
+  assert.deepEqual(await checkWorkflow(), expectedResult);
   assert.equal(workflowHash(sources.reference), REFERENCE_SHA256);
+  assert.equal(workflowHash(sources.cleanupReference), CLEANUP_REFERENCE_SHA256);
   assert.equal(canonical, normalizeWorkflow(sources.reference));
+  assert.equal(cleanupCanonical, normalizeWorkflow(sources.cleanupReference));
   assert.deepEqual(Object.keys(sources.workflows).sort(), names);
   assert.equal(Object.isFrozen(COMPANION_SHA256), true);
   for (const [name, pin] of Object.entries(COMPANION_SHA256)) assert.equal(workflowHash(sources.workflows[name]), pin);
   assert.equal(Object.hasOwn(sources.workflows, "solutions/avm-delivery.yml"), false);
+  assert.equal(Object.hasOwn(sources.workflows, "solutions/avm-cleanup.yml"), false);
 });
 
 test("CRLF and a missing terminal newline are the only accepted source normalization", () => {
   for (const transform of [(text) => text, (text) => text.replaceAll("\n", "\r\n"), (text) => text.slice(0, -1), (text) => text.slice(0, -1).replaceAll("\n", "\r\n")]) {
     const input = fresh();
     input.reference = transform(normalizeWorkflow(input.reference));
+    input.cleanupReference = transform(normalizeWorkflow(input.cleanupReference));
     for (const name of names) input.workflows[name] = transform(normalizeWorkflow(input.workflows[name]));
     assert.doesNotThrow(() => validateWorkflowSources(input));
   }
   const mixed = fresh();
   mixed.reference = normalizeWorkflow(mixed.reference).replaceAll("\n", "\r\n");
+  mixed.cleanupReference = normalizeWorkflow(mixed.cleanupReference).replaceAll("\n", "\r\n");
   mixed.workflows["avm-delivery.yml"] = canonical.slice(0, -1);
+  mixed.workflows["avm-cleanup.yml"] = cleanupCanonical.slice(0, -1);
   assert.doesNotThrow(() => validateWorkflowSources(mixed));
   assert.equal(normalizeWorkflow("a\r\nb"), "a\nb\n");
 });
@@ -142,18 +156,23 @@ test("non-main, wildcard, PR and reusable-workflow delivery events cannot replac
 });
 
 test("each disabled, non-template, private, main and protected-ref gate is mandatory", () => {
-  for (const fragment of ["vars.WORKSHOP_AZURE_ENABLED == 'true' && ", "!github.event.repository.is_template && ", "github.event.repository.private && ", "github.ref == 'refs/heads/main' && ", " && github.ref_protected"]) reject(fragment, "", "preflight");
-  reject("branch.commit.sha !== context.sha", "false", "preflight");
-  reject("!branch.protected || ", "", "preflight");
+  for (const file of routes) {
+    for (const fragment of ["vars.WORKSHOP_AZURE_ENABLED == 'true' && ", "!github.event.repository.is_template && ", "github.event.repository.private && ", "github.ref == 'refs/heads/main' && ", " && github.ref_protected"]) reject(fragment, "", "preflight", file);
+    reject("const {operation} = await require('./scripts/avm-approval.cjs')({github,context,core,phase:'preflight'});", "const operation = 'deploy';", "preflight", file);
+  }
 });
 
-test("attempt enforcement and event routing remain delegated to the existing policy", () => {
-  reject("scripts/avm-policy.mjs", "scripts/other-policy.mjs", "preflight");
-  reject("policy.operationFor(context.eventName, process.env.REQUESTED_OPERATION)", "process.env.REQUESTED_OPERATION", "preflight");
-  reject("policy.configuration({...process.env, OPERATION: operation});", "", "preflight");
-  reject("policy.configuration({...process.env, OPERATION: operation});", "policy.configuration({...process.env, GITHUB_RUN_ATTEMPT: '1', OPERATION: operation});", "preflight");
-  reject("policy.assertEnvironmentProtection(environment, branches);", "", "preflight");
-  reject("['avm-plan', 'avm-apply']", "['avm-plan']", "preflight");
+test("main, attempt, rules, merged-PR, environment and operation checks stay delegated to the fixed-profile helper", () => {
+  for (const file of routes) {
+    reject("scripts/avm-policy.mjs", "scripts/other-policy.mjs", "preflight", file);
+    reject("scripts/avm-approval.cjs", "scripts/approval.cjs", "preflight", file);
+    reject("{github,context,core,phase:'preflight'}", "{github,context:{...context,sha:'unbound'},core,phase:'preflight'}", "preflight", file);
+    reject("{github,context,core,phase:'preflight'}", "{github,context,core,phase:'preflight',env:{...process.env,GITHUB_RUN_ATTEMPT:'1'}}", "preflight", file);
+    reject("policy.configuration({...process.env, OPERATION: operation});", "", "preflight", file);
+    reject("policy.configuration({...process.env, OPERATION: operation});", "policy.configuration({...process.env, GITHUB_RUN_ATTEMPT: '1', OPERATION: operation});", "preflight", file);
+    reject("phase:'preflight'", "phase:'apply'", "preflight", file);
+    reject("operation: ${{ steps.policy.outputs.operation }}", "operation: deploy", "preflight", file);
+  }
 });
 
 test("unsafe workflow/job permissions and failure bypasses are rejected", () => {
@@ -171,10 +190,10 @@ test("validation cannot bypass preflight and the privileged plan must depend on 
   reject("    needs: [preflight, plan]\n", "    needs: preflight\n", "apply");
 });
 
-test("hosted validation cannot omit or neutralize any existing test, kit, workflow or companion check", () => {
-  for (const command of ["npm test", "npm run kit:check", "npm run workflow:check", "npm run companion:check"]) {
-    reject(`      - run: ${command}\n`, "", "validation");
-    reject(`      - run: ${command}\n`, `      - run: ${command} || true\n`, "validation");
+test("hosted validation cannot omit or neutralize any test, kit, workflow, companion or required learner check", () => {
+  for (const file of routes) for (const command of ["npm test", "npm run kit:check", "npm run workflow:check", "npm run companion:check", "node scripts/check-learner.mjs"]) {
+    reject(`      - run: ${command}\n`, "", "validation", file);
+    reject(`      - run: ${command}\n`, `      - run: ${command} || true\n`, "validation", file);
   }
 });
 
@@ -216,32 +235,34 @@ test("only one encrypted artifact is uploaded, with one-day retention and failur
   reject("      - if: always()\n", "      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a\n        with:\n          path: .workshop/private\n      - if: always()\n", "plan");
 });
 
-test("mutation retains real independent approval before decryption and driver execution", () => {
+test("mutation retains fresh scoped authorization before decryption and driver execution", () => {
   reject("environment: avm-apply", "environment: unprotected", "apply");
   reject("await require('./scripts/avm-approval.cjs')({github,context,core});", "", "apply");
   reject("run: node scripts/plan-envelope.mjs open", "run: echo skip-decryption", "apply");
-  const approvalStart = canonical.indexOf("      - name: Verify independent human approval and current main\n");
-  const decryptStart = canonical.indexOf("      - name: Decrypt only after approval\n");
-  const mutationStart = canonical.indexOf("      - name: Apply exact plan and verify real Azure configuration or absence\n");
+  const approvalStart = canonical.indexOf("      - name: Verify scoped authorization and current main\n");
+  const decryptStart = canonical.indexOf("      - name: Decrypt only after authorization\n");
+  const mutationStart = canonical.indexOf("      - name: Apply exact plan and verify real Azure configuration\n");
   assert.ok(approvalStart >= 0 && decryptStart > approvalStart && mutationStart > decryptStart);
   const input = fresh();
   input.workflows["avm-delivery.yml"] = canonical.slice(0, approvalStart) + canonical.slice(decryptStart, mutationStart) + canonical.slice(approvalStart, decryptStart) + canonical.slice(mutationStart);
   assert.throws(() => validateWorkflowSources(input), /differs from the trusted reference/);
 });
 
-test("mutation must consume the same-run artifact and both hashes with the approved current-main binding", () => {
+test("mutation must consume the same-run artifact and both hashes with the authorized current-main binding", () => {
   for (const binding of ["${{ needs.plan.outputs.artifact }}", "${{ needs.plan.outputs.plan_sha256 }}", "${{ needs.plan.outputs.manifest_sha256 }}", "${{ steps.approval.outputs.main_sha }}"]) reject(binding, "unbound-value", "apply");
   reject("          path: .workshop/sealed\n", "          path: .workshop/sealed\n          run-id: 123\n", "apply");
   reject("${{ vars.AZURE_APPLY_CLIENT_ID }}", "${{ vars.AZURE_PLAN_CLIENT_ID }}", "apply");
   reject("          GH_READ_TOKEN: ${{ github.token }}\n", "", "apply");
 });
 
-test("the single apply job preserves push deploy and manual-only destroy without a second deploy dispatch", () => {
-  reject("options: [followup, destroy]", "options: [deploy, followup, destroy]");
+test("delivery preserves automatic exact-plan apply with followup-only dispatch and no destruction", () => {
+  assert.ok(!canonical.includes("destroy"));
+  reject("options: [followup]", "options: [deploy, followup]");
+  reject("options: [followup]", "options: [followup, destroy]");
   reject("needs.preflight.outputs.operation == 'deploy'", "github.event_name == 'workflow_dispatch'", "apply");
-  reject("needs.preflight.outputs.operation == 'destroy'", "needs.preflight.outputs.operation == 'drift'", "apply");
-  reject('if [ "$OPERATION" = destroy ]; then', 'if [ "$OPERATION" = deploy ]; then', "apply");
-  reject("node scripts/avm-delivery.mjs destroy", "node scripts/avm-delivery.mjs apply", "apply");
+  reject("needs.preflight.outputs.operation == 'deploy'", "needs.preflight.outputs.operation == 'drift'", "apply");
+  reject("needs.preflight.outputs.operation == 'deploy'", "needs.preflight.outputs.operation == 'destroy'", "apply");
+  reject("node scripts/avm-delivery.mjs apply", "node scripts/avm-delivery.mjs destroy", "apply");
   reject("node scripts/avm-delivery.mjs apply", "terraform apply -auto-approve", "apply");
   const input = fresh(); input.workflows["avm-delivery.yml"] += section("apply").text.replace("\n  apply:\n", "\n  destroy:\n");
   assert.throws(() => validateWorkflowSources(input), /differs from the trusted reference/);
@@ -258,6 +279,130 @@ test("followup/drift stay non-mutating and neither state serialization nor clean
   for (const name of ["plan", "apply"]) reject("      - if: always()\n        run: node scripts/avm-delivery.mjs clean\n", "", name);
 });
 
+test("both routes retain exact helper job names, metadata permissions and phase calls", () => {
+  for (const file of routes) {
+    reject("name: Validate reviewed AVM revision", "name: Unbound validation", "validation", file);
+    reject("name: Trusted AVM plan", "name: Unbound plan", "plan", file);
+    for (const name of ["preflight", "plan", "apply"]) {
+      for (const permission of ["contents", "actions", "pull-requests"]) reject(`      ${permission}: read\n`, "", name, file);
+    }
+    const call = "await require('./scripts/avm-approval.cjs')({github,context,core,phase:'plan'});";
+    reject(call, "", "plan", file);
+    reject("phase:'plan'", "phase:'preflight'", "plan", file);
+    reject("{github,context,core,phase:'plan'}", "{github,context,core,phase:'plan',env:{...process.env,GITHUB_SHA:'unbound'}}", "plan", file);
+    reject("await require('./scripts/avm-approval.cjs')({github,context,core});", "await require('./scripts/avm-approval.cjs')({github,context,core,phase:'preflight'});", "apply", file);
+  }
+});
+
+test("metadata plan guards cannot move behind Terraform setup or OIDC planning", () => {
+  for (const file of routes) {
+    const source = normalizeWorkflow(sources.workflows[file]);
+    const plan = section("plan", source);
+    const start = source.indexOf("      - name: Verify current main and same-run validation\n", plan.start);
+    const end = source.indexOf("      - uses: actions/setup-node@", start);
+    const afterDriver = source.indexOf("      - name: Encrypt saved plan before upload\n", end);
+    assert.ok(start >= plan.start && end > start && afterDriver > end);
+    const input = fresh();
+    input.workflows[file] = source.slice(0, start) + source.slice(end, afterDriver) + source.slice(start, end) + source.slice(afterDriver);
+    assert.throws(() => validateWorkflowSources(input), /differs from the trusted reference/);
+  }
+});
+
+test("dedicated cleanup is dispatch-only with required explicit repository/SHA/state authorization and no default", () => {
+  assert.equal(cleanupCanonical.slice(cleanupCanonical.indexOf("on:\n"), cleanupCanonical.indexOf("permissions: {}\n")), "on:\n  workflow_dispatch:\n    inputs:\n      authorization:\n        description: 'destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>'\n        required: true\n        type: string\n");
+  for (const event of ["push", "pull_request", "pull_request_target", "workflow_run", "workflow_call", "schedule"]) rejectCleanup("on:\n", `on:\n  ${event}:\n`);
+  rejectCleanup("on:\n  workflow_dispatch:", "on: [push]\nunreviewed:");
+  rejectCleanup("        required: true\n", "        required: false\n");
+  rejectCleanup("        type: string\n", "        type: boolean\n");
+  rejectCleanup("      authorization:\n", "      operation:\n");
+  rejectCleanup("on:\n", "on: *broad-triggers\non:\n");
+  const extra = fresh(); extra.workflows["avm-cleanup.yml"] += "\n---\non: push\njobs: {}\n";
+  assert.throws(() => validateWorkflowSources(extra), /differs from the trusted reference/);
+});
+
+test("wrong, stale or synthesized cleanup authorization cannot be embedded in the exact workflow", () => {
+  const call = "const {operation} = await require('./scripts/avm-approval.cjs')({github,context,core,phase:'preflight'});";
+  // These are source-level negative fixtures, NOT runtime authorization claims.
+  for (const value of ["", "destroy", `destroy:1379149907:${"a".repeat(40)}:owned-state`, `destroy:1379147533:${"b".repeat(40)}:stale-state`]) {
+    rejectCleanup("        type: string\n", `        type: string\n        default: '${value}'\n`);
+    rejectCleanup(call, `context.payload.inputs.authorization = '${value}';\n            ${call}`, "preflight");
+  }
+  rejectCleanup("1379147533", "1379149907");
+  rejectCleanup("{github,context,core,phase:'preflight'}", "{github,context:{...context,payload:{...context.payload,inputs:{authorization:'destroy'}}},core,phase:'preflight'}", "preflight");
+  rejectCleanup("  WS2_STATE_LOCK_ID: ${{ vars.WS2_STATE_LOCK_ID }}\n", "");
+  rejectCleanup("WS2_STATE_LOCK_ID: ${{ vars.WS2_STATE_LOCK_ID }}", "WS2_STATE_LOCK_ID: another-state");
+});
+
+test("cleanup preserves the same state writer, hosted validation, privileged identities and environment scopes", () => {
+  const sharedEnv = (text) => text.slice(text.indexOf("\nenv:\n"), text.indexOf("\njobs:\n"));
+  assert.equal(sharedEnv(cleanupCanonical), sharedEnv(canonical));
+  assert.equal(section("validation", cleanupCanonical).text, section("validation").text);
+  rejectCleanup("group: ws2-avm-state-${{ vars.WS2_STATE_LOCK_ID || github.repository }}", "group: separate-cleanup-${{ github.run_id }}");
+  rejectCleanup("cancel-in-progress: false", "cancel-in-progress: true");
+  for (const binding of ["STATE_STORAGE_ACCOUNT", "STATE_CONTAINER", "STATE_KEY", "WORKLOAD_RG", "ARM_SUBSCRIPTION_ID", "ARM_TENANT_ID"]) rejectCleanup(`  ${binding}:`, `  UNBOUND_${binding}:`);
+  for (const name of ["preflight", "validation", "plan", "apply"]) {
+    rejectCleanup("ref: ${{ github.sha }}", "ref: main", name);
+    rejectCleanup("persist-credentials: false", "persist-credentials: true", name);
+    rejectCleanup(`  ${name}:\n`, `  ${name}:\n    continue-on-error: true\n`, name);
+  }
+  for (const name of ["preflight", "validation"]) {
+    rejectCleanup("      contents: read\n", "      contents: read\n      id-token: write\n", name);
+    rejectCleanup("runs-on: ubuntu-24.04", "runs-on: [self-hosted, linux, x64, ws2-trusted]", name);
+    rejectCleanup(`  ${name}:\n`, `  ${name}:\n    environment: avm-apply\n`, name);
+  }
+  rejectCleanup("needs: [preflight, validation]", "needs: preflight", "plan");
+  rejectCleanup("environment: avm-plan", "environment: avm-apply", "plan");
+  rejectCleanup("${{ vars.AZURE_PLAN_CLIENT_ID }}", "${{ vars.AZURE_APPLY_CLIENT_ID }}", "plan");
+  rejectCleanup("${{ vars.AZURE_APPLY_CLIENT_ID }}", "${{ vars.AZURE_PLAN_CLIENT_ID }}", "apply");
+  rejectCleanup("environment: avm-apply", "environment: unprotected", "apply");
+  for (const name of ["plan", "apply"]) rejectCleanup("      - if: always()\n        run: node scripts/avm-delivery.mjs clean\n", "", name);
+});
+
+test("cleanup can only seal and consume its exact same-run destroy plan after fresh authorization", () => {
+  rejectCleanup("node scripts/avm-delivery.mjs plan", "terraform plan -destroy", "plan");
+  rejectCleanup("run: node scripts/plan-envelope.mjs seal", "run: echo skip-sealing", "plan");
+  rejectCleanup("path: .workshop/sealed/plan.enc", "path: .workshop/private", "plan");
+  rejectCleanup("needs.preflight.outputs.operation == 'destroy'", "needs.preflight.outputs.operation == 'deploy'", "apply");
+  rejectCleanup("node scripts/avm-delivery.mjs destroy", "node scripts/avm-delivery.mjs apply", "apply");
+  rejectCleanup("node scripts/avm-delivery.mjs destroy", "terraform destroy -auto-approve", "apply");
+  for (const binding of ["${{ needs.plan.outputs.artifact }}", "${{ needs.plan.outputs.plan_sha256 }}", "${{ needs.plan.outputs.manifest_sha256 }}", "${{ steps.approval.outputs.main_sha }}", "${{ github.token }}"]) rejectCleanup(binding, "unbound", "apply");
+  rejectCleanup("          path: .workshop/sealed\n", "          path: .workshop/sealed\n          run-id: 123\n", "apply");
+  rejectCleanup("await require('./scripts/avm-approval.cjs')({github,context,core});", "", "apply");
+  const guard = cleanupCanonical.indexOf("      - name: Recheck explicit cleanup authorization and current main\n");
+  const decrypt = cleanupCanonical.indexOf("      - name: Decrypt only after authorization\n");
+  const mutation = cleanupCanonical.indexOf("      - name: Apply exact destroy plan and verify owned resource absence\n");
+  assert.ok(guard >= 0 && decrypt > guard && mutation > decrypt);
+  const input = fresh();
+  input.workflows["avm-cleanup.yml"] = cleanupCanonical.slice(0, guard) + cleanupCanonical.slice(decrypt, mutation) + cleanupCanonical.slice(guard, decrypt) + cleanupCanonical.slice(mutation);
+  assert.throws(() => validateWorkflowSources(input), /differs from the trusted reference/);
+});
+
+test("cleanup reference equality cannot learn broad triggers, wrong authorization or changed control bytes", () => {
+  for (const [from, to] of [["on:\n", "on:\n  push:\n"], ["required: true", "required: false"], ["1379147533", "1379149907"], ["cancel-in-progress: false", "cancel-in-progress: true"], ["phase:'plan'", "phase:'preflight'"]]) {
+    const input = changed(from, to, undefined, "avm-cleanup.yml");
+    input.cleanupReference = input.workflows["avm-cleanup.yml"];
+    assert.throws(() => validateWorkflowSources(input), /Cleanup reference drift/);
+  }
+  const input = fresh(); input.cleanupReference += "# unreviewed cleanup reference\n";
+  assert.throws(() => validateWorkflowSources(input), /Cleanup reference drift/);
+});
+
+test("stale delivery or cleanup pins fail on exact matching workflow/reference fixtures without repair", async (t) => {
+  const root = await fixture(t);
+  await mkdir(join(root, "scripts"));
+  const copied = join(root, "scripts/check-avm-workflow.mjs");
+  const source = await readFile(script, "utf8");
+  for (const [name, pin, stale, error] of [["REFERENCE_SHA256", REFERENCE_SHA256, "a4c51088b733919d0d18eebe8af3e980b5973a10144506e7e1184310faf2bbda", /Reference drift/], ["CLEANUP_REFERENCE_SHA256", CLEANUP_REFERENCE_SHA256, "0".repeat(64), /Cleanup reference drift/]]) {
+    const from = `export const ${name} = "${pin}";`;
+    assert.ok(source.includes(from));
+    await writeFile(copied, source.replace(from, `export const ${name} = "${stale}";`));
+    const before = await fixtureTree(root);
+    const result = cli(copied, root);
+    assert.equal(result.status, 1); assert.equal(result.stdout, ""); assert.match(result.stderr, error);
+    assert.deepEqual(await fixtureTree(root), before);
+  }
+});
+
 test("duplicate writers and even harmless unknown files fail regardless of extension or spelling", () => {
   for (const name of ["second-delivery.yml", "deploy.yaml", "WRITER.YML", "duplicate.YaMl", "extra-check.yml", "notes.txt", "nested/writer.yml", "../escape.yml"]) {
     const input = fresh(); input.workflows[name] = canonical;
@@ -265,7 +410,7 @@ test("duplicate writers and even harmless unknown files fail regardless of exten
   }
 });
 
-test("all five installed entries are required with their exact canonical filenames", () => {
+test("all six installed entries are required with their exact canonical filenames", () => {
   for (const name of names) {
     const input = fresh(); delete input.workflows[name];
     assert.throws(() => validateWorkflowSources(input), /inventory differs/);
@@ -329,7 +474,7 @@ test("failure diagnostics do not echo untrusted workflow text, secret-like conte
 
 test("native inventory rejects duplicate .yaml/.YML files, extra directories and missing entries", async (t) => {
   const root = await fixture(t);
-  assert.deepEqual(await checkWorkflow(root), { deliverySha256: REFERENCE_SHA256, deliveryWorkflows: 1, companionWorkflows: 4 });
+  assert.deepEqual(await checkWorkflow(root), expectedResult);
   for (const name of ["extra.yaml", "EXTRA.YML", "harmless.txt"]) {
     const path = join(root, ".github/workflows", name);
     await writeFile(path, canonical);
@@ -345,8 +490,11 @@ test("native inventory rejects duplicate .yaml/.YML files, extra directories and
     await assert.rejects(checkWorkflow(root), /inventory differs/);
     await writeFile(join(root, ".github/workflows", name), sources.workflows[name]);
   }
-  await rm(join(root, "solutions/avm-delivery.yml"));
-  await assert.rejects(checkWorkflow(root), /inputs are missing or unreadable/);
+  for (const [name, text] of [["avm-delivery.yml", sources.reference], ["avm-cleanup.yml", sources.cleanupReference]]) {
+    await rm(join(root, "solutions", name));
+    await assert.rejects(checkWorkflow(root), /inputs are missing or unreadable/);
+    await writeFile(join(root, "solutions", name), text);
+  }
 });
 
 test("expected workflow/reference file paths cannot be replaced by directories", async (t) => {
@@ -435,7 +583,7 @@ test("the CLI finds its own repository, stays read-only and rejects all update/s
   const scriptBefore = await readFile(script);
   const passed = cli(script, cwd);
   assert.equal(passed.status, 0, passed.stderr);
-  assert.match(passed.stdout, /1 canonical delivery workflow; 4 reviewed companions/);
+  assert.match(passed.stdout, /1 canonical delivery workflow; 1 separately authorized cleanup workflow; 4 reviewed companions/);
   assert.match(passed.stdout, /No Azure operations, approvals or live completion claimed/);
   assert.match(passed.stdout, /actionlint separately/);
   for (const flag of ["--update", "--skip", "--fix", "--write", "--root", "--reference", "--help"]) {
@@ -455,7 +603,7 @@ test("invoking the CLI through a file symlink cannot silently skip validation or
   await symlink(script, alias, "file");
   const passed = cli(alias, root);
   assert.equal(passed.status, 0, passed.stderr);
-  assert.match(passed.stdout, /1 canonical delivery workflow; 4 reviewed companions/);
+  assert.match(passed.stdout, /1 canonical delivery workflow; 1 separately authorized cleanup workflow; 4 reviewed companions/);
   const blocked = cli(alias, root, ["--skip"]);
   assert.equal(blocked.status, 1);
   assert.equal(blocked.stdout, "");

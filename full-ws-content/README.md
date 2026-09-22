@@ -2,6 +2,10 @@
 
 > Review copy; follow your private copy’s live Exercise issue to do the lab.
 
+**Required activity: [Create GitHub Actions, then deploy Azure](../docs/workflow-authoring.md).**
+Author/check Actions offline first. The Azure lifecycle is only for the approved
+ready private copy; the historical four-step results below do not complete it.
+
 [Full first-time setup](00-start-here.md) · [Enter your Azure values and sign in](azure-setup.md) · [Original simulation summary and verification limits](simulation.md) · [Repository landing page](../README.md)
 
 Four complete [course lessons](../.github/agentalvine/course.json), with only relative links outside code fences rebased. The table records **2026-09-08 private simulations**, not your progress or a deployment.
@@ -17,20 +21,35 @@ Both cycles reached **4/4 core offline completion**. Whole-lab counts are not pe
 
 **Terraform AVM hands-on:** [separate AVM profile](../avm/README.md), AzureRM **4.81.0**. The custom core stays on **5.4.0**; its mocks and historical **4/4** do **not** complete/validate AVM. Keep configuration/state separate.
 
-## Required live continuation — approved cohorts, not historical proof
+## Required activity — Create GitHub Actions, then deploy Azure
 
-After the same four offline lessons, instructor-approved cohorts must [author the single AVM delivery workflow](../docs/workflow-authoring.md) and complete its live lifecycle. The [instructor configuration prerequisite](../docs/delivery-configuration.md) is separate admin work, not something the copy/Exercise or a mock run has already done. These guides add **no fifth core step** and do not change the recorded September 8 outcomes above.
+After the same four offline lessons, this is the **required live continuation for
+instructor-approved cohorts**, not historical proof or a fifth core step. The
+recorded September 8 outcomes above remain unchanged.
 
-Build the workflow section by section in an **untitled buffer** from its complete **non-runnable reference**; replace the one canonical workflow as a whole file **while disabled**. Do not install partial drafts or a second writer. Approved live delivery requires a private non-template copy, protected current `main`, eligible Enterprise hosting, real independent human environment reviewers with no self-review/admin bypass, distinct OIDC identities, private backend connectivity and the exact-workflow-restricted ephemeral trusted runner. Public `dev` stays inert; no Azure/identity/subscription/state operations during authoring.
+1. **Phase A — Actions authoring (offline):** open [the complete workflow-authoring activity](../docs/workflow-authoring.md). Read the non-runnable solution, use **File → New Text File → untitled YAML**, then build header/preflight/validation/plan/apply/followup/drift in order. Atomically replace one canonical file while `WORKSHOP_AZURE_ENABLED=false`; no partial drafts or duplicate writer. Run the workflow, Node, kit and mocked Terraform checks. All copies can author offline; no Azure work or live completion is awarded.
+2. **Owner readiness:** read [delivery configuration](../docs/delivery-configuration.md). Only the exact approved private non-template profile can deploy, with authorized scope/budget/lifetime/bootstrap, protected main and strict checks, main-only environments with no Required reviewers/admin bypass, separate OIDC and locked state, encrypted plans and the restricted runner. If main is absent, stop at the offline handoff. Only the owner establishes protected main **while disabled, after baseline/readiness review**; no PR to nonexistent main or unready creation.
+3. **Phase B — Azure lifecycle:** only when ready, the author merges a real checks-passing PR. Observe validation → encrypted saved plan → automatic same-run exact-plan apply, with **no manual deployment reviewer**, approvals API or second deploy button. Complete **create → actual Azure configuration verification → benign HCL tag update via another PR/main push with the same IDs → fresh followup with exit 0 → separately authorized full cleanup and verified absence**. Do not invent an empty commit or fake change to trigger deployment.
 
-The required real sequence is **main-push create → actual Azure configuration verification → benign HCL tag change/main-push update with the same IDs → fresh followup with exit 0 → explicitly reviewed full destroy and verified absence**. Main push starts **preflight → validation → plan → apply** with actual environment approvals in that run; no second deploy dispatch. Manual operations are only **followup** and **destroy**, and scheduled drift is report-only. The workflow's AVM root/state/resources stay separate from both the original root and Lab 07; no import/adoption.
+Delivery's manual menu is **followup only**. Cleanup requires the current
+authenticated repository admin's separate owned-scope authorization and
+[avm-cleanup.yml](../.github/workflows/avm-cleanup.yml), with required string
+`authorization` = `destroy:1379147533:<current full main SHA>:<WS2_STATE_LOCK_ID>`;
+no operation input or independent cleanup reviewer. Ordinary main never cleans up.
+Scheduled drift is report-only. AVM root/state/resources remain separate from the
+original root and Lab 07; no import/adoption. Retain shared RG/backend/identities/runner.
 
-Until real preflight is ready, report **core complete; live continuation pending**. No simulated approval, local live backend initialization or offline **4/4** can replace that prerequisite. Optional runtime API extensions remain blocked until their own real preflight, and costs are not assumed zero. No live execution is claimed by this review pack.
+Until real preflight is ready, report **core complete; live continuation pending**.
+Public templates and unapproved copies cannot deploy; never repin IDs/pins or
+toggle flags to bypass that guard. Source maintenance stays on **dev**, not live
+main. AgentAlvine only observes/guides, never authorizes Azure. No local live backend
+initialization or offline **4/4** proves readiness. Optional runtime APIs require
+separate preflight/cost review; costs are not assumed zero. No live execution is claimed.
 
 ## The Exercise issue is the learner guide
 
 1. Copy once from the [landing page](../README.md), then clone/open using [setup](00-start-here.md). Use **your copy's README Exercise link**, not the source Preview.
-2. Follow the current issue body and [Git guide](../docs/git-workflow.md). Publish the learner design/resources/outputs; incomplete intermediate CI can fail legitimately. Lab 02's **four-step offline core** requires no additional PR/review/merge; its approved live continuation has the protected-main and independent human gates described above.
+2. Follow the current issue body and [Git guide](../docs/git-workflow.md). Publish the learner design/resources/outputs; incomplete intermediate CI can fail legitimately. Lab 02's **four-step offline core** requires no additional PR/review/merge; its approved live continuation has the protected-main, scoped authorization and exact-plan controls described above.
 3. Inspect **Lab checks → current commit → Test learner module**: all four root mock cases must execute successfully, including rejections. AgentAlvine uses GitHub Actions to update the **same Exercise body** automatically.
 
 Core/PR checks need no Azure credentials, OIDC or state. Manual boxes, success comments and screenshots award nothing; progress never authorizes Azure. The [catalogue](https://github.com/alvinea28/ws2-workshop-catalogue) is navigation only.

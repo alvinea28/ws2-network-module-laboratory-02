@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Explicit no-change confirmation or independently approved full cleanup
+        description: Explicit no-change confirmation only; cleanup has its own authorized workflow
         type: choice
-        options: [followup, destroy]
+        options: [followup]
         default: followup
   schedule:
     - cron: '37 2 * * 2'
@@ -35,13 +35,14 @@ env:
   WORKLOAD_INPUTS_JSON: ${{ vars.WORKLOAD_INPUTS_JSON }}
 jobs:
   preflight:
-    name: Verify AVM instructor gates
+    name: Verify scoped AVM deployment policy
     if: vars.WORKSHOP_AZURE_ENABLED == 'true' && !github.event.repository.is_template && github.event.repository.private && github.ref == 'refs/heads/main' && github.ref_protected
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       contents: read
       actions: read
+      pull-requests: read
     outputs:
       operation: ${{ steps.policy.outputs.operation }}
     steps:
@@ -51,23 +52,13 @@ jobs:
           persist-credentials: false
       - id: policy
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
-        env:
-          REQUESTED_OPERATION: ${{ inputs.operation }}
         with:
           script: |
+            const {operation} = await require('./scripts/avm-approval.cjs')({github,context,core,phase:'preflight'});
             const {pathToFileURL} = require('node:url');
             const {resolve} = require('node:path');
             const policy = await import(pathToFileURL(resolve('scripts/avm-policy.mjs')).href);
-            const operation = policy.operationFor(context.eventName, process.env.REQUESTED_OPERATION);
             policy.configuration({...process.env, OPERATION: operation});
-            const branch = (await github.rest.repos.getBranch({...context.repo, branch:'main'})).data;
-            if (!branch.protected || branch.commit.sha !== context.sha) throw new Error('Only current protected main is eligible');
-            for (const name of ['avm-plan', 'avm-apply']) {
-              const environment = (await github.rest.repos.getEnvironment({...context.repo, environment_name:name})).data;
-              const branches = await github.paginate(github.rest.repos.listDeploymentBranchPolicies, {...context.repo, environment_name:name, per_page:100});
-              policy.assertEnvironmentProtection(environment, branches);
-            }
-            core.setOutput('operation', operation);
   validation:
     name: Validate reviewed AVM revision
     needs: preflight
@@ -91,6 +82,7 @@ jobs:
       - run: npm run kit:check
       - run: npm run workflow:check
       - run: npm run companion:check
+      - run: node scripts/check-learner.mjs
   plan:
     name: Trusted AVM plan
     needs: [preflight, validation]
@@ -99,6 +91,8 @@ jobs:
     timeout-minutes: 35
     permissions:
       contents: read
+      actions: read
+      pull-requests: read
       id-token: write
     env:
       ARM_CLIENT_ID: ${{ vars.AZURE_PLAN_CLIENT_ID }}
@@ -113,6 +107,11 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
+      - name: Verify current main and same-run validation
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        with:
+          script: |
+            await require('./scripts/avm-approval.cjs')({github,context,core,phase:'plan'});
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: 24.16.0
@@ -137,9 +136,9 @@ jobs:
       - if: always()
         run: node scripts/avm-delivery.mjs clean
   apply:
-    name: Apply independently reviewed AVM operation
+    name: Apply exact AVM saved plan
     needs: [preflight, plan]
-    if: (needs.preflight.outputs.operation == 'deploy' || needs.preflight.outputs.operation == 'destroy') && needs.plan.result == 'success'
+    if: needs.preflight.outputs.operation == 'deploy' && needs.plan.result == 'success'
     runs-on: [self-hosted, linux, x64, ws2-trusted]
     environment: avm-apply
     timeout-minutes: 40
@@ -167,28 +166,23 @@ jobs:
         with:
           name: ${{ needs.plan.outputs.artifact }}
           path: .workshop/sealed
-      - name: Verify independent human approval and current main
+      - name: Verify scoped authorization and current main
         id: approval
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         with:
           script: |
             await require('./scripts/avm-approval.cjs')({github,context,core});
-      - name: Decrypt only after approval
+      - name: Decrypt only after authorization
         env:
           PLAN_DECRYPTION_PRIVATE_KEY: ${{ secrets.PLAN_DECRYPTION_PRIVATE_KEY }}
         run: node scripts/plan-envelope.mjs open
-      - name: Apply exact plan and verify real Azure configuration or absence
+      - name: Apply exact plan and verify real Azure configuration
         env:
           EXPECTED_PLAN_HASH: ${{ needs.plan.outputs.plan_sha256 }}
           EXPECTED_MANIFEST_HASH: ${{ needs.plan.outputs.manifest_sha256 }}
           CURRENT_MAIN_SHA: ${{ steps.approval.outputs.main_sha }}
           GH_READ_TOKEN: ${{ github.token }}
-        run: |
-          if [ "$OPERATION" = destroy ]; then
-            node scripts/avm-delivery.mjs destroy
-          else
-            node scripts/avm-delivery.mjs apply
-          fi
+        run: node scripts/avm-delivery.mjs apply
       - if: always()
         run: node scripts/avm-delivery.mjs clean
   followup:

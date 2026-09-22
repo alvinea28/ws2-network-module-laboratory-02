@@ -97,9 +97,9 @@ test("workflow gate requires current SHA, real workflow path and successful name
 });
 test("live jobs cannot be replaced by skipped, old, fork, PR or rerun records", async () => {
   const f = fake(); await f.call(); const api = { github: f.github, repo: f.context.repo, full: "test/copy", state: f.state() };
-  const check = { kind: "trusted-run", file: "delivery.yml", jobs: ["Apply reviewed dev plan"] };
+  const check = { kind: "trusted-run", file: "delivery.yml", jobs: ["Apply exact dev saved plan"] };
   const base = { id: 8, head_sha: A, path: ".github/workflows/delivery.yml", head_branch: "main", head_repository: { full_name: "test/copy" }, status: "completed", conclusion: "success", event: "workflow_dispatch", run_attempt: 1, created_at: "2026-09-07T12:01:00Z" };
-  f.m.jobs = [{ name: "Apply reviewed dev plan", conclusion: "success" }]; f.m.runs = [base]; assert.equal(await run.evaluate(check, api), null);
+  f.m.jobs = [{ name: "Apply exact dev saved plan", conclusion: "success" }]; f.m.runs = [base]; assert.equal(await run.evaluate(check, api), null);
   for (const patch of [{ conclusion: "skipped" }, { event: "pull_request" }, { run_attempt: 2 }, { created_at: "2026-09-06T12:00:00Z" }, { head_branch: "dev" }, { head_repository: { full_name: "bad/fork" } }]) { f.m.runs = [{ ...base, ...patch }]; assert.ok(await run.evaluate(check, api)); }
 });
 test("state corruption is rejected, not treated as completion", async () => {
@@ -221,4 +221,77 @@ test("fenced Markdown with nested shorter fences and tilde fences remains verbat
   const result = run.outsideCodeFences(text, (part) => part.toUpperCase());
   assert.ok(result.includes("BEFORE\n")); assert.ok(result.includes("AFTER\n")); assert.ok(result.endsWith("END\n"));
   assert.ok(result.includes("[API](docs/module-api.md)")); assert.ok(result.includes("[Keep](local.md)"));
+});
+
+// Synthetic metadata unit tests only: call the read-only evaluator/renderer,
+// never run the issue/progress writer, dispatch Actions or contact Azure/GitHub.
+for (const [file, finalJob] of [["delivery.yml", "Apply exact dev saved plan"], ["cleanup.yml", "Apply exact authorized dev destroy plan"]]) {
+  test(`${file} observation requires fresh current-SHA successful jobs in one exact run`, async () => {
+    const state = { startedAt: "2026-09-21T12:00:00Z", sha: B, completed: [{ id: "1", sha: A, at: "2026-09-21T12:02:00Z" }] };
+    const original = structuredClone(state);
+    const check = { kind: "trusted-run", file, jobs: ["Trusted dev plan", finalJob] };
+    const base = { id: 8, path: `.github/workflows/${file}`, head_sha: B, head_branch: "main", head_repository: { full_name: "test/copy" }, status: "completed", conclusion: "success", event: file === "cleanup.yml" ? "workflow_dispatch" : "push", run_attempt: 1, created_at: "2026-09-21T12:03:00Z" };
+    let runs = [base];
+    const jobs = new Map([[8, check.jobs.map((name) => ({ name, conclusion: "success" }))]]);
+    const listWorkflowRuns = () => { throw new Error("Use the metadata stub only"); };
+    const listJobsForWorkflowRun = () => { throw new Error("Use the metadata stub only"); };
+    const github = { rest: { actions: { listWorkflowRuns, listJobsForWorkflowRun } }, paginate: async (endpoint, args) => {
+      assert.equal(args.owner, "test"); assert.equal(args.repo, "copy");
+      if (endpoint === listWorkflowRuns) {
+        assert.equal(args.workflow_id, file); assert.equal(args.branch, "main");
+        return structuredClone(runs);
+      }
+      assert.equal(endpoint, listJobsForWorkflowRun);
+      assert.ok(runs.some((candidate) => candidate.id === args.run_id));
+      assert.equal(args.filter, "latest");
+      return structuredClone(jobs.get(args.run_id) ?? []);
+    } };
+    const api = { github, repo: { owner: "test", repo: "copy" }, full: "test/copy", state };
+    assert.equal(await run.evaluate(check, api), null);
+    for (const patch of [
+      { head_sha: A }, { head_sha: C }, { created_at: "2026-09-21T11:59:00Z" },
+      { created_at: "2026-09-21T12:01:00Z" }, { run_attempt: 2 },
+      { status: "in_progress" }, { conclusion: "skipped" }, { conclusion: "failure" },
+      { head_branch: "dev" }, { event: "pull_request" }, { event: "pull_request_target" },
+      { head_repository: { full_name: "outsider/fork" } },
+      { path: `.github/workflows/${file === "cleanup.yml" ? "delivery.yml" : "cleanup.yml"}` },
+    ]) {
+      runs = [{ ...base, ...patch }];
+      assert.ok(await run.evaluate(check, api), `Reject ${JSON.stringify(patch)}`);
+    }
+    runs = [base];
+    for (const conclusion of ["skipped", "failure", null]) {
+      jobs.set(8, [{ name: "Trusted dev plan", conclusion: "success" }, { name: finalJob, conclusion }]);
+      assert.ok(await run.evaluate(check, api));
+    }
+    runs = [base, { ...base, id: 9 }];
+    jobs.set(8, [{ name: "Trusted dev plan", conclusion: "success" }]);
+    jobs.set(9, [{ name: finalJob, conclusion: "success" }]);
+    assert.ok(await run.evaluate(check, api), "Do not combine a plan and apply from different runs");
+    assert.deepEqual(state, original, "Observation does not modify prior completion or award progress");
+  });
+}
+
+test("missing trusted workflow reports blocked readiness, never a create-main or enablement instruction", async () => {
+  const github = { rest: { actions: { listWorkflowRuns: () => {} } }, paginate: async () => { throw Object.assign(new Error("Synthetic unavailable workflow"), { status: 404 }); } };
+  const result = await run.evaluate({ kind: "trusted-run", file: "cleanup.yml", jobs: ["Apply exact authorized dev destroy plan"] }, {
+    github, repo: { owner: "test", repo: "copy" }, full: "test/copy", state: { sha: B, startedAt: "2026-09-21T12:00:00Z", completed: [] },
+  });
+  assert.match(result, /Keep live work blocked/);
+  assert.match(result, /do not create main or enable Azure/);
+  assert.doesNotMatch(result, /Create and run/);
+});
+
+test("observer footer keeps owner authorizations separate and preserves the prior first-step record", () => {
+  const local = require("./course.json");
+  const state = { version: 2, lab: local.id, startedAt: "2026-09-21T12:00:00Z", startSha: A, sha: B, branch: "main", step: 1, completed: [{ id: local.steps[0].id, sha: A, at: "2026-09-21T12:02:00Z" }], events: ["unit-only"], preview: false };
+  const original = structuredClone(state);
+  const body = run.render(local, state, "Synthetic rendering check, not live evidence.", "test/copy", "dev", () => "Read the current lesson.");
+  assert.match(body, /teaching checklist, not Azure authorization/);
+  assert.match(body, /Scope, budget, bootstrap and cleanup authorizations remain separate owner decisions/);
+  assert.match(body, /no manual deployment reviewer/);
+  assert.match(body, /no cloud tokens or execution authority/);
+  assert.doesNotMatch(body, /Independent review and cloud approvals remain separate/);
+  assert.deepEqual(run.readState(body, local), original);
+  assert.deepEqual(state, original);
 });

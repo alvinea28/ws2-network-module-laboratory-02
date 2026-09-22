@@ -108,10 +108,10 @@ The [learner helper](toolchain.md#run-only-the-approved-offline-checks) may down
 | Latest head | Current **Lab checks** and PR checks, not an old green run; temporary merge SHA may differ |
 | Requested draft | Keep the task's draft/ready state, not whichever badge looks greener |
 | Labs 01/05 educational PR | Inspect your own diff/checks and merge with your own account where rules allow; no external course review requirement, **no GitHub self-approval** |
-| Required repository approval | Obtain an eligible nonauthor's current review; never impersonate, use AI approval or bypass policy |
-| Lab 07 live readiness | Keep [protected main and independent delivery approvals](https://github.com/alvinea28/ws2-azure-delivery-laboratory-07/blob/dev/docs/delivery-configuration.md); stay offline if missing |
+| Effective rules differ from this scoped zero-approval policy | Ask the owner to reconcile the conflict; do not impersonate, invent AI authorization or bypass checks |
+| Lab 02 live readiness | Keep [protected main, scoped authorization and exact-plan controls](delivery-configuration.md); no manual reviewer, but stay offline if scope/bootstrap/configuration is missing |
 
-Real merge/current CI and any required release must exist before progress is credited. Never manufacture a release, approval or cloud run. Live Lab 07 is not a solo route; green offline checks do not authorize it.
+Real merge/current CI and any required release must exist before progress is credited. Never manufacture a release, authorization or cloud run. The exact approved private route supports author merge and automatic exact-plan apply; green offline checks do not authorize Azure. Dedicated cleanup needs a separate current-admin decision/dispatch, not ordinary main or a second reviewer. For the required activity, [author Actions offline first](workflow-authoring.md); do not create main, repin IDs/pins or toggle flags to work around a blocked copy.
 
 ## Ask for help with safe evidence
 
